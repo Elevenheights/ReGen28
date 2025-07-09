@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <!-- Basic Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Wellness Tracker</title>
+
+    <!-- External Resources -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;500;600;700;800;900&display=swap">
+
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="shared-styles.css">
+
+    <!-- Font Awesome Configuration -->
+    <script>
+        window.FontAwesomeConfig = {
+            autoReplaceSvg: 'nest',
+        };
+    </script>
+
+    <!-- Shared Tailwind Configuration -->
+    <script src="shared-config.js"></script>
+</head>
+
+<body class="h-full text-base-content">
+<div id="add-tracker-container" class="min-h-screen bg-neutral-50">
+	<!-- Header -->
+	<header id="header" class="bg-white border-b border-neutral-200 px-4 py-3">
+	  <div class="flex items-center justify-between">
+		<button class="p-2">
+		  <i class="fa-solid fa-arrow-left text-neutral-600"></i>
+		</button>
+		<h1 class="text-lg text-neutral-900">Add New Tracker</h1>
+		<button class="p-2">
+		  <i class="fa-solid fa-question-circle text-neutral-600"></i>
+		</button>
+	  </div>
+	</header>
+  
+	<!-- Main Content -->
+	<main id="main-content" class="px-4 py-6 pb-24">
+            <!-- Wellness Type Selection -->
+            <section id="wellness-type" class="mb-6">
+                <h2 class="text-base text-neutral-900 mb-3">Wellness Area</h2>
+		<div class="space-y-3">
+		  <button class="w-full bg-white rounded-xl p-4 border border-neutral-100 flex items-center justify-between">
+			<div class="flex items-center space-x-3">
+			  <div class="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-brain text-neutral-600"></i>
+			  </div>
+			  <div class="text-left">
+                                <p class="text-sm text-neutral-900">Mental Health</p>
+                                <p class="text-xs text-neutral-500">Mood, anxiety, depression, stress</p>
+			  </div>
+			</div>
+			<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+		  </button>
+		  
+		  <button class="w-full bg-white rounded-xl p-4 border border-neutral-100 flex items-center justify-between">
+			<div class="flex items-center space-x-3">
+			  <div class="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-heart text-neutral-600"></i>
+			  </div>
+			  <div class="text-left">
+                                <p class="text-sm text-neutral-900">Emotional Wellness</p>
+                                <p class="text-xs text-neutral-500">Gratitude, joy, relationships</p>
+			  </div>
+			</div>
+			<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+		  </button>
+  
+		  <button class="w-full bg-white rounded-xl p-4 border border-neutral-100 flex items-center justify-between">
+			<div class="flex items-center space-x-3">
+			  <div class="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-leaf text-neutral-600"></i>
+			  </div>
+			  <div class="text-left">
+                                <p class="text-sm text-neutral-900">Mindfulness & Spirituality</p>
+                                <p class="text-xs text-neutral-500">Meditation, prayer, breathwork</p>
+			  </div>
+			</div>
+			<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+		  </button>
+  
+		  <button class="w-full bg-white rounded-xl p-4 border border-neutral-100 flex items-center justify-between">
+			<div class="flex items-center space-x-3">
+			  <div class="w-10 h-10 bg-neutral-200 rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-dumbbell text-neutral-600"></i>
+			  </div>
+			  <div class="text-left">
+                                <p class="text-sm text-neutral-900">Physical Wellness</p>
+                                <p class="text-xs text-neutral-500">Exercise, sleep, nutrition</p>
+			  </div>
+			</div>
+			<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+		  </button>
+		</div>
+	  </section>
+  
+	  <!-- Quick Add Options -->
+	  <section id="quick-add" class="mb-6">
+		<h2 class="text-base text-neutral-900 mb-3">Quick Add</h2>
+		<div class="bg-white rounded-2xl p-4 border border-neutral-100">
+		  <div class="grid grid-cols-2 gap-3">
+			<button class="bg-neutral-50 rounded-xl p-3 text-center border border-neutral-100">
+			  <i class="fa-solid fa-clock text-neutral-600 text-lg mb-2"></i>
+                            <p class="text-xs text-neutral-700">Recent Practice</p>
+			</button>
+			<button class="bg-neutral-50 rounded-xl p-3 text-center border border-neutral-100">
+			  <i class="fa-solid fa-bookmark text-neutral-600 text-lg mb-2"></i>
+			  <p class="text-xs text-neutral-700">Saved Template</p>
+			</button>
+		  </div>
+		</div>
+	  </section>
+  
+            <!-- Recent Practices -->
+            <section id="recent-practices" class="mb-6">
+		<div class="flex items-center justify-between mb-3">
+                    <h2 class="text-base text-neutral-900">Recent Practices</h2>
+		  <button class="text-xs text-neutral-500">View all</button>
+		</div>
+		<div class="space-y-3">
+		  <button class="w-full bg-white rounded-xl p-4 border border-neutral-100 text-left">
+			<div class="flex items-center justify-between">
+			  <div class="flex items-center space-x-3">
+				<div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center">
+                                    <i class="fa-solid fa-leaf text-neutral-600 text-xs"></i>
+				</div>
+				<div>
+                                    <p class="text-sm text-neutral-900">Morning Meditation</p>
+				  <p class="text-xs text-neutral-500">2 days ago</p>
+				</div>
+			  </div>
+			  <i class="fa-solid fa-plus text-neutral-400"></i>
+			</div>
+		  </button>
+  
+		  <button class="w-full bg-white rounded-xl p-4 border border-neutral-100 text-left">
+			<div class="flex items-center justify-between">
+			  <div class="flex items-center space-x-3">
+				<div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center">
+                                    <i class="fa-solid fa-heart text-neutral-600 text-xs"></i>
+				</div>
+				<div>
+                                    <p class="text-sm text-neutral-900">Gratitude Practice</p>
+				  <p class="text-xs text-neutral-500">1 week ago</p>
+				</div>
+			  </div>
+			  <i class="fa-solid fa-plus text-neutral-400"></i>
+			</div>
+		  </button>
+		</div>
+	  </section>
+  
+	  <!-- Custom Tracker -->
+	  <section id="custom-tracker">
+		<h2 class="text-base text-neutral-900 mb-3">Create Custom Tracker</h2>
+		<button class="w-full bg-neutral-900 rounded-xl p-4 text-center">
+		  <div class="flex items-center justify-center space-x-2">
+			<i class="fa-solid fa-wand-magic-sparkles text-white"></i>
+			<span class="text-sm text-white">Build Custom Tracker</span>
+		  </div>
+		</button>
+	  </section>
+	</main>
+  
+	<!-- Bottom Navigation -->
+	<nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200">
+	  <div class="flex items-center justify-around py-2">
+		<button class="flex flex-col items-center py-2 px-4">
+		  <i class="fa-solid fa-house text-neutral-400 text-lg mb-1"></i>
+		  <span class="text-xs text-neutral-400">Dashboard</span>
+		</button>
+		<button class="flex flex-col items-center py-2 px-4">
+		  <i class="fa-solid fa-chart-line text-neutral-900 text-lg mb-1"></i>
+		  <span class="text-xs text-neutral-900">Tracker</span>
+		</button>
+		<button class="flex flex-col items-center py-2 px-4">
+		  <i class="fa-solid fa-book text-neutral-400 text-lg mb-1"></i>
+		  <span class="text-xs text-neutral-400">Journal</span>
+		</button>
+		<button class="flex flex-col items-center py-2 px-4">
+		  <i class="fa-solid fa-gear text-neutral-400 text-lg mb-1"></i>
+		  <span class="text-xs text-neutral-400">Settings</span>
+		</button>
+	  </div>
+	</nav>
+  </div>
+</body>
+</html>

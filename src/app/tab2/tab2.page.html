@@ -1,17 +1,162 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 2
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<!-- Header -->
+<header class="bg-white border-b border-neutral-200 px-4 py-3">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <img src="https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=42" alt="Profile" class="w-8 h-8 rounded-full">
+      <div>
+        <h1 class="text-lg text-neutral-900">My Journal</h1>
+        <p class="text-xs text-neutral-500">Your sacred space for reflection</p>
+      </div>
+    </div>
+    <button class="p-2">
+      <i class="fa-solid fa-search text-neutral-600"></i>
+    </button>
+  </div>
+</header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 2</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="bg-neutral-50">
+  <!-- Main Content -->
+  <main class="px-4 py-6 pb-24">
+    <!-- Journal Stats -->
+    <section class="mb-6">
+      <div class="bg-white rounded-2xl p-4 border border-neutral-100">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-base text-neutral-900">Your Reflection Journey</h2>
+          <i class="fa-solid fa-heart text-neutral-300"></i>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="text-center">
+            <p class="text-xl text-neutral-900">23</p>
+            <p class="text-xs text-neutral-500">Total entries</p>
+          </div>
+          <div class="text-center">
+            <p class="text-xl text-neutral-900">7</p>
+            <p class="text-xs text-neutral-500">This week</p>
+          </div>
+          <div class="text-center">
+            <p class="text-xl text-neutral-900">15</p>
+            <p class="text-xs text-neutral-500">Day streak</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <app-explore-container name="Tab 2 page"></app-explore-container>
+    <!-- New Entry Button -->
+    <section class="mb-6">
+      <button class="w-full bg-neutral-900 text-white rounded-2xl p-4 flex items-center justify-center space-x-3">
+        <i class="fa-solid fa-plus text-lg"></i>
+        <span class="text-base">Write New Entry</span>
+      </button>
+    </section>
+
+    <!-- Quick Prompts -->
+    <section class="mb-6">
+      <h2 class="text-base text-neutral-900 mb-3">Reflection Prompts</h2>
+      <div class="space-y-2">
+        <button class="w-full bg-white rounded-xl p-3 border border-neutral-100 text-left">
+          <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-heart text-neutral-600"></i>
+            <span class="text-sm text-neutral-700">What am I grateful for today?</span>
+          </div>
+        </button>
+        <button class="w-full bg-white rounded-xl p-3 border border-neutral-100 text-left">
+          <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-leaf text-neutral-600"></i>
+            <span class="text-sm text-neutral-700">How did I nurture my soul today?</span>
+          </div>
+        </button>
+        <button class="w-full bg-white rounded-xl p-3 border border-neutral-100 text-left">
+          <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-brain text-neutral-600"></i>
+            <span class="text-sm text-neutral-700">What emotions came up for me?</span>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <!-- Recent Entries -->
+    <section class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base text-neutral-900">Recent Entries</h2>
+        <button class="text-xs text-neutral-500">View all</button>
+      </div>
+      <div class="space-y-3">
+        <div class="bg-white rounded-xl p-4 border border-neutral-100">
+          <div class="flex items-start justify-between mb-2">
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 bg-neutral-200 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-heart text-neutral-600 text-xs"></i>
+              </div>
+              <span class="text-sm text-neutral-900">Gratitude & Growth</span>
+            </div>
+            <span class="text-xs text-neutral-500">2 hours ago</span>
+          </div>
+          <p class="text-sm text-neutral-600 mb-2">Today I felt deeply connected to my purpose. The morning meditation brought clarity and...</p>
+          <div class="flex items-center space-x-4">
+            <span class="text-xs text-neutral-400">Mood: Peaceful</span>
+            <span class="text-xs text-neutral-400">Energy: 8/10</span>
+          </div>
+        </div>
+        
+        <div class="bg-white rounded-xl p-4 border border-neutral-100">
+          <div class="flex items-start justify-between mb-2">
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 bg-neutral-200 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-leaf text-neutral-600 text-xs"></i>
+              </div>
+              <span class="text-sm text-neutral-900">Mindful Moment</span>
+            </div>
+            <span class="text-xs text-neutral-500">Yesterday</span>
+          </div>
+          <p class="text-sm text-neutral-600 mb-2">Spent time in nature today. The trees reminded me to stay grounded and present...</p>
+          <div class="flex items-center space-x-4">
+            <span class="text-xs text-neutral-400">Location: Park</span>
+            <span class="text-xs text-neutral-400">Duration: 30 min</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-4 border border-neutral-100">
+          <div class="flex items-start justify-between mb-2">
+            <div class="flex items-center space-x-2">
+              <div class="w-6 h-6 bg-neutral-200 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-brain text-neutral-600 text-xs"></i>
+              </div>
+              <span class="text-sm text-neutral-900">Emotional Check-in</span>
+            </div>
+            <span class="text-xs text-neutral-500">2 days ago</span>
+          </div>
+          <p class="text-sm text-neutral-600 mb-2">Processing some anxiety today. Used breathing techniques and it helped me find calm...</p>
+          <div class="flex items-center space-x-4">
+            <span class="text-xs text-neutral-400">Technique: Breathwork</span>
+            <span class="text-xs text-neutral-400">Result: Calmer</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Mood Tracker -->
+    <section>
+      <h2 class="text-base text-neutral-900 mb-3">This Week's Energy</h2>
+      <div class="bg-white rounded-2xl p-4 border border-neutral-100">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs text-neutral-500">Mon</span>
+          <span class="text-xs text-neutral-500">Tue</span>
+          <span class="text-xs text-neutral-500">Wed</span>
+          <span class="text-xs text-neutral-500">Thu</span>
+          <span class="text-xs text-neutral-500">Fri</span>
+          <span class="text-xs text-neutral-500">Sat</span>
+          <span class="text-xs text-neutral-500">Sun</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <i class="fa-solid fa-face-smile text-neutral-800 text-lg"></i>
+          <i class="fa-solid fa-face-smile text-neutral-800 text-lg"></i>
+          <i class="fa-solid fa-face-meh text-neutral-400 text-lg"></i>
+          <i class="fa-solid fa-face-smile text-neutral-800 text-lg"></i>
+          <i class="fa-solid fa-face-grin text-neutral-800 text-lg"></i>
+          <i class="fa-solid fa-face-smile text-neutral-800 text-lg"></i>
+          <i class="fa-regular fa-face-smile text-neutral-300 text-lg"></i>
+        </div>
+      </div>
+    </section>
+  </main>
 </ion-content>

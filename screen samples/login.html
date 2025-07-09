@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <!-- Basic Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReGen28 - Wellness Login</title>
+
+    <!-- External Resources -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;500;600;700;800;900&display=swap">
+
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="shared-styles.css">
+
+    <!-- Font Awesome Configuration -->
+    <script>
+        window.FontAwesomeConfig = {
+            autoReplaceSvg: 'nest',
+        };
+    </script>
+
+    <!-- Shared Tailwind Configuration -->
+    <script src="shared-config.js"></script>
+</head>
+
+<body class="h-full text-base-content">
+    <div id="main-container" class="bg-white">
+        <!-- Header -->
+        <header id="header" class="px-6 pt-12 pb-8">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-neutral-800 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                    <i class="fa-solid fa-heart text-white text-2xl"></i>
+                </div>
+                <h1 class="text-2xl text-neutral-900 mb-2">ReGen28</h1>
+                <p class="text-sm text-neutral-500">Your wellness journey companion</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="main-content" class="px-6">
+            <!-- Welcome Section -->
+            <section id="welcome-section" class="mb-8">
+                <div class="text-center mb-8">
+                    <h2 class="text-xl text-neutral-900 mb-2">Welcome back</h2>
+                    <p class="text-sm text-neutral-500">Sign in to continue your wellness journey</p>
+                </div>
+            </section>
+
+            <!-- Social Login Options -->
+            <section id="social-login" class="mb-6">
+                <div class="space-y-3">
+                    <button class="w-full bg-white border border-neutral-200 rounded-xl py-4 px-4 flex items-center justify-center space-x-3">
+                        <i class="fa-brands fa-google text-neutral-600 text-lg"></i>
+                        <span class="text-sm text-neutral-900">Continue with Google</span>
+                    </button>
+                    <button class="w-full bg-neutral-900 rounded-xl py-4 px-4 flex items-center justify-center space-x-3">
+                        <i class="fa-brands fa-apple text-white text-lg"></i>
+                        <span class="text-sm text-white">Continue with Apple</span>
+                    </button>
+                    <button class="w-full bg-white border border-neutral-200 rounded-xl py-4 px-4 flex items-center justify-center space-x-3">
+                        <i class="fa-brands fa-facebook text-neutral-600 text-lg"></i>
+                        <span class="text-sm text-neutral-900">Continue with Facebook</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Divider -->
+            <section id="divider" class="mb-6">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-neutral-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-xs">
+                        <span class="bg-white px-4 text-neutral-500">or continue with email</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Email Form -->
+            <section id="email-form" class="mb-6">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-neutral-700 mb-2">Email</label>
+                        <input type="email" placeholder="Enter your email" class="w-full px-4 py-3 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-400">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-neutral-700 mb-2">Password</label>
+                        <div class="relative">
+                            <input type="password" placeholder="Enter your password" class="w-full px-4 py-3 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-neutral-400">
+                            <button class="absolute right-4 top-1/2 transform -translate-y-1/2">
+                                <i class="fa-regular fa-eye text-neutral-400"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Forgot Password -->
+            <section id="forgot-password" class="mb-6">
+                <div class="text-right">
+                    <button class="text-sm text-neutral-600">Forgot password?</button>
+                </div>
+            </section>
+
+            <!-- Sign In Button -->
+            <section id="signin-button" class="mb-6">
+                <button class="w-full bg-neutral-900 text-white rounded-xl py-4 text-sm">
+                    Sign In
+                </button>
+            </section>
+
+            <!-- Sign Up Link -->
+            <section id="signup-link" class="mb-8">
+                <div class="text-center">
+                    <p class="text-sm text-neutral-500">
+                        Don't have an account? 
+                        <button class="text-neutral-900 underline">Sign up</button>
+                    </p>
+                </div>
+            </section>
+
+            <!-- Features Preview -->
+            <section id="features-preview" class="mb-8">
+                <div class="bg-neutral-50 rounded-2xl p-6">
+                    <h3 class="text-base text-neutral-900 mb-4 text-center">What's waiting for you</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-brain text-neutral-600 text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-neutral-900">Mental Health Tracker</p>
+                                <p class="text-xs text-neutral-500">Track mood, anxiety, and emotional wellness</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-book text-neutral-600 text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-neutral-900">Mindfulness Journal</p>
+                                <p class="text-xs text-neutral-500">Daily reflections for spiritual growth</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center">
+                                <i class="fa-solid fa-leaf text-neutral-600 text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-neutral-900">Holistic Wellness Plan</p>
+                                <p class="text-xs text-neutral-500">Mind, body, and soul transformation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer id="footer" class="px-6 pb-8">
+            <div class="text-center">
+                <p class="text-xs text-neutral-400">
+                    By continuing, you agree to our 
+                    <button class="underline">Terms of Service</button> and 
+                    <button class="underline">Privacy Policy</button>
+                </p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

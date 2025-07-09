@@ -1,0 +1,181 @@
+<html class="">
+<head>
+    <!-- Basic Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Journey - Dashboard</title>
+
+    <!-- External Resources -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;500;600;700;800;900&display=swap">
+
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="shared-styles.css">
+
+    <!-- Font Awesome Configuration -->
+    <script>
+        window.FontAwesomeConfig = {
+            autoReplaceSvg: 'nest',
+        };
+    </script>
+
+    <!-- Shared Tailwind Configuration -->
+    <script src="shared-config.js"></script>
+</head>
+
+<body class="h-full text-base-content">
+<div id="main-container" class="min-h-screen bg-neutral-50">
+	<!-- Header -->
+	<header id="header" class="bg-white border-b border-neutral-200 px-4 py-3">
+	  <div class="flex items-center justify-between">
+		<div class="flex items-center space-x-3">
+		  <img src="https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=42" alt="Profile" class="w-8 h-8 rounded-full">
+		  <div>
+			<h1 class="text-lg text-neutral-900">Good morning, Sarah</h1>
+				<p class="text-xs text-neutral-500">Day 127 of your wellness journey</p>
+		  </div>
+		</div>
+		<button class="p-2">
+		  <i class="fa-regular fa-bell text-neutral-600"></i>
+		</button>
+	  </div>
+	</header>
+  
+	<!-- Main Content -->
+	<main id="main-content" class="px-4 py-6 pb-24">
+	  <!-- Progress Overview -->
+	  <section id="progress-overview" class="mb-6">
+		<div class="bg-white rounded-2xl p-4 border border-neutral-100">
+		  <div class="flex items-center justify-between mb-3">
+				<h2 class="text-base text-neutral-900">Your Wellness Progress</h2>
+			<span class="text-xs text-neutral-500">This week</span>
+		  </div>
+		  <div class="relative">
+			<div class="w-full bg-neutral-200 rounded-full h-3 mb-3">
+			  <div class="bg-neutral-800 h-3 rounded-full" style="width: 65%"></div>
+			</div>
+			<div class="flex justify-between text-xs text-neutral-600">
+			  <span>65% Complete</span>
+				  <span>Day 127 of growth</span>
+			</div>
+		  </div>
+		</div>
+	  </section>
+  
+	  <!-- Quick Stats -->
+	  <section id="quick-stats" class="mb-6">
+		<div class="grid grid-cols-2 gap-3">
+		  <div class="bg-white rounded-xl p-4 border border-neutral-100">
+			<div class="flex items-center space-x-2 mb-2">
+				  <i class="fa-solid fa-brain text-neutral-600"></i>
+				  <span class="text-xs text-neutral-500">Mindfulness</span>
+			</div>
+			<p class="text-xl text-neutral-900">8</p>
+				<p class="text-xs text-neutral-500">Sessions this month</p>
+		  </div>
+		  <div class="bg-white rounded-xl p-4 border border-neutral-100">
+			<div class="flex items-center space-x-2 mb-2">
+			  <i class="fa-solid fa-book text-neutral-600"></i>
+			  <span class="text-xs text-neutral-500">Journal</span>
+			</div>
+			<p class="text-xl text-neutral-900">23</p>
+			<p class="text-xs text-neutral-500">Entries</p>
+		  </div>
+		</div>
+	  </section>
+  
+	  <!-- Recent Activity -->
+	  <section id="recent-activity" class="mb-6">
+		<div class="flex items-center justify-between mb-3">
+		  <h2 class="text-base text-neutral-900">Recent Activity</h2>
+		  <button class="text-xs text-neutral-500">View all</button>
+		</div>
+		<div class="space-y-3">
+		  <div class="bg-white rounded-xl p-4 border border-neutral-100">
+			<div class="flex items-start space-x-3">
+			  <div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center">
+					<i class="fa-solid fa-heart text-neutral-600 text-xs"></i>
+			  </div>
+			  <div class="flex-1">
+					<p class="text-sm text-neutral-900">Gratitude Practice</p>
+					<p class="text-xs text-neutral-500">2 hours ago • Next check-in tomorrow</p>
+			  </div>
+			</div>
+		  </div>
+		  <div class="bg-white rounded-xl p-4 border border-neutral-100">
+			<div class="flex items-start space-x-3">
+			  <div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center">
+				<i class="fa-solid fa-pen text-neutral-600 text-xs"></i>
+			  </div>
+			  <div class="flex-1">
+				<p class="text-sm text-neutral-900">Journal Entry</p>
+					<p class="text-xs text-neutral-500">Yesterday • Feeling centered and peaceful</p>
+			  </div>
+			</div>
+		  </div>
+		</div>
+	  </section>
+  
+	  <!-- Today's Goals -->
+	  <section id="todays-goals" class="mb-6">
+			<h2 class="text-base text-neutral-900 mb-3">Today's Intentions</h2>
+		<div class="space-y-2">
+		  <div class="bg-white rounded-xl p-3 border border-neutral-100 flex items-center space-x-3">
+			<input type="checkbox" class="w-4 h-4 rounded border-neutral-300">
+				<span class="text-sm text-neutral-700">10-minute morning meditation</span>
+		  </div>
+		  <div class="bg-white rounded-xl p-3 border border-neutral-100 flex items-center space-x-3">
+			<input type="checkbox" checked class="w-4 h-4 rounded border-neutral-300">
+				<span class="text-sm text-neutral-500 line-through">Practice gratitude</span>
+		  </div>
+		  <div class="bg-white rounded-xl p-3 border border-neutral-100 flex items-center space-x-3">
+			<input type="checkbox" class="w-4 h-4 rounded border-neutral-300">
+				<span class="text-sm text-neutral-700">Connect with a friend</span>
+		  </div>
+		</div>
+	  </section>
+  
+	  <!-- Quick Actions -->
+	  <section id="quick-actions">
+		<h2 class="text-base text-neutral-900 mb-3">Quick Actions</h2>
+		<div class="grid grid-cols-2 gap-3">
+		  <button class="bg-white rounded-xl p-4 border border-neutral-100 text-center">
+			<i class="fa-solid fa-plus text-neutral-600 text-lg mb-2"></i>
+				<p class="text-sm text-neutral-900">Log Mood</p>
+		  </button>
+		  <button class="bg-white rounded-xl p-4 border border-neutral-100 text-center">
+				<i class="fa-solid fa-leaf text-neutral-600 text-lg mb-2"></i>
+				<p class="text-sm text-neutral-900">Breathe</p>
+		  </button>
+		</div>
+	  </section>
+	</main>
+  
+	<!-- Bottom Navigation -->
+	<nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200">
+	  <div class="flex items-center justify-around py-2">
+		<button class="flex flex-col items-center py-2 px-4">
+		  <i class="fa-solid fa-house text-neutral-900 text-lg mb-1"></i>
+		  <span class="text-xs text-neutral-900">Dashboard</span>
+		</button>
+		<button class="flex flex-col items-center py-2 px-4">
+		  <i class="fa-solid fa-chart-line text-neutral-400 text-lg mb-1"></i>
+		  <span class="text-xs text-neutral-400">Tracker</span>
+		</button>
+		<button class="flex flex-col items-center py-2 px-4">
+		  <i class="fa-solid fa-book text-neutral-400 text-lg mb-1"></i>
+		  <span class="text-xs text-neutral-400">Journal</span>
+		</button>
+		<button class="flex flex-col items-center py-2 px-4">
+		  <i class="fa-solid fa-gear text-neutral-400 text-lg mb-1"></i>
+		  <span class="text-xs text-neutral-400">Settings</span>
+		</button>
+	  </div>
+	</nav>
+  </div>
+</body>
+</html>

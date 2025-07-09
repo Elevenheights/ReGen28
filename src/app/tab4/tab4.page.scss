@@ -1,0 +1,39 @@
+.profile-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.profile-section ion-avatar {
+  margin-right: 16px;
+  --size: 60px;
+}
+
+.profile-info h2 {
+  margin: 0 0 4px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.profile-info p {
+  margin: 0;
+  color: var(--ion-color-medium);
+  font-size: 0.9rem;
+}
+
+ion-card {
+  margin: 12px 16px;
+}
+
+ion-item {
+  --padding-start: 0;
+}
+
+ion-button {
+  margin: 8px 0;
+}
+
+ion-toggle {
+  --handle-width: 26px;
+  --handle-height: 26px;
+}

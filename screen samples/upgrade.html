@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <!-- Basic Meta Tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade to Premium</title>
+
+    <!-- External Resources -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;500;600;700;800;900&display=swap">
+
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="shared-styles.css">
+
+    <!-- Font Awesome Configuration -->
+    <script>
+        window.FontAwesomeConfig = {
+            autoReplaceSvg: 'nest',
+        };
+    </script>
+
+    <!-- Shared Tailwind Configuration -->
+    <script src="shared-config.js"></script>
+</head>
+
+<body class="h-full text-base-content">
+    <div id="main-container" class="bg-neutral-50">
+        <!-- Header -->
+        <header id="header" class="bg-white border-b border-neutral-200 px-4 py-3">
+            <div class="flex items-center justify-between">
+                <button class="p-2">
+                    <i class="fa-solid fa-arrow-left text-neutral-600"></i>
+                </button>
+                <div class="text-center">
+                    <h1 class="text-lg text-neutral-900">Upgrade to Premium</h1>
+                    <p class="text-xs text-neutral-500">Unlock your full potential</p>
+                </div>
+                <button class="p-2">
+                    <i class="fa-solid fa-times text-neutral-400"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="main-content" class="px-4 py-6 pb-24">
+            <!-- Hero Section -->
+            <section id="hero-section" class="text-center mb-8">
+                <div class="w-24 h-24 bg-neutral-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i class="fa-solid fa-heart text-neutral-600 text-3xl"></i>
+                </div>
+                <h2 class="text-xl text-neutral-900 mb-2">Transform Your Wellness Journey</h2>
+                <p class="text-sm text-neutral-500 leading-relaxed">Get personalized insights, advanced tracking, and guided support for your mental health and spiritual growth</p>
+            </section>
+
+            <!-- Features Grid -->
+            <section id="features-section" class="mb-8">
+                <div class="grid gap-4">
+                    <div class="bg-white rounded-2xl p-4 border border-neutral-100">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-chart-line text-neutral-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm text-neutral-900 mb-1">Advanced Mood Analytics</h3>
+                                <p class="text-xs text-neutral-500">Track patterns and get personalized insights into your emotional wellbeing</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl p-4 border border-neutral-100">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-leaf text-neutral-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm text-neutral-900 mb-1">Guided Meditation Library</h3>
+                                <p class="text-xs text-neutral-500">Access 100+ guided meditations and mindfulness exercises</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl p-4 border border-neutral-100">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-brain text-neutral-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm text-neutral-900 mb-1">AI Wellness Coach</h3>
+                                <p class="text-xs text-neutral-500">Get personalized daily recommendations based on your mood and goals</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl p-4 border border-neutral-100">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-cloud text-neutral-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm text-neutral-900 mb-1">Secure Cloud Backup</h3>
+                                <p class="text-xs text-neutral-500">Never lose your journal entries with encrypted cloud storage</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl p-4 border border-neutral-100">
+                        <div class="flex items-start space-x-3">
+                            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fa-solid fa-users text-neutral-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-sm text-neutral-900 mb-1">Wellness Community</h3>
+                                <p class="text-xs text-neutral-500">Connect with others on similar healing journeys (optional)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pricing Plans -->
+            <section id="pricing-section" class="mb-8">
+                <h3 class="text-base text-neutral-900 mb-4 text-center">Choose Your Plan</h3>
+                
+                <!-- Monthly Plan -->
+                <div class="bg-white rounded-2xl p-4 border border-neutral-200 mb-3">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h4 class="text-sm text-neutral-900">Monthly</h4>
+                            <p class="text-xs text-neutral-500">Perfect for getting started</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg text-neutral-900">$9.99</p>
+                            <p class="text-xs text-neutral-500">per month</p>
+                        </div>
+                    </div>
+                    <button class="w-full bg-neutral-100 text-neutral-700 py-3 rounded-xl text-sm">
+                        Choose Monthly
+                    </button>
+                </div>
+
+                <!-- Annual Plan (Recommended) -->
+                <div class="bg-white rounded-2xl p-4 border-2 border-neutral-800 mb-3 relative">
+                    <div class="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                        <span class="bg-neutral-800 text-white text-xs px-3 py-1 rounded-full">Most Popular</span>
+                    </div>
+                    <div class="flex items-center justify-between mb-3 pt-2">
+                        <div>
+                            <h4 class="text-sm text-neutral-900">Annual</h4>
+                            <p class="text-xs text-neutral-500">Save 40% with yearly billing</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg text-neutral-900">$59.99</p>
+                            <p class="text-xs text-neutral-500">per year</p>
+                            <p class="text-xs text-neutral-400 line-through">$119.88</p>
+                        </div>
+                    </div>
+                    <button class="w-full bg-neutral-800 text-white py-3 rounded-xl text-sm">
+                        Choose Annual
+                    </button>
+                </div>
+
+                <!-- Lifetime Plan -->
+                <div class="bg-white rounded-2xl p-4 border border-neutral-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h4 class="text-sm text-neutral-900">Lifetime</h4>
+                            <p class="text-xs text-neutral-500">One-time payment, forever access</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg text-neutral-900">$199.99</p>
+                            <p class="text-xs text-neutral-500">one-time</p>
+                        </div>
+                    </div>
+                    <button class="w-full bg-neutral-100 text-neutral-700 py-3 rounded-xl text-sm">
+                        Choose Lifetime
+                    </button>
+                </div>
+            </section>
+
+            <!-- Money Back Guarantee -->
+            <section id="guarantee-section" class="mb-8">
+                <div class="bg-neutral-100 rounded-2xl p-4 text-center">
+                    <div class="w-12 h-12 bg-white rounded-full mx-auto mb-3 flex items-center justify-center">
+                        <i class="fa-solid fa-shield-check text-neutral-600"></i>
+                    </div>
+                    <h4 class="text-sm text-neutral-900 mb-1">30-Day Money Back Guarantee</h4>
+                    <p class="text-xs text-neutral-500">Try risk-free. Cancel anytime within 30 days for a full refund.</p>
+                </div>
+            </section>
+
+            <!-- Current Features -->
+            <section id="current-features" class="mb-6">
+                <div class="text-center">
+                    <p class="text-xs text-neutral-500 mb-4">Continue with free features:</p>
+                    <button class="text-sm text-neutral-600 underline">
+                        Keep using basic tracking
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Bottom Navigation -->
+        <nav id="bottom-nav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200">
+            <div class="flex items-center justify-around py-2">
+                <button class="flex flex-col items-center py-2 px-4">
+                    <i class="fa-solid fa-house text-neutral-400 text-lg mb-1"></i>
+                    <span class="text-xs text-neutral-400">Dashboard</span>
+                </button>
+                <button class="flex flex-col items-center py-2 px-4">
+                    <i class="fa-solid fa-chart-line text-neutral-400 text-lg mb-1"></i>
+                    <span class="text-xs text-neutral-400">Tracker</span>
+                </button>
+                <button class="flex flex-col items-center py-2 px-4">
+                    <i class="fa-solid fa-book text-neutral-400 text-lg mb-1"></i>
+                    <span class="text-xs text-neutral-400">Journal</span>
+                </button>
+                <button class="flex flex-col items-center py-2 px-4">
+                    <i class="fa-solid fa-gear text-neutral-900 text-lg mb-1"></i>
+                    <span class="text-xs text-neutral-900">Settings</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+</body>
+</html>

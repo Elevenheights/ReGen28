@@ -1,17 +1,184 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Tab 3
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<!-- Header -->
+<header class="bg-white border-b border-neutral-200 px-4 py-3">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <img src="https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=42" alt="Profile" class="w-8 h-8 rounded-full">
+      <div>
+        <h1 class="text-lg text-neutral-900">Your Wellness Trackers</h1>
+        <p class="text-xs text-neutral-500">Track your mental health journey</p>
+      </div>
+    </div>
+    <button class="p-2">
+      <i class="fa-solid fa-plus text-neutral-600"></i>
+    </button>
+  </div>
+</header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="bg-neutral-50">
+  <!-- Main Content -->
+  <main class="px-4 py-6 pb-24">
+    <!-- Active Trackers -->
+    <section class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base text-neutral-900">Active Trackers</h2>
+        <button class="text-xs text-neutral-500">Edit</button>
+      </div>
+      <div class="space-y-3">
+        <div class="bg-white rounded-xl p-4 border border-neutral-100">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-brain text-blue-600"></i>
+              </div>
+              <div>
+                <h3 class="text-sm text-neutral-900">Daily Mood</h3>
+                <p class="text-xs text-neutral-500">Mental Health • 15 days streak</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs text-neutral-400">😊</span>
+              <i class="fa-solid fa-chevron-right text-neutral-400"></i>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="flex-1 bg-neutral-200 rounded-full h-2">
+              <div class="bg-blue-500 h-2 rounded-full" style="width: 75%"></div>
+            </div>
+            <span class="text-xs text-neutral-500">75%</span>
+          </div>
+        </div>
 
-  <app-explore-container name="Tab 3 page"></app-explore-container>
+        <div class="bg-white rounded-xl p-4 border border-neutral-100">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-heart text-green-600"></i>
+              </div>
+              <div>
+                <h3 class="text-sm text-neutral-900">Gratitude Practice</h3>
+                <p class="text-xs text-neutral-500">Emotional Wellness • 8 days streak</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs text-neutral-400">🙏</span>
+              <i class="fa-solid fa-chevron-right text-neutral-400"></i>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="flex-1 bg-neutral-200 rounded-full h-2">
+              <div class="bg-green-500 h-2 rounded-full" style="width: 60%"></div>
+            </div>
+            <span class="text-xs text-neutral-500">60%</span>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl p-4 border border-neutral-100">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-leaf text-purple-600"></i>
+              </div>
+              <div>
+                <h3 class="text-sm text-neutral-900">Meditation Sessions</h3>
+                <p class="text-xs text-neutral-500">Mindfulness • 22 days streak</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs text-neutral-400">🧘</span>
+              <i class="fa-solid fa-chevron-right text-neutral-400"></i>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <div class="flex-1 bg-neutral-200 rounded-full h-2">
+              <div class="bg-purple-500 h-2 rounded-full" style="width: 90%"></div>
+            </div>
+            <span class="text-xs text-neutral-500">90%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="mb-6">
+      <h2 class="text-base text-neutral-900 mb-3">This Week's Summary</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white rounded-xl p-4 border border-neutral-100">
+          <div class="flex items-center space-x-2 mb-2">
+            <i class="fa-solid fa-check-circle text-green-500"></i>
+            <span class="text-xs text-neutral-500">Completed</span>
+          </div>
+          <p class="text-xl text-neutral-900">18</p>
+          <p class="text-xs text-neutral-500">Practice sessions</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 border border-neutral-100">
+          <div class="flex items-center space-x-2 mb-2">
+            <i class="fa-solid fa-calendar text-orange-500"></i>
+            <span class="text-xs text-neutral-500">Streak</span>
+          </div>
+          <p class="text-xl text-neutral-900">15</p>
+          <p class="text-xs text-neutral-500">Days in a row</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Suggested Trackers -->
+    <section class="mb-6">
+      <h2 class="text-base text-neutral-900 mb-3">Suggested for You</h2>
+      <div class="space-y-3">
+        <div class="bg-neutral-50 rounded-xl p-4 border border-neutral-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-moon text-neutral-600 text-xs"></i>
+              </div>
+              <div>
+                <p class="text-sm text-neutral-900">Sleep Quality</p>
+                <p class="text-xs text-neutral-500">Track your rest and recovery</p>
+              </div>
+            </div>
+            <button class="text-xs text-blue-600">Add</button>
+          </div>
+        </div>
+
+        <div class="bg-neutral-50 rounded-xl p-4 border border-neutral-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-sun text-neutral-600 text-xs"></i>
+              </div>
+              <div>
+                <p class="text-sm text-neutral-900">Energy Levels</p>
+                <p class="text-xs text-neutral-500">Monitor daily vitality</p>
+              </div>
+            </div>
+            <button class="text-xs text-blue-600">Add</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Archived Trackers -->
+    <section>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base text-neutral-900">Recently Completed</h2>
+        <button class="text-xs text-neutral-500">View all</button>
+      </div>
+      <div class="space-y-2">
+        <div class="bg-white rounded-xl p-3 border border-neutral-100">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+              <div class="w-6 h-6 bg-neutral-200 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-dumbbell text-neutral-600 text-xs"></i>
+              </div>
+              <div>
+                <p class="text-sm text-neutral-900">30-Day Exercise Challenge</p>
+                <p class="text-xs text-neutral-500">Completed • Physical Wellness</p>
+              </div>
+            </div>
+            <i class="fa-solid fa-trophy text-yellow-500"></i>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 </ion-content>
