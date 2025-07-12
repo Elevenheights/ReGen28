@@ -1,0 +1,210 @@
+
+
+<ion-content [fullscreen]="true" class="onboarding-content profile-gradient">
+  <!-- Progress indicator -->
+  <div class="onboarding-progress">
+    <ion-text>
+      <p class="progress-text">Step 2 of 5</p>
+    </ion-text>
+    <ion-progress-bar [value]="progressPercentage / 100" color="warning"></ion-progress-bar>
+  </div>
+
+  <!-- Main content -->
+  <div class="onboarding-container">
+    <div class="onboarding-header">
+      <h1>Tell us about yourself</h1>
+      <p>Let's personalize your ReGen28 experience</p>
+    </div>
+
+    <form [formGroup]="profileForm" class="profile-form">
+      <!-- Profile Photo Section -->
+      <ion-card class="onboarding-card">
+        <ion-card-content>
+          <div class="photo-section">
+            <ion-avatar 
+              class="profile-avatar" 
+              [class.has-custom-photo]="selectedPhotoUrl"
+              (click)="onSelectPhoto()">
+              <ion-img 
+                [src]="displayPhotoUrl" 
+                [alt]="currentUser?.displayName || 'Profile'"
+                (ionError)="onPhotoError()">
+              </ion-img>
+              <div class="photo-overlay">
+                <ion-icon name="camera"></ion-icon>
+              </div>
+            </ion-avatar>
+            <div class="photo-info">
+              <h3>Profile Photo</h3>
+              <p *ngIf="!selectedPhotoUrl && !currentUser?.photoURL">Add a photo to personalize your account</p>
+              <p *ngIf="selectedPhotoUrl">✓ Custom photo selected</p>
+              <p *ngIf="!selectedPhotoUrl && currentUser?.photoURL && !photoLoadError">Using your Google profile photo</p>
+              <p *ngIf="photoLoadError">Using default avatar</p>
+              <ion-button fill="outline" size="small" class="glass-button" (click)="onSelectPhoto()">
+                <ion-icon name="camera" slot="start"></ion-icon>
+                {{ selectedPhotoUrl ? 'Change Photo' : 'Choose Photo' }}
+              </ion-button>
+            </div>
+          </div>
+          
+          <!-- Hidden file input for photo selection -->
+          <input 
+            #fileInput 
+            type="file" 
+            accept="image/*" 
+            style="display: none;"
+            (change)="handleFileSelect($event)">
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Name Section -->
+      <ion-card class="onboarding-card">
+        <ion-card-content>
+          <ion-item class="onboarding-item">
+            <ion-icon name="person" slot="start"></ion-icon>
+            <ion-label position="stacked">What should we call you?</ion-label>
+            <ion-input 
+              formControlName="displayName"
+              placeholder="Enter your name"
+              type="text"
+              maxlength="50">
+            </ion-input>
+          </ion-item>
+          <div class="onboarding-field-note">
+            <ion-text color="medium">
+              <p>This is how you'll appear in your journal and achievements</p>
+            </ion-text>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Gender Section -->
+      <ion-card class="onboarding-card">
+        <ion-card-content>
+          <ion-item class="onboarding-item">
+            <ion-icon name="people" slot="start"></ion-icon>
+            <ion-label position="stacked">Gender</ion-label>
+            <ion-select 
+              formControlName="gender"
+              placeholder="Select your gender"
+              (ionChange)="onGenderChange()">
+              <ion-select-option 
+                *ngFor="let option of genderOptions" 
+                [value]="option.value">
+                {{ option.label }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+          <div class="onboarding-field-note">
+            <ion-text color="medium">
+              <p>This helps us provide more personalized recommendations</p>
+            </ion-text>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Birthday Section -->
+      <ion-card class="onboarding-card">
+        <ion-card-content>
+          <ion-item class="onboarding-item">
+            <ion-icon name="calendar" slot="start"></ion-icon>
+            <ion-label position="stacked">Birthday</ion-label>
+            <ion-input 
+              type="date"
+              formControlName="birthday"
+              [min]="getMinBirthdayForInput()"
+              [max]="getMaxBirthdayForInput()"
+              placeholder="Select your birthday">
+            </ion-input>
+          </ion-item>
+          
+          <!-- Show selected date in a readable format -->
+          <div class="onboarding-field-note" *ngIf="profileForm.get('birthday')?.value">
+            <ion-text color="primary">
+              <p><strong>Selected:</strong> {{ getBirthdayDisplayValue() }}</p>
+            </ion-text>
+          </div>
+          
+          <div class="onboarding-field-note">
+            <ion-text color="medium">
+              <p>We'll use this to celebrate your birthday and track age-appropriate goals</p>
+            </ion-text>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Reminder Time Section -->
+      <ion-card class="onboarding-card">
+        <ion-card-content>
+          <ion-item class="onboarding-item">
+            <ion-icon name="time" slot="start"></ion-icon>
+            <ion-label position="stacked">Daily Reminder Time</ion-label>
+            <ion-select 
+              formControlName="reminderTime"
+              placeholder="Choose a time"
+              (ionChange)="onReminderTimeChange()">
+              <ion-select-option 
+                *ngFor="let time of reminderTimes" 
+                [value]="time.value">
+                {{ time.label }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+          
+          <!-- Custom Time Picker -->
+          <ion-item class="onboarding-item" *ngIf="showCustomTime">
+            <ion-label position="stacked">Custom Time</ion-label>
+            <ion-input
+              type="time"
+              formControlName="customTime"
+              placeholder="Select time">
+            </ion-input>
+          </ion-item>
+          
+          <div class="onboarding-field-note">
+            <ion-text color="medium">
+              <p>We'll send gentle reminders to help you stay on track</p>
+            </ion-text>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Notification Preference -->
+      <ion-card class="onboarding-card">
+        <ion-card-content>
+          <ion-item class="onboarding-item">
+            <ion-label>
+              <h3>Enable Notifications</h3>
+              <p>Get daily reminders and progress updates</p>
+            </ion-label>
+            <ion-toggle 
+              formControlName="notifications"
+              slot="end">
+            </ion-toggle>
+          </ion-item>
+        </ion-card-content>
+      </ion-card>
+    </form>
+
+    <!-- Navigation -->
+    <div class="onboarding-buttons">
+      <ion-button 
+        expand="block"
+        class="primary-action"
+        [disabled]="!canContinue"
+        (click)="onContinue()">
+        <span>Continue</span>
+        <ion-icon name="arrow-forward" slot="end"></ion-icon>
+      </ion-button>
+      
+      <ion-button 
+        fill="clear" 
+        expand="block"
+        class="secondary-action"
+        (click)="onPrevious()">
+        <ion-icon name="arrow-back" slot="start"></ion-icon>
+        Back
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

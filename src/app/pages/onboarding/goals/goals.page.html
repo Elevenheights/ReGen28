@@ -1,0 +1,206 @@
+<ion-content [fullscreen]="true" class="onboarding-content goals-gradient">
+  <!-- Progress indicator -->
+  <div class="onboarding-progress">
+    <ion-text>
+      <p class="progress-text">Step 3 of 5</p>
+    </ion-text>
+    <ion-progress-bar [value]="progressPercentage / 100" color="warning"></ion-progress-bar>
+  </div>
+
+  <!-- Main content -->
+  <div class="onboarding-container wide">
+    <div class="onboarding-header">
+      <h1>What matters most to you?</h1>
+      <p>Select your wellness focus areas and primary goal</p>
+    </div>
+
+    <form [formGroup]="goalsForm" class="goals-form">
+      <!-- Focus Areas -->
+      <div class="onboarding-section">
+        <h2>Focus Areas</h2>
+        <p class="section-subtitle">Choose the areas you want to focus on (select at least one)</p>
+        
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-md="6" *ngFor="let area of focusAreas">
+                             <ion-card 
+                 class="onboarding-card interactive"
+                 [class.selected]="isFocusAreaSelected(area.category)"
+                 (click)="toggleFocusArea(area.category)">
+                 <ion-card-content>
+                   <div class="focus-area-content">
+                     <div class="icon-container" [attr.data-color]="area.color">
+                       <ion-icon [name]="area.icon"></ion-icon>
+                     </div>
+                     <div class="text-content">
+                       <h3>{{ area.title }}</h3>
+                       <p class="subtitle">{{ area.subtitle }}</p>
+                       <p class="description">{{ area.description }}</p>
+                     </div>
+                     <div class="onboarding-check-indicator">
+                       <ion-icon 
+                         name="checkmark" 
+                         *ngIf="isFocusAreaSelected(area.category)">
+                       </ion-icon>
+                     </div>
+                   </div>
+                 </ion-card-content>
+               </ion-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+
+        <!-- Selected focus areas chips -->
+        <div class="selected-areas" *ngIf="selectedFocusAreas.length > 0">
+          <p>Selected focus areas:</p>
+          <div class="chips-container">
+                         <ion-chip 
+               *ngFor="let category of selectedFocusAreas"
+               class="onboarding-chip">
+               <ion-icon [name]="getFocusAreaIcon(category)"></ion-icon>
+               <ion-label>{{ category }}</ion-label>
+             </ion-chip>
+          </div>
+        </div>
+      </div>
+
+             <!-- Primary Goals -->
+       <div class="onboarding-section">
+         <h2>Primary Goals</h2>
+         <p class="section-subtitle">What are your main wellness objectives? (Select up to 5)</p>
+         
+         <!-- Goal Selection Counter -->
+         <div class="goals-counter">
+           <ion-chip [class]="selectedGoals.length <= 5 ? 'onboarding-chip success' : 'onboarding-chip warning'">
+             {{ selectedGoals.length }}/5 goals selected
+           </ion-chip>
+         </div>
+         
+         <!-- Predefined Goals as Chips -->
+         <ion-card class="onboarding-card">
+           <ion-card-content>
+             <h3>Popular Goals</h3>
+             <div class="goals-grid">
+               <ion-chip 
+                 *ngFor="let goal of primaryGoals"
+                 [class]="isGoalSelected(goal.value) ? 'goal-chip selected' : 'goal-chip'"
+                 [disabled]="!isGoalSelected(goal.value) && selectedGoals.length >= 5"
+                 (click)="togglePredefinedGoal(goal)">
+                 <ion-icon name="checkmark" *ngIf="isGoalSelected(goal.value)"></ion-icon>
+                 <ion-label>{{ goal.label }}</ion-label>
+               </ion-chip>
+             </div>
+           </ion-card-content>
+         </ion-card>
+         
+         <!-- Custom Goal Input -->
+         <ion-card class="onboarding-card">
+           <ion-card-content>
+             <ion-item class="onboarding-item">
+               <ion-label position="stacked">Add your own custom goal</ion-label>
+               <ion-input 
+                 #customGoalInput
+                 [(ngModel)]="customGoalText"
+                 [ngModelOptions]="{standalone: true}"
+                 placeholder="e.g., Train for a marathon, Learn meditation..."
+                 maxlength="100"
+                 (keyup.enter)="addCustomGoal()">
+               </ion-input>
+             </ion-item>
+             <ion-button 
+               fill="outline" 
+               size="small" 
+               class="add-goal-button"
+               [disabled]="!customGoalText?.trim() || selectedGoals.length >= 5"
+               (click)="addCustomGoal()">
+               <ion-icon name="add" slot="start"></ion-icon>
+               Add Goal
+             </ion-button>
+           </ion-card-content>
+         </ion-card>
+         
+         <!-- Selected Goals Display -->
+         <div class="selected-goals" *ngIf="selectedGoals.length > 0">
+           <h3>Your Selected Goals</h3>
+           <div class="selected-goals-list">
+             <ion-chip 
+               *ngFor="let goal of selectedGoals; let i = index"
+               class="selected-goal-chip"
+               (click)="removeGoal(i)">
+               <ion-label>{{ goal }}</ion-label>
+               <ion-icon name="close"></ion-icon>
+             </ion-chip>
+           </div>
+           <div class="onboarding-field-note">
+             <ion-text color="medium">
+               <p>🤖 AI will suggest personalized trackers based on your goals</p>
+             </ion-text>
+           </div>
+         </div>
+       </div>
+
+       <!-- Commitment Level -->
+       <div class="onboarding-section">
+         <h2>Commitment Level</h2>
+         <p class="section-subtitle">How much time can you dedicate daily?</p>
+         
+         <div class="commitment-options">
+           <ion-card 
+             *ngFor="let level of commitmentLevels"
+             class="onboarding-card interactive"
+             [class.selected]="goalsForm.get('commitmentLevel')?.value === level.value"
+             (click)="goalsForm.patchValue({commitmentLevel: level.value})">
+             <ion-card-content>
+               <div class="commitment-content">
+                 <div class="commitment-header">
+                   <h3>{{ level.title }}</h3>
+                   <p class="time">{{ level.subtitle }}</p>
+                 </div>
+                 <p class="commitment-description">{{ level.description }}</p>
+                 <div class="onboarding-check-indicator">
+                   <ion-icon 
+                     name="checkmark" 
+                     *ngIf="goalsForm.get('commitmentLevel')?.value === level.value">
+                   </ion-icon>
+                 </div>
+               </div>
+             </ion-card-content>
+           </ion-card>
+         </div>
+       </div>
+     </form>
+
+     <!-- Navigation -->
+     <div class="onboarding-buttons">
+       <ion-button 
+         expand="block"
+         class="primary-action"
+         [disabled]="!canContinue || isLoadingRecommendations"
+         (click)="onContinue()">
+         <ion-spinner name="crescent" *ngIf="isLoadingRecommendations"></ion-spinner>
+         <span *ngIf="!isLoadingRecommendations">Continue</span>
+         <span *ngIf="isLoadingRecommendations">{{ loadingMessage }}</span>
+         <ion-icon name="arrow-forward" slot="end" *ngIf="!isLoadingRecommendations"></ion-icon>
+       </ion-button>
+       
+       <ion-button 
+         fill="clear" 
+         expand="block"
+         class="secondary-action"
+         [disabled]="isLoadingRecommendations"
+         (click)="onPrevious()">
+         <ion-icon name="arrow-back" slot="start"></ion-icon>
+         Back
+       </ion-button>
+     </div>
+  </div>
+  
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoadingRecommendations">
+    <div class="loading-content">
+      <ion-spinner name="crescent" color="warning"></ion-spinner>
+      <h3>{{ loadingMessage }}</h3>
+      <p>This will just take a moment...</p>
+    </div>
+  </div>
+</ion-content>

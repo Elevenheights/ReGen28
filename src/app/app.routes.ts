@@ -1,12 +1,77 @@
 import { Routes } from '@angular/router';
+import { GuestGuard } from './guards/guest.guard';
+import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
+  // Intro page (first time visitors)
   {
     path: '',
-    loadChildren: () => import('./tabs/tabs.routes').then((m) => m.routes),
+    redirectTo: '/intro',
+    pathMatch: 'full'
   },
   {
-    path: 'tab4',
-    loadComponent: () => import('./tab4/tab4.page').then( m => m.Tab4Page)
+    path: 'intro',
+    loadComponent: () => import('./pages/intro/intro.page').then(m => m.IntroPage)
   },
+  
+  // Main app routes - delegates to tabs.routes.ts which handles guards
+  {
+    path: 'tabs',
+    loadChildren: () => import('./pages/tabs/tabs.routes').then((m) => m.routes)
+  },
+  
+  // Authentication routes (only for non-authenticated users)
+  {
+    path: 'login',
+    loadComponent: () => import('./pages/auth/login/login.page').then(m => m.LoginPage),
+    canActivate: [GuestGuard]
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./pages/auth/register/register.page').then(m => m.RegisterPage),
+    canActivate: [GuestGuard]
+  },
+  
+  // Onboarding routes (requires auth but allows incomplete onboarding)
+  {
+    path: 'onboarding',
+    children: [
+      {
+        path: '',
+        redirectTo: 'welcome',
+        pathMatch: 'full'
+      },
+      {
+        path: 'welcome',
+        loadComponent: () => import('./pages/onboarding/welcome/welcome.page').then(m => m.WelcomePage),
+        canActivate: [AuthGuard]
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./pages/onboarding/profile/profile.page').then(m => m.ProfilePage),
+        canActivate: [AuthGuard]
+      },
+      {
+        path: 'goals',
+        loadComponent: () => import('./pages/onboarding/goals/goals.page').then(m => m.GoalsPage),
+        canActivate: [AuthGuard]
+      },
+      {
+        path: 'trackers',
+        loadComponent: () => import('./pages/onboarding/trackers/trackers.page').then(m => m.TrackersPage),
+        canActivate: [AuthGuard]
+      },
+      {
+        path: 'complete',
+        loadComponent: () => import('./pages/onboarding/complete/complete.page').then(m => m.CompletePage),
+        canActivate: [AuthGuard]
+      }
+    ]
+  },
+  
+  // Fallback route
+  {
+    path: '**',
+    redirectTo: '/intro'
+  }
 ];

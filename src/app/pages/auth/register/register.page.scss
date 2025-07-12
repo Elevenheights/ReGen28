@@ -1,0 +1,348 @@
+.register-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 2rem;
+  background: white;
+  border-radius: 2rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+// Header Section
+.header-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  
+  .app-logo {
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    img {
+      width: 120px;
+      height: auto;
+      max-width: 100%;
+      object-fit: contain;
+      border-radius: 1.5rem;
+    }
+  }
+  
+  .tagline {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+  }
+}
+
+// Welcome Section
+.welcome-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  
+  h2 {
+    font-size: 1.25rem;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+  }
+  
+  p {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+  }
+}
+
+// Error Alert
+.error-alert {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.75rem;
+    padding: 1rem;
+  margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+  gap: 0.75rem;
+    
+    ion-icon {
+    color: #dc2626;
+    font-size: 1.25rem;
+    }
+    
+    span {
+    color: #dc2626;
+    font-size: 0.875rem;
+      flex: 1;
+    }
+  
+  ion-button {
+    --color: #dc2626;
+    --padding-start: 0;
+    --padding-end: 0;
+  }
+}
+
+// Social Registration
+.social-register {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  
+  .social-btn {
+    height: 3rem;
+    --border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: none;
+    
+    &.google-btn {
+      --border-color: #e5e7eb;
+      --color: #1f2937;
+      --background: white;
+  
+  ion-icon {
+    color: #4285f4;
+  }
+}
+
+    &.apple-btn {
+      --background: #1f2937;
+      --color: white;
+      
+      ion-icon {
+        color: white;
+      }
+    }
+    
+    &.facebook-btn {
+      --border-color: #e5e7eb;
+      --color: #1f2937;
+      --background: white;
+      
+      ion-icon {
+        color: #1877f2;
+      }
+    }
+  }
+}
+
+// Divider
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 1.5rem 0;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e5e7eb;
+    z-index: 1;
+  }
+  
+  span {
+    position: relative;
+    background: white;
+    padding: 0 1rem;
+    color: #6b7280;
+    font-size: 0.75rem;
+    z-index: 2;
+    display: inline-block;
+  }
+}
+
+// Registration Form
+.register-form {
+  margin-bottom: 1.5rem;
+  
+  .form-field {
+    margin-bottom: 1rem;
+    
+    label {
+      display: block;
+      font-size: 0.875rem;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    ion-input {
+      --padding-start: 1rem;
+      --padding-end: 1rem;
+      --padding-top: 0.75rem;
+      --padding-bottom: 0.75rem;
+      --border-radius: 0.75rem;
+      --border-color: #e5e7eb;
+      --border-width: 1px;
+      --border-style: solid;
+      --color: #1f2937;
+      --placeholder-color: #9ca3af;
+      font-size: 0.875rem;
+      
+      &.error {
+        --border-color: #dc2626;
+      }
+      
+      &:focus {
+        --border-color: #6b7280;
+      }
+    }
+    
+    .password-field {
+      position: relative;
+      
+      .password-toggle {
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        --color: #9ca3af;
+        --padding-start: 0.5rem;
+        --padding-end: 0.5rem;
+        height: auto;
+        z-index: 10;
+      }
+    }
+    
+    .error-text {
+      color: #dc2626;
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+    }
+  }
+}
+
+// Register Button
+.register-btn {
+  --background: #1f2937;
+  --color: white;
+  --border-radius: 0.75rem;
+  height: 3rem;
+    font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: none;
+  margin-bottom: 1.5rem;
+  
+  &:hover {
+    --background: #111827;
+  }
+}
+
+// Sign In Link
+.signin-link {
+  text-align: center;
+  margin-bottom: 2rem;
+  
+  p {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+    
+    ion-button {
+      --color: #1f2937;
+      font-weight: 600;
+      text-decoration: underline;
+      text-transform: none;
+      --padding-start: 0.25rem;
+      --padding-end: 0;
+    }
+  }
+}
+
+// Benefits Preview
+.benefits-preview {
+  background: #f9fafb;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  
+  h3 {
+    font-size: 1rem;
+    color: #1f2937;
+    margin: 0 0 1rem 0;
+    text-align: center;
+    font-weight: 600;
+  }
+  
+  .benefit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    
+    .benefit-icon {
+      width: 2rem;
+      height: 2rem;
+      background: #e5e7eb;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      
+    ion-icon {
+        color: #6b7280;
+        font-size: 0.75rem;
+    }
+    }
+    
+    .benefit-content {
+      flex: 1;
+      
+      .benefit-title {
+        font-size: 0.875rem;
+        color: #1f2937;
+        margin: 0 0 0.125rem 0;
+        font-weight: 500;
+      }
+      
+      .benefit-description {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin: 0;
+      }
+    }
+  }
+}
+
+// Footer
+.footer {
+  text-align: center;
+  
+  p {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin: 0;
+    
+    ion-button {
+      --color: #9ca3af;
+      font-size: 0.75rem;
+      text-decoration: underline;
+      text-transform: none;
+      --padding-start: 0.125rem;
+      --padding-end: 0.125rem;
+      height: auto;
+      margin: 0;
+  }
+  }
+}
+
+// Responsive Design
+@media (max-width: 480px) {
+  .register-container {
+    padding: 2rem 1rem;
+  }
+  
+  .header-section .app-logo img {
+    width: 100px;
+  }
+} 

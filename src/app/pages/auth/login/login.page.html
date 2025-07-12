@@ -1,0 +1,153 @@
+<ion-content class="ion-padding">
+  <div class="login-container">
+    <!-- Header -->
+    <div class="header-section">
+      <div class="app-logo">
+        <img src="assets/regen28logo.png" alt="ReGen28 Logo" />
+      </div>
+      <p class="tagline">Your wellness journey companion</p>
+    </div>
+
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <h2>Welcome back</h2>
+      <p>Sign in to continue your wellness journey</p>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="error-alert">
+      <ion-icon name="alert-circle"></ion-icon>
+      <span>{{ errorMessage }}</span>
+      <ion-button fill="clear" size="small" (click)="clearError()">
+          <ion-icon name="close"></ion-icon>
+        </ion-button>
+    </div>
+
+    <!-- Social Login Options -->
+    <div class="social-login">
+      <ion-button expand="block" fill="outline" class="social-btn google-btn" (click)="onGoogleLogin()" [disabled]="isLoading">
+        <ion-icon name="logo-google" slot="start"></ion-icon>
+        Continue with Google
+      </ion-button>
+      <ion-button expand="block" fill="solid" class="social-btn apple-btn" (click)="onAppleLogin()" [disabled]="isLoading">
+        <ion-icon name="logo-apple" slot="start"></ion-icon>
+        Continue with Apple
+      </ion-button>
+      <ion-button expand="block" fill="outline" class="social-btn facebook-btn" (click)="onFacebookLogin()" [disabled]="isLoading">
+        <ion-icon name="logo-facebook" slot="start"></ion-icon>
+        Continue with Facebook
+      </ion-button>
+    </div>
+
+    <!-- Divider -->
+    <div class="divider">
+      <span>or continue with email</span>
+    </div>
+
+    <!-- Email Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="email-form">
+      <div class="form-field">
+        <label>Email</label>
+            <ion-input
+              type="email"
+              formControlName="email"
+          placeholder="Enter your email"
+          [disabled]="isLoading"
+          [class.error]="isFieldInvalid('email')">
+            </ion-input>
+          <div *ngIf="isFieldInvalid('email')" class="error-text">
+            {{ getFieldError('email') }}
+          </div>
+        </div>
+
+      <div class="form-field">
+        <label>Password</label>
+        <div class="password-field">
+            <ion-input
+            [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+            placeholder="Enter your password"
+            [disabled]="isLoading"
+            [class.error]="isFieldInvalid('password')">
+            </ion-input>
+          <ion-button fill="clear" (click)="togglePassword()" class="password-toggle">
+            <ion-icon [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
+          </ion-button>
+        </div>
+          <div *ngIf="isFieldInvalid('password')" class="error-text">
+            {{ getFieldError('password') }}
+          </div>
+        </div>
+
+      <!-- Forgot Password -->
+      <div class="forgot-password">
+        <ion-button fill="clear" (click)="onForgotPassword()" [disabled]="isLoading">
+          Forgot password?
+        </ion-button>
+      </div>
+
+      <!-- Sign In Button -->
+        <ion-button
+          expand="block"
+          type="submit"
+          [disabled]="loginForm.invalid || isLoading"
+        class="signin-btn">
+          <ion-spinner *ngIf="isLoading" slot="start"></ion-spinner>
+          {{ isLoading ? 'Signing In...' : 'Sign In' }}
+      </ion-button>
+    </form>
+
+    <!-- Sign Up Link -->
+    <div class="signup-link">
+      <p>
+        Don't have an account? 
+        <ion-button fill="clear" (click)="navigateToRegister()" [disabled]="isLoading">
+          Sign up
+        </ion-button>
+      </p>
+    </div>
+
+    <!-- Features Preview -->
+    <div class="features-preview">
+      <h3>What's waiting for you</h3>
+      <div class="feature-list">
+        <div class="feature-item">
+          <div class="feature-icon">
+            <ion-icon name="heart"></ion-icon>
+          </div>
+          <div class="feature-content">
+            <p class="feature-title">Mental Health Tracker</p>
+            <p class="feature-description">Track mood, anxiety, and emotional wellness</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <ion-icon name="library"></ion-icon>
+          </div>
+          <div class="feature-content">
+            <p class="feature-title">Mindfulness Journal</p>
+            <p class="feature-description">Daily reflections for spiritual growth</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">
+            <ion-icon name="leaf"></ion-icon>
+          </div>
+          <div class="feature-content">
+            <p class="feature-title">Holistic Wellness Plan</p>
+            <p class="feature-description">Mind, body, and soul transformation</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>
+        By continuing, you agree to our 
+        <ion-button fill="clear" size="small">Terms of Service</ion-button> and 
+        <ion-button fill="clear" size="small">Privacy Policy</ion-button>
+      </p>
+    </div>
+  </div>
+</ion-content> 

@@ -1,0 +1,287 @@
+<!-- Header -->
+<header class="bg-white border-b border-neutral-200 px-4 py-3">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <img [src]="profileImageUrl" 
+           [alt]="userDisplayName + ' profile'" 
+           class="w-8 h-8 rounded-full object-cover"
+           (error)="onImageError($event)"
+           (load)="onImageLoad($event)">
+      <div>
+        <h1 class="text-lg text-neutral-900">{{ getGreeting() }}, {{ userDisplayName }}</h1>
+        <p class="text-xs text-neutral-500">Day {{ dashboardData.journeyProgress.currentDay }} of your wellness journey</p>
+      </div>
+    </div>
+    <button class="p-2">
+      <i class="fa-regular fa-bell text-neutral-600"></i>
+    </button>
+  </div>
+</header>
+
+<ion-content class="bg-neutral-50">
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="flex justify-center items-center h-40">
+    <div class="text-neutral-500">Loading your wellness dashboard...</div>
+  </div>
+
+  <!-- Main Content -->
+  <main *ngIf="!isLoading" class="px-4 py-6 pb-24">
+    <!-- Progress Overview -->
+    <section class="mb-6">
+      <div class="bg-white rounded-2xl p-4 border border-neutral-100">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-base text-neutral-900">Your Wellness Progress</h2>
+          <span class="text-xs text-neutral-500">This week</span>
+        </div>
+        <div class="relative">
+          <div class="w-full bg-neutral-200 rounded-full h-3 mb-3">
+            <div class="bg-neutral-800 h-3 rounded-full" 
+                 [style.width.%]="dashboardData.journeyProgress.progress"></div>
+          </div>
+          <div class="flex justify-between text-xs text-neutral-600">
+            <span>{{ dashboardData.journeyProgress.progress }}% Complete</span>
+            <span>{{ dashboardData.journeyProgress.milestone }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Wellness Journey Goals (if user has completed onboarding with goals) -->
+    <section *ngIf="hasWellnessGoals()" class="mb-6">
+      <div class="bg-gradient-to-br from-white via-blue-50 to-purple-50 rounded-2xl border border-neutral-100 shadow-sm overflow-hidden">
+        <!-- Clickable Header -->
+        <div class="flex items-center justify-between p-5 cursor-pointer" (click)="toggleWellnessJourney()">
+          <div class="flex items-center space-x-2">
+            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+              <i class="fa-solid fa-compass text-white text-sm"></i>
+            </div>
+            <h2 class="text-lg font-semibold text-neutral-900">Your Wellness Journey</h2>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs text-neutral-500 hidden sm:inline">
+              {{ isWellnessJourneyCollapsed ? 'Show details' : 'Hide details' }}
+            </span>
+            <i class="fa-solid text-neutral-600 transition-transform duration-300"
+               [class.fa-chevron-down]="isWellnessJourneyCollapsed"
+               [class.fa-chevron-up]="!isWellnessJourneyCollapsed"
+               [class.rotate-0]="isWellnessJourneyCollapsed"
+               [class.rotate-180]="!isWellnessJourneyCollapsed"></i>
+          </div>
+        </div>
+        
+        <!-- Collapsible Content -->
+        <div class="transition-all duration-500 ease-in-out overflow-hidden"
+             [class.max-h-0]="isWellnessJourneyCollapsed"
+             [class.max-h-96]="!isWellnessJourneyCollapsed"
+             [class.opacity-0]="isWellnessJourneyCollapsed"
+             [class.opacity-100]="!isWellnessJourneyCollapsed">
+          <div class="px-5 pb-5 space-y-4">
+            <!-- Focus Areas with Icons -->
+            <div class="bg-white/70 rounded-xl p-4 backdrop-blur-sm">
+              <div class="flex items-center space-x-2 mb-3">
+                <i class="fa-solid fa-bullseye text-blue-600 text-sm"></i>
+                <span class="text-sm font-medium text-neutral-700 uppercase tracking-wide">Focus Areas</span>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <div *ngFor="let area of getUserFocusAreas()" 
+                     class="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 border border-neutral-200">
+                  <i [class]="getFocusAreaIcon(area)" 
+                     [style.color]="getFocusAreaColor(area)" 
+                     class="text-sm"></i>
+                  <span class="text-sm font-medium text-neutral-700">{{ area }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Goals with Visual Badges -->
+            <div *ngIf="getUserWellnessGoals().length > 0" class="bg-white/70 rounded-xl p-4 backdrop-blur-sm">
+              <div class="flex items-center space-x-2 mb-3">
+                <i class="fa-solid fa-star text-amber-500 text-sm"></i>
+                <span class="text-sm font-medium text-neutral-700 uppercase tracking-wide">Your Goals</span>
+                <span class="bg-amber-100 text-amber-700 text-xs px-2 py-1 rounded-full">{{ getUserWellnessGoals().length }}</span>
+              </div>
+              <div class="grid gap-2">
+                <div *ngFor="let goal of getUserWellnessGoals(); let i = index" 
+                     class="flex items-center space-x-3 bg-white rounded-lg px-3 py-2 border border-neutral-200">
+                  <div class="w-6 h-6 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    {{ i + 1 }}
+                  </div>
+                  <span class="text-sm text-neutral-700 flex-1">{{ goal }}</span>
+                  <i class="fa-solid fa-check-circle text-green-500 text-xs opacity-60"></i>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Commitment Level with Visual Indicator -->
+            <div class="bg-white/70 rounded-xl p-4 backdrop-blur-sm">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                  <i class="fa-solid fa-gauge-high text-purple-600 text-sm"></i>
+                  <span class="text-sm font-medium text-neutral-700 uppercase tracking-wide">Commitment</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                  <div class="flex space-x-1">
+                    <div class="w-2 h-2 rounded-full" 
+                         [class]="getCommitmentLevelClass(1)"></div>
+                    <div class="w-2 h-2 rounded-full" 
+                         [class]="getCommitmentLevelClass(2)"></div>
+                    <div class="w-2 h-2 rounded-full" 
+                         [class]="getCommitmentLevelClass(3)"></div>
+                  </div>
+                  <span class="text-sm font-semibold" 
+                        [style.color]="getCommitmentLevelColor()">{{ getUserCommitmentLevel() }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="mb-6">
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-white rounded-xl p-4 border border-neutral-100" (click)="router.navigate(['/tabs/tracker'])">
+          <div class="flex items-center space-x-2 mb-2">
+            <i class="fa-solid fa-brain text-neutral-600"></i>
+            <span class="text-xs text-neutral-500">Mindfulness</span>
+          </div>
+          <p class="text-xl text-neutral-900">{{ dashboardData.trackerStats.totalSessions }}</p>
+          <p class="text-xs text-neutral-500">Sessions this month</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 border border-neutral-100" (click)="router.navigate(['/tabs/journal'])">
+          <div class="flex items-center space-x-2 mb-2">
+            <i class="fa-solid fa-book text-neutral-600"></i>
+            <span class="text-xs text-neutral-500">Journal</span>
+          </div>
+          <p class="text-xl text-neutral-900">{{ dashboardData.journalStats.totalEntries }}</p>
+          <p class="text-xs text-neutral-500">Entries</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base text-neutral-900">Recent Activity</h2>
+        <button class="text-xs text-neutral-500" (click)="viewAllActivities()">View all</button>
+      </div>
+      
+      <!-- Show message if no activities -->
+      <div *ngIf="dashboardData.recentActivities.length === 0" class="bg-white rounded-xl p-4 border border-neutral-100">
+        <div class="text-center text-neutral-500">
+          <i class="fa-solid fa-seedling text-2xl mb-2"></i>
+          <p class="text-sm">Start tracking to see your activities here!</p>
+        </div>
+      </div>
+
+      <!-- Show activities -->
+      <div *ngIf="dashboardData.recentActivities.length > 0" class="space-y-3">
+        <div *ngFor="let activity of dashboardData.recentActivities" 
+             class="bg-white rounded-xl p-4 border border-neutral-100">
+          <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 bg-neutral-200 rounded-full flex items-center justify-center"
+                 [style.background-color]="activity.color || '#e5e7eb'">
+              <i [class]="activity.icon || 'fa-solid fa-circle'" 
+                 class="text-neutral-600 text-xs"
+                 [style.color]="activity.color ? 'white' : ''"></i>
+            </div>
+            <div class="flex-1">
+              <p class="text-sm text-neutral-900">{{ activity.title }}</p>
+              <p class="text-xs text-neutral-500">{{ getTimeAgo(activity.activityDate) }} • {{ activity.description }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Today's Suggestions -->
+    <section class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base text-neutral-900">Today's Suggestions</h2>
+        <i class="fa-solid fa-sparkles text-amber-500 text-sm"></i>
+      </div>
+      
+      <!-- Loading state -->
+      <div *ngIf="!dashboardData.suggestionsState.hasError && !dashboardData.suggestionsState.showEmptyState && dashboardData.todaysSuggestions.length === 0" 
+           class="bg-white rounded-xl p-4 border border-neutral-100">
+        <div class="flex items-center space-x-3">
+          <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>
+          <span class="text-sm text-neutral-600">Generating personalized suggestions...</span>
+        </div>
+      </div>
+
+      <!-- Error state -->
+      <div *ngIf="dashboardData.suggestionsState.hasError" 
+           class="bg-white rounded-xl p-4 border border-neutral-100">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-exclamation-triangle text-amber-500"></i>
+            <span class="text-sm text-neutral-600">{{ dashboardData.suggestionsState.errorMessage }}</span>
+          </div>
+          <button *ngIf="dashboardData.suggestionsState.isRetryable" 
+                  (click)="retrySuggestions()"
+                  class="text-xs text-blue-600 font-medium hover:text-blue-800">
+            Retry
+          </button>
+        </div>
+        <div *ngIf="dashboardData.suggestionsState.suggestions.length > 0" class="mt-2">
+          <div class="text-xs text-neutral-500" *ngFor="let suggestion of dashboardData.suggestionsState.suggestions">
+            • {{ suggestion }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggestions list -->
+      <div *ngIf="!dashboardData.suggestionsState.hasError && dashboardData.todaysSuggestions.length > 0" class="space-y-3">
+        <div *ngFor="let suggestion of dashboardData.todaysSuggestions" 
+             class="bg-white rounded-xl p-4 border border-neutral-100">
+          <div class="flex items-start space-x-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm">
+              {{ suggestion.icon }}
+            </div>
+            <div class="flex-1">
+              <p class="text-sm text-neutral-900 leading-relaxed">{{ suggestion.text }}</p>
+              <span class="inline-block mt-1 px-2 py-1 bg-neutral-100 text-neutral-600 text-xs rounded-full capitalize">
+                {{ suggestion.type }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div *ngIf="dashboardData.suggestionsState.showEmptyState" 
+           class="bg-white rounded-xl p-4 border border-neutral-100">
+        <div class="text-center text-neutral-500">
+          <i class="fa-solid fa-lightbulb text-2xl mb-2"></i>
+          <p class="text-sm">{{ dashboardData.suggestionsState.emptyStateMessage }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section>
+      <h2 class="text-base text-neutral-900 mb-3">Quick Actions</h2>
+      <div class="grid grid-cols-2 gap-3">
+        <button class="bg-white rounded-xl p-4 border border-neutral-100 text-center" (click)="logMood()">
+          <i class="fa-solid fa-plus text-neutral-600 text-lg mb-2"></i>
+          <p class="text-sm text-neutral-900">Log Mood</p>
+        </button>
+        <button class="bg-white rounded-xl p-4 border border-neutral-100 text-center" (click)="openBreathe()">
+          <i class="fa-solid fa-leaf text-neutral-600 text-lg mb-2"></i>
+          <p class="text-sm text-neutral-900">Breathe</p>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast for notifications -->
+  <ion-toast
+    [isOpen]="showToast"
+    [message]="toastMessage"
+    [duration]="3000"
+    position="bottom"
+    (didDismiss)="onToastDismiss()">
+  </ion-toast>
+</ion-content>

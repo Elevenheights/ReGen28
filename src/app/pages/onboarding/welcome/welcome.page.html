@@ -1,0 +1,110 @@
+<ion-content class="welcome-content">
+  <div class="welcome-container">
+    
+    <!-- Hero Section -->
+    <div class="hero-section text-center">
+      <!-- App Logo -->
+      <div class="logo-container mb-8">
+        <ion-icon name="leaf" class="logo-icon text-green-500"></ion-icon>
+        <h1 class="app-title">ReGen28</h1>
+      </div>
+
+      <!-- Welcome Message -->
+      <div class="welcome-message mb-8">
+        <h2 class="welcome-title">Welcome{{ userName ? ', ' + userName : '' }}!</h2>
+        <p class="welcome-subtitle">
+          You're about to start your 28-day wellness transformation journey.
+          Let's set you up for success!
+        </p>
+      </div>
+
+      <!-- Benefits Section -->
+      <div class="benefits-section mb-8">
+        <div class="benefit-item mb-6">
+          <ion-icon name="bulb" class="benefit-icon text-purple-500"></ion-icon>
+          <h3>Mind & Focus</h3>
+          <p>Track meditation, mindfulness, and mental wellness practices</p>
+        </div>
+
+        <div class="benefit-item mb-6">
+          <ion-icon name="fitness" class="benefit-icon text-green-500"></ion-icon>
+          <h3>Body & Health</h3>
+          <p>Monitor exercise, sleep, nutrition, and physical wellbeing</p>
+        </div>
+
+        <div class="benefit-item mb-6">
+          <ion-icon name="heart" class="benefit-icon text-red-500"></ion-icon>
+          <h3>Soul & Spirit</h3>
+          <p>Nurture gratitude, connections, and spiritual growth</p>
+        </div>
+
+        <div class="benefit-item mb-8">
+          <ion-icon name="rose" class="benefit-icon text-pink-500"></ion-icon>
+          <h3>Beauty & Self-Care</h3>
+          <p>Celebrate self-care, confidence, and personal radiance</p>
+        </div>
+      </div>
+
+      <!-- Progress Info -->
+      <div class="progress-info mb-8">
+        <ion-card class="info-card">
+          <ion-card-content>
+            <div class="flex items-center">
+              <ion-icon name="time" class="text-blue-500 mr-3"></ion-icon>
+              <div class="text-left">
+                <h4 class="font-semibold">Quick Setup</h4>
+                <p class="text-sm text-gray-600">Takes just 2-3 minutes to get started</p>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <ion-card class="info-card">
+          <ion-card-content>
+            <div class="flex items-center">
+              <ion-icon name="shield-checkmark" class="text-green-500 mr-3"></ion-icon>
+              <div class="text-left">
+                <h4 class="font-semibold">Your Privacy</h4>
+                <p class="text-sm text-gray-600">Your data is secure and never shared</p>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <ion-button 
+        expand="block" 
+        size="large" 
+        (click)="onGetStarted()"
+        class="get-started-button mb-4">
+        <ion-icon name="rocket" slot="start"></ion-icon>
+        Let's Get Started
+      </ion-button>
+
+      <ion-button 
+        expand="block" 
+        fill="clear" 
+        size="large" 
+        (click)="onSkipOnboarding()"
+        class="skip-button">
+        Skip for now
+      </ion-button>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="progress-indicator text-center mt-6">
+      <div class="progress-dots">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+      <p class="text-sm text-gray-500 mt-2">Step 1 of 5</p>
+    </div>
+
+  </div>
+</ion-content> 

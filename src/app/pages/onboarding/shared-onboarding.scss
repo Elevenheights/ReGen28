@@ -1,0 +1,480 @@
+// Shared Onboarding Styles
+// This file contains all common styles used across onboarding pages
+
+// ===== GRADIENT BACKGROUNDS =====
+.onboarding-content {
+  &.profile-gradient {
+    --background: linear-gradient(135deg, #8b5cf6, #8b5cf6aa);
+    background: linear-gradient(135deg, #8b5cf6, #8b5cf6aa) !important;
+  }
+  
+  &.goals-gradient {
+    --background: linear-gradient(135deg, #10b981, #10b981aa);
+    background: linear-gradient(135deg, #10b981, #10b981aa) !important;
+  }
+  
+  &.trackers-gradient {
+    --background: linear-gradient(135deg, #f59e0b, #f59e0baa);
+    background: linear-gradient(135deg, #f59e0b, #f59e0baa) !important;
+  }
+  
+  &.complete-gradient {
+    --background: linear-gradient(135deg, #3b82f6, #3b82f6aa);
+    background: linear-gradient(135deg, #3b82f6, #3b82f6aa) !important;
+  }
+}
+
+// ===== PROGRESS SECTION =====
+.onboarding-progress {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  
+  .progress-text {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  
+  ion-progress-bar {
+    --buffer-background: rgba(255, 255, 255, 0.2);
+    --progress-background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    
+    &[color="warning"] {
+      --progress-background: #f59e0b;
+    }
+  }
+}
+
+// ===== LAYOUT & CONTAINERS =====
+.onboarding-container {
+  padding: 0 16px 32px;
+  max-width: 600px;
+  margin: 0 auto;
+  
+  &.wide {
+    max-width: 800px;
+  }
+}
+
+.onboarding-header {
+  text-align: center;
+  margin: 24px 0 32px;
+  
+  h1 {
+    margin: 0 0 8px 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: 1.2;
+  }
+  
+  p {
+    margin: 0;
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    font-weight: 400;
+  }
+  
+  &.celebration {
+    margin: 40px 0;
+    
+    .celebration-icon {
+      margin-bottom: 24px;
+      
+      ion-icon {
+        font-size: 4rem;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+      }
+    }
+    
+    h1 {
+      font-size: 3rem;
+    }
+    
+    .subtitle {
+      margin: 0;
+      font-size: 1.3rem;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      font-weight: 400;
+    }
+  }
+}
+
+// ===== GLASS CARDS =====
+.onboarding-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  margin: 16px 0;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  
+  ion-card-content {
+    --color: white;
+  }
+  
+  // Interactive cards
+  &.interactive {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    &.selected {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    &.recommended {
+      border-color: rgba(255, 215, 0, 0.6);
+      background: rgba(255, 215, 0, 0.1);
+    }
+  }
+  
+  // Summary cards (smaller hover effect)
+  &.summary {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
+  }
+}
+
+// ===== FORM ELEMENTS =====
+.onboarding-item {
+  --background: transparent;
+  --color: white;
+  --border-color: rgba(255, 255, 255, 0.2);
+  --inner-border-width: 0 0 1px 0;
+  
+  ion-icon {
+    color: rgba(255, 255, 255, 0.8);
+    margin-right: 12px;
+  }
+  
+  ion-label {
+    color: white;
+    font-weight: 500;
+    
+    h3 {
+      color: white;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    
+    p {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+  
+  ion-input, ion-select, ion-datetime {
+    --color: white;
+    --placeholder-color: rgba(255, 255, 255, 0.6);
+  }
+  
+  ion-datetime {
+    --background: rgba(255, 255, 255, 0.1);
+    --color: white;
+    
+    // Override blue accents in datetime picker
+    --color-selected: #f59e0b !important;
+    --color-active: #f59e0b !important;
+    --color-focused: #f59e0b !important;
+    
+    // Additional blue overrides
+    .time-button,
+    .wheel-button {
+      --color: #f59e0b !important;
+    }
+    
+    .wheel-item.wheel-item-active {
+      color: #f59e0b !important;
+    }
+    
+    .confirm-button {
+      --color: #f59e0b !important;
+    }
+  }
+  
+  ion-toggle {
+    --background: rgba(255, 255, 255, 0.2) !important;
+    --background-checked: #f59e0b !important;
+    --handle-background: #333 !important;
+    --handle-background-checked: white !important;
+    --border-radius: 16px !important;
+    
+    // Override any default blue colors with high specificity
+    --color: #f59e0b !important;
+    --color-checked: #f59e0b !important;
+    --track-background: rgba(255, 255, 255, 0.2) !important;
+    --track-background-checked: #f59e0b !important;
+    
+    // Force override all possible blue variants
+    &.toggle-checked {
+      --background: #f59e0b !important;
+      --handle-background: white !important;
+    }
+    
+    // Nuclear option: override any nested elements that might be blue
+    .toggle-inner,
+    .toggle-track,
+    .toggle-handle {
+      background-color: #f59e0b !important;
+      border-color: #f59e0b !important;
+    }
+    
+    &.toggle-checked .toggle-inner,
+    &.toggle-checked .toggle-track {
+      background-color: #f59e0b !important;
+    }
+  }
+}
+
+// ===== SECTIONS =====
+.onboarding-section {
+  margin: 32px 0;
+  
+  h2 {
+    margin: 0 0 8px 0;
+    font-size: 22px;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+  
+  .section-subtitle {
+    margin: 0 0 16px 0;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// ===== BUTTONS =====
+.onboarding-buttons {
+  margin-top: 32px;
+  
+  &.celebration {
+    margin-top: 40px;
+  }
+  
+  ion-button {
+    margin: 8px 0;
+    
+    // Primary action button
+    &.primary-action {
+      --background: white;
+      --color: #333;
+      --border-radius: 16px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      height: 56px;
+      text-transform: none;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      
+      &.large {
+        font-size: 1.2rem;
+        height: 64px;
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+          transition: left 0.5s ease;
+        }
+        
+        &:hover:not([disabled])::before {
+          left: 100%;
+        }
+      }
+      
+      &:hover:not([disabled]) {
+        --background: rgba(255, 255, 255, 0.95);
+        transform: translateY(-2px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        
+        &.large {
+          transform: translateY(-3px);
+        }
+      }
+      
+      &[disabled] {
+        --background: rgba(255, 255, 255, 0.3);
+        --color: rgba(255, 255, 255, 0.6);
+      }
+      
+      ion-icon {
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+        
+        &.large {
+          font-size: 1.3rem;
+        }
+      }
+    }
+    
+    // Secondary button
+    &.secondary-action {
+      --color: rgba(255, 255, 255, 0.9);
+      font-weight: 500;
+      
+      &:hover {
+        --color: white;
+        transform: translateY(-1px);
+      }
+    }
+    
+    // Glass button
+    &.glass-button {
+      --background: transparent !important;
+      --color: #f59e0b !important;
+      --border-radius: 20px !important;
+      --border-color: #f59e0b !important;
+      font-weight: 600;
+      text-transform: none;
+      backdrop-filter: blur(10px);
+      border: 1px solid #f59e0b !important;
+      background: transparent !important;
+      color: #f59e0b !important;
+      outline: none !important;
+      box-shadow: none !important;
+
+      &:hover {
+        --background: rgba(245, 158, 11, 0.1) !important;
+        background: rgba(245, 158, 11, 0.1) !important;
+        transform: translateY(-1px);
+      }
+      
+      &:focus {
+        outline: none !important;
+        box-shadow: none !important;
+      }
+      
+      // Override Ionic's internal button styling
+      .button-native {
+        background: transparent !important;
+        border-color: #f59e0b !important;
+        color: #f59e0b !important;
+        outline: none !important;
+        box-shadow: none !important;
+        border-radius: 20px !important;
+        
+        &:hover {
+          background: rgba(245, 158, 11, 0.1) !important;
+        }
+        
+        &:focus {
+          outline: none !important;
+          box-shadow: none !important;
+        }
+      }
+      
+      // Nuclear override for any blue that might sneak in
+      &[fill="outline"] {
+        --color: #f59e0b !important;
+        --border-color: #f59e0b !important;
+        border-color: #f59e0b !important;
+        outline: none !important;
+        box-shadow: none !important;
+      }
+      
+      // Make sure icon is orange too
+      ion-icon {
+        color: #f59e0b !important;
+      }
+    }
+  }
+}
+
+// ===== CHIPS =====
+.onboarding-chip {
+  --background: rgba(255, 255, 255, 0.2);
+  --color: white;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+  
+  &.success {
+    --background: rgba(16, 185, 129, 0.3);
+    --color: white;
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+  
+  &.recommended {
+    --background: rgba(255, 215, 0, 0.2);
+    --color: white;
+    border: 1px solid rgba(255, 215, 0, 0.4);
+    font-size: 12px;
+  }
+}
+
+// ===== HELPERS =====
+.onboarding-field-note {
+  padding: 8px 16px 0;
+  
+  p {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.onboarding-check-indicator {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  
+  ion-icon {
+    font-size: 16px;
+  }
+}
+
+// ===== RESPONSIVE =====
+@media (max-width: 768px) {
+  .onboarding-header h1 {
+    font-size: 2rem;
+    
+    &.celebration {
+      font-size: 2.5rem;
+    }
+  }
+  
+  .onboarding-header p {
+    font-size: 1.1rem;
+  }
+  
+  .onboarding-container {
+    padding: 0 12px 24px;
+  }
+} 

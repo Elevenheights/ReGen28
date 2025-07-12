@@ -1,0 +1,109 @@
+<ion-content class="intro-content">
+  <!-- Header with Login Link -->
+  <div class="intro-header">
+    <ion-button 
+      fill="clear" 
+      class="header-login-btn"
+      (click)="goToLogin()">
+      Sign In
+    </ion-button>
+  </div>
+  
+  <div class="slide-container">
+    <!-- Slide Content -->
+    <div class="slide" 
+         [style.backgroundColor]="featureSlides[currentSlide].color"
+         [style.background]="'linear-gradient(135deg, ' + featureSlides[currentSlide].color + ', ' + featureSlides[currentSlide].color + '88)'"
+         (touchstart)="onTouchStart($event)"
+         (touchend)="onTouchEnd($event)">
+      
+      <!-- Click zones for navigation -->
+      <div class="click-zone left-zone" 
+           *ngIf="!isFirstSlide()"
+           (click)="prevSlide()"
+           title="Previous slide">
+      </div>
+      <div class="click-zone right-zone" 
+           *ngIf="!isLastSlide()"
+           (click)="nextSlide()"
+           title="Next slide">
+      </div>
+      
+      <div class="slide-content">
+        <!-- Feature Image -->
+        <div class="image-container">
+          <img [src]="featureSlides[currentSlide].image" 
+               [alt]="featureSlides[currentSlide].title"
+               class="feature-image">
+          
+          <!-- Dots under image -->
+          <div class="image-dots">
+            <button 
+              *ngFor="let slide of featureSlides; let i = index"
+              class="image-dot"
+              [class.active]="i === currentSlide"
+              (click)="goToSlide(i)"
+              [attr.aria-label]="'Go to slide ' + (i + 1)">
+            </button>
+          </div>
+        </div>
+
+        <!-- Content Text -->
+        <div class="text-content">
+          <h1 class="slide-title">{{ featureSlides[currentSlide].title }}</h1>
+          <h2 class="slide-subtitle">{{ featureSlides[currentSlide].subtitle }}</h2>
+          <p class="slide-description">{{ featureSlides[currentSlide].description }}</p>
+          
+          <!-- Get Started Button (shown on last slide) -->
+          <div class="inline-action-buttons" *ngIf="isLastSlide()">
+            <ion-button 
+              expand="block" 
+              class="get-started-btn"
+              (click)="goToRegister()">
+              <ion-icon name="rocket" slot="start"></ion-icon>
+              Get Started
+            </ion-button>
+            
+            <div class="cta-text">
+              <span>Begin your 28-day wellness transformation</span>
+            </div>
+          </div>
+          
+          <div class="swipe-hint" *ngIf="currentSlide === 0">
+            <span>👈 Click, swipe, or use buttons to navigate 👉</span>
+            <span class="login-hint">Already have an account? Tap "Sign In" above ↗</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+      <ion-button 
+        *ngIf="!isFirstSlide()"
+        fill="clear" 
+        class="nav-btn prev-btn"
+        (click)="prevSlide()">
+        <ion-icon name="chevron-back"></ion-icon>
+        Previous
+      </ion-button>
+      
+      <div class="spacer"></div>
+      
+      <ion-button 
+        *ngIf="!isLastSlide()"
+        fill="clear" 
+        class="nav-btn next-btn"
+        (click)="nextSlide()">
+        Next
+        <ion-icon name="chevron-forward"></ion-icon>
+      </ion-button>
+    </div>
+
+
+    
+
+  </div>
+</ion-content> 
