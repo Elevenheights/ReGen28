@@ -114,13 +114,28 @@ export class RegisterPage implements OnInit {
       const { displayName, email, password } = this.registerForm.value;
       
       try {
+        console.log('🚀 Starting registration process for:', email);
+        
+        // Register the user (this will now create the user document too)
         await this.authService.register(email, password, displayName);
+        
+        console.log('✅ Registration successful, user document created');
+        
         // Show success message about email verification
         await this.showEmailVerificationAlert();
-        // Navigation to onboarding handled by auth state subscription
+        
+        // Navigation to onboarding will be handled by auth state subscription
+        // The user document should now exist, so onboarding won't fail
+        
       } catch (error: any) {
-        console.error('Registration failed:', error);
-        // Error handling is managed by AuthService state
+        console.error('❌ Registration failed:', error);
+        
+        // Show user-friendly error message
+        if (error.message) {
+          await this.showErrorAlert(error.message);
+        }
+        
+        // Error handling is also managed by AuthService state
       }
     } else {
       this.markFormGroupTouched();

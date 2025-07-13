@@ -22,6 +22,7 @@ import {
   shieldCheckmark, 
   rocket 
 } from 'ionicons/icons';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-welcome',
@@ -80,44 +81,51 @@ export class WelcomePage implements OnInit {
     }
     
     try {
-      console.log('📝 Creating basic user profile for onboarding...');
+      // Check if user profile already exists (created during registration)
+      const existingProfile = await this.userService.getCurrentUserProfile().pipe(take(1)).toPromise();
       
-      // Create basic user profile but DON'T mark onboarding complete yet
-      await this.userService.createUserProfile({
-        id: currentUser.uid,
-        email: currentUser.email || '',
-        displayName: currentUser.displayName || '',
-        photoURL: currentUser.photoURL || '',
-        joinDate: new Date(),
-        currentDay: 1,
-        streakCount: 0,
-        isOnboardingComplete: false, // NOT complete yet - will complete after onboarding
-        preferences: {
-          dailyReminders: true,
-          reminderTime: '09:00',
-          weeklyReports: true,
-          milestoneNotifications: true,
-          darkMode: false,
-          language: 'en',
-          dataSharing: false,
-          analytics: true,
-          backupEnabled: true
-        },
-        stats: {
-          totalTrackerEntries: 0,
-          totalJournalEntries: 0,
-          totalMeditationMinutes: 0,
-          completedTrackers: 0,
-          currentStreaks: 0,
-          longestStreak: 0,
-          weeklyActivityScore: 0,
-          monthlyGoalsCompleted: 0
-        },
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-      
-      console.log('✅ Basic user profile created');
+      if (!existingProfile) {
+        console.log('📝 No user profile found, creating basic user profile for onboarding...');
+        
+        // Create basic user profile but DON'T mark onboarding complete yet
+        await this.userService.createUserProfile({
+          id: currentUser.uid,
+          email: currentUser.email || '',
+          displayName: currentUser.displayName || '',
+          photoURL: currentUser.photoURL || '',
+          joinDate: new Date(),
+          currentDay: 1,
+          streakCount: 0,
+          isOnboardingComplete: false, // NOT complete yet - will complete after onboarding
+          preferences: {
+            dailyReminders: true,
+            reminderTime: '09:00',
+            weeklyReports: true,
+            milestoneNotifications: true,
+            darkMode: false,
+            language: 'en',
+            dataSharing: false,
+            analytics: true,
+            backupEnabled: true
+          },
+          stats: {
+            totalTrackerEntries: 0,
+            totalJournalEntries: 0,
+            totalMeditationMinutes: 0,
+            completedTrackers: 0,
+            currentStreaks: 0,
+            longestStreak: 0,
+            weeklyActivityScore: 0,
+            monthlyGoalsCompleted: 0
+          },
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+        
+        console.log('✅ Basic user profile created');
+      } else {
+        console.log('✅ User profile already exists, proceeding with onboarding');
+      }
       
       // Initialize onboarding and move to next step
       console.log('🔄 Starting onboarding flow...');
@@ -125,8 +133,7 @@ export class WelcomePage implements OnInit {
       this.onboardingService.nextStep(); // Go to profile page
       
     } catch (error) {
-      console.error('❌ Error during onboarding start:', error);
-      console.log('🔄 Trying direct navigation...');
+      console.error('❌ Error during onboarding initialization:', error);
       this.router.navigate(['/tabs/dashboard']);
     }
   }
@@ -142,44 +149,60 @@ export class WelcomePage implements OnInit {
     }
     
     try {
-      console.log('📝 Creating minimal user profile and skipping onboarding...');
+      // Check if user profile already exists (created during registration)
+      const existingProfile = await this.userService.getCurrentUserProfile().pipe(take(1)).toPromise();
       
-      // Create complete user profile and mark onboarding as complete
-      await this.userService.createUserProfile({
-        id: currentUser.uid,
-        email: currentUser.email || '',
-        displayName: currentUser.displayName || 'User',
-        photoURL: currentUser.photoURL || '',
-        joinDate: new Date(),
-        currentDay: 1,
-        streakCount: 0,
-        isOnboardingComplete: true, // Skip - mark as complete immediately
-        preferences: {
-          dailyReminders: true,
-          reminderTime: '09:00',
-          weeklyReports: true,
-          milestoneNotifications: true,
-          darkMode: false,
-          language: 'en',
-          dataSharing: false,
-          analytics: true,
-          backupEnabled: true
-        },
-        stats: {
-          totalTrackerEntries: 0,
-          totalJournalEntries: 0,
-          totalMeditationMinutes: 0,
-          completedTrackers: 0,
-          currentStreaks: 0,
-          longestStreak: 0,
-          weeklyActivityScore: 0,
-          monthlyGoalsCompleted: 0
-        },
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
+      if (!existingProfile) {
+        console.log('📝 No user profile found, creating minimal user profile and skipping onboarding...');
+        
+        // Create complete user profile and mark onboarding as complete
+        await this.userService.createUserProfile({
+          id: currentUser.uid,
+          email: currentUser.email || '',
+          displayName: currentUser.displayName || 'User',
+          photoURL: currentUser.photoURL || '',
+          joinDate: new Date(),
+          currentDay: 1,
+          streakCount: 0,
+          isOnboardingComplete: true, // Skip - mark as complete immediately
+          preferences: {
+            dailyReminders: true,
+            reminderTime: '09:00',
+            weeklyReports: true,
+            milestoneNotifications: true,
+            darkMode: false,
+            language: 'en',
+            dataSharing: false,
+            analytics: true,
+            backupEnabled: true
+          },
+          stats: {
+            totalTrackerEntries: 0,
+            totalJournalEntries: 0,
+            totalMeditationMinutes: 0,
+            completedTrackers: 0,
+            currentStreaks: 0,
+            longestStreak: 0,
+            weeklyActivityScore: 0,
+            monthlyGoalsCompleted: 0
+          },
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+        
+        console.log('✅ Minimal user profile created and onboarding skipped');
+      } else {
+        console.log('✅ User profile already exists, updating to mark onboarding complete');
+        
+        // Update existing profile to mark onboarding as complete
+        await this.userService.updateUserProfile({
+          isOnboardingComplete: true
+        });
+        
+        console.log('✅ Onboarding marked as complete');
+      }
       
-      console.log('✅ Onboarding skipped - going to dashboard');
+      console.log('🏠 Navigating to dashboard');
       this.router.navigate(['/tabs/dashboard']);
       
     } catch (error) {

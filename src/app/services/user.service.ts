@@ -20,7 +20,11 @@ export class UserService {
     private db: DatabaseService,
     private errorHandler: ErrorHandlingService,
     private logging: LoggingService
-  ) {}
+  ) {
+    // Establish the connection to resolve circular dependency
+    // This allows AuthService to call UserService methods when needed
+    this.authService.setUserService(this);
+  }
 
   // Get current user profile with caching and real-time updates
   getCurrentUserProfile(): Observable<User | null> {

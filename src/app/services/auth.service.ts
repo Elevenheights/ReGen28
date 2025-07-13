@@ -135,14 +135,49 @@ export class AuthService {
 
   private async initializeUserProfile(user: User): Promise<void> {
     try {
-      // Import UserService dynamically to avoid circular dependency
-      const { UserService } = await import('./user.service');
-      
-      // We can't instantiate UserService directly due to DI, so we'll skip this for now
-      // The user profile will be created when needed by the onboarding flow
-      console.log('User profile initialization deferred to onboarding flow');
+      const userService = this.getUserService();
+      if (userService) {
+        // Create basic user profile document in Firestore
+        await userService.createUserProfile({
+          id: user.uid,
+          email: user.email || '',
+          displayName: user.displayName || '',
+          photoURL: user.photoURL || '',
+          joinDate: new Date(),
+          currentDay: 1,
+          streakCount: 0,
+          isOnboardingComplete: false, // Will be set to true after onboarding
+          preferences: {
+            dailyReminders: true,
+            reminderTime: '09:00',
+            weeklyReports: true,
+            milestoneNotifications: true,
+            darkMode: false,
+            language: 'en',
+            dataSharing: false,
+            analytics: true,
+            backupEnabled: true
+          },
+          stats: {
+            totalTrackerEntries: 0,
+            totalJournalEntries: 0,
+            totalMeditationMinutes: 0,
+            completedTrackers: 0,
+            currentStreaks: 0,
+            longestStreak: 0,
+            weeklyActivityScore: 0,
+            monthlyGoalsCompleted: 0
+          },
+          createdAt: new Date(),
+          updatedAt: new Date()
+        });
+        console.log('✅ User profile created in Firestore for:', user.email);
+      } else {
+        console.warn('⚠️ UserService not available, user profile creation deferred');
+      }
     } catch (error) {
-      console.error('Error initializing user profile:', error);
+      console.error('❌ Error creating user profile:', error);
+      throw error;
     }
   }
 
@@ -248,6 +283,9 @@ export class AuthService {
         await updateProfile(result.user, { displayName });
       }
       
+      // Create user document in Firestore immediately after successful registration
+      await this.initializeUserProfile(result.user);
+      
       // Send email verification
       await this.sendEmailVerification();
       
@@ -256,6 +294,8 @@ export class AuthService {
       const authError = this.handleAuthError(error);
       this.setError(authError.message);
       throw authError;
+    } finally {
+      this.setLoading(false);
     }
   }
 

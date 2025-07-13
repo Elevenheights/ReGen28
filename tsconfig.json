@@ -19,7 +19,15 @@
     "target": "es2022",
     "module": "es2020",
     "lib": ["es2018", "dom"],
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    // Dead code elimination options
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

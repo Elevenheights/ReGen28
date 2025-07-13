@@ -1,0 +1,37 @@
+{
+  "entry": [
+    "src/main.ts",
+    "src/polyfills.ts",
+    "src/test.ts"
+  ],
+  "extensions": [".ts", ".js"],
+  "ignorePatterns": [
+    "node_modules/**",
+    "dist/**",
+    "www/**",
+    "functions/**",
+    "src/**/*.spec.ts",
+    "src/**/*.d.ts",
+    "src/environments/**",
+    "src/assets/**"
+  ],
+  "ignoreUnresolved": [
+    "firebase/app",
+    "firebase/auth",
+    "firebase/firestore",
+    "firebase/functions",
+    "firebase/storage",
+    "@angular/fire/**",
+    "@ionic/angular/**",
+    "@capacitor/**",
+    "ionicons/icons"
+  ],
+  "ignoreUnimported": [
+    "src/main.ts",
+    "src/polyfills.ts",
+    "src/test.ts",
+    "src/zone-flags.ts",
+    "src/environments/environment.ts",
+    "src/environments/environment.prod.ts"
+  ]
+} 
