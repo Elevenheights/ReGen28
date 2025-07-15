@@ -123,7 +123,7 @@ Format your response as JSON:
         },
       ],
       max_tokens: 1000,
-      temperature: 0.7,
+      temperature: 1,
     });
 
     const responseText = completion.choices[0]?.message?.content;

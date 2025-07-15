@@ -11,7 +11,7 @@ import * as logger from "firebase-functions/logger";
 import {initializeApp} from "firebase-admin/app";
 import {getFirestore} from "firebase-admin/firestore";
 import {OpenAIService} from "./openai.service";
-import {completeUserOnboarding, updateUserStats, cleanupDuplicateTrackers, getDailySuggestions, cleanupOldSuggestions, onTrackerEntryCreated, checkExpiredTrackers} from './user-management';
+import {completeUserOnboarding, updateUserStats, cleanupDuplicateTrackers, cleanupOldSuggestions, getTrackerSpecificSuggestions, onTrackerEntryCreated, checkExpiredTrackers, queueDailyTrackerSuggestions, processSuggestionJobs, onSuggestionJobCreated, updateUserSubscriptionStatus, checkExpiredTrials} from './user-management';
 
 // Initialize Firebase Admin (main entry point)
 initializeApp();
@@ -22,10 +22,15 @@ export {
   completeUserOnboarding,
   updateUserStats,
   cleanupDuplicateTrackers,
-  getDailySuggestions,
   cleanupOldSuggestions,
+  getTrackerSpecificSuggestions,
   onTrackerEntryCreated,
-  checkExpiredTrackers
+  checkExpiredTrackers,
+  queueDailyTrackerSuggestions,
+  processSuggestionJobs,
+  onSuggestionJobCreated,
+  updateUserSubscriptionStatus,
+  checkExpiredTrials
 };
 
 // Define the OpenAI API key secret
@@ -341,13 +346,6 @@ interface RecommendationRequest {
   commitmentLevel: "light" | "moderate" | "intensive";
 }
 
-interface TrackerRecommendation {
-  trackerId: string;
-  reason: string;
-  priority: number;
-  customTarget?: number;
-}
-
 /**
  * AI-powered tracker recommendations function
  * @param {RecommendationRequest} request - The request data
@@ -357,6 +355,8 @@ export const getTrackerRecommendations = onCall<RecommendationRequest>(
   {
     maxInstances: 5,
     secrets: [openaiApiKey],
+    cors: true,
+    invoker: 'public',
   },
   async (request) => {
     try {
@@ -398,29 +398,18 @@ export const getTrackerRecommendations = onCall<RecommendationRequest>(
         categories: [...new Set(relevantTrackers.map(t => t.category))]
       });
 
-      // Try AI recommendations first
+      // Try AI recommendations - no fallbacks
       const openaiService = new OpenAIService(openaiApiKey.value());
       
-      if (openaiService.isAvailable()) {
-        try {
-          return await openaiService.getRecommendations(
-            focusAreas,
-            goals,
-            commitmentLevel,
-            relevantTrackers
-          );
-        } catch (error) {
-          logger.warn("OpenAI failed, falling back to rule-based", {error});
-        }
-      } else {
-        logger.warn("OpenAI API key not found, using fallback");
+      if (!openaiService.isAvailable()) {
+        throw new Error("OpenAI service not available");
       }
 
-      // Fallback to rule-based recommendations
-      return generateFallbackRecommendations(
-        relevantTrackers,
+      return await openaiService.getRecommendations(
+        focusAreas,
         goals,
-        commitmentLevel
+        commitmentLevel,
+        relevantTrackers
       );
     } catch (error) {
       logger.error("Error generating recommendations", {
@@ -429,170 +418,11 @@ export const getTrackerRecommendations = onCall<RecommendationRequest>(
         requestData: request.data
       });
       
-      // Final fallback - be very defensive
-      try {
-        const fallbackFocusAreas = Array.isArray(request.data?.focusAreas) ? request.data.focusAreas : [];
-        const fallbackGoals = Array.isArray(request.data?.goals) ? request.data.goals : [];
-        const fallbackCommitment = request.data?.commitmentLevel || 'moderate';
-
-        const relevantTrackers = AVAILABLE_TRACKERS.filter((tracker) => {
-          // Always include LIFESTYLE trackers
-          if (tracker.category === 'LIFESTYLE') return true;
-          
-          // If no focus areas, include all trackers
-          if (fallbackFocusAreas.length === 0) return true;
-          
-          // Include trackers matching focus areas
-          return fallbackFocusAreas.some((area: string) =>
-            String(area).toUpperCase() === tracker.category.toUpperCase()
-          );
-        });
-
-        return generateFallbackRecommendations(
-          relevantTrackers,
-          fallbackGoals,
-          fallbackCommitment
-        );
-      } catch (fallbackError) {
-        logger.error("Final fallback failed", {fallbackError});
-        
-        // Emergency response
-        return {
-          recommendations: [
-            {trackerId: 'mood', reason: 'Essential for tracking wellness', priority: 10},
-            {trackerId: 'sleep', reason: 'Fundamental for health', priority: 9},
-            {trackerId: 'exercise', reason: 'Important for physical wellness', priority: 8}
-          ],
-          source: 'emergency',
-          model: 'hardcoded'
-        };
-      }
+      // Re-throw the error instead of using fallbacks
+      throw error;
     }
   }
 );
-
-/**
- * Fallback recommendation logic when AI is unavailable
- * @param {typeof AVAILABLE_TRACKERS} relevantTrackers - Available trackers
- * @param {string[]} goals - User goals
- * @param {string} commitmentLevel - User commitment level
- * @return {object} Fallback recommendations
- */
-function generateFallbackRecommendations(
-  relevantTrackers: typeof AVAILABLE_TRACKERS,
-  goals: string[],
-  commitmentLevel: string
-): any {
-  const recommendations: TrackerRecommendation[] = [];
-
-  // Goal-based scoring
-  const goalKeywords = goals.join(" ").toLowerCase();
-
-  // Score trackers based on goal relevance
-  const scoredTrackers = relevantTrackers.map((tracker) => {
-    let score = 3; // Base score
-
-    // Boost score based on goal keywords
-    if (goalKeywords.includes("stress") || goalKeywords.includes("anxiety")) {
-      if (["meditation", "mindfulness", "gratitude", "mood"].includes(tracker.id)) {
-        score += 3;
-      }
-    }
-
-    if (goalKeywords.includes("health") || goalKeywords.includes("fitness")) {
-      if (["exercise", "steps", "water-intake", "sleep"].includes(tracker.id)) {
-        score += 3;
-      }
-    }
-
-    if (goalKeywords.includes("energy")) {
-      if (["sleep", "exercise", "water-intake", "healthy-meals"].includes(tracker.id)) {
-        score += 2;
-      }
-    }
-
-    if (goalKeywords.includes("focus") || goalKeywords.includes("clarity")) {
-      if (["meditation", "focus-session", "reading", "digital-detox"].includes(tracker.id)) {
-        score += 3;
-      }
-    }
-
-    if (goalKeywords.includes("confidence") || goalKeywords.includes("self-care")) {
-      if (["affirmations", "mirror-work", "self-care", "skincare"].includes(tracker.id)) {
-        score += 2;
-      }
-    }
-
-    if (goalKeywords.includes("spiritual") || goalKeywords.includes("growth")) {
-      if (["prayer-reflection", "gratitude", "nature-connection"].includes(tracker.id)) {
-        score += 2;
-      }
-    }
-
-    if (goalKeywords.includes("relationships") || goalKeywords.includes("social")) {
-      if (["social-connection", "acts-of-kindness", "digital-detox"].includes(tracker.id)) {
-        score += 2;
-      }
-    }
-
-    if (goalKeywords.includes("spending") || goalKeywords.includes("budget") || goalKeywords.includes("financial")) {
-      if (["budget-tracking", "spending-check"].includes(tracker.id)) {
-        score += 3;
-      }
-    }
-
-    if (goalKeywords.includes("read") || goalKeywords.includes("reading") || goalKeywords.includes("books")) {
-      if (tracker.id === "reading") {
-        score += 3;
-      }
-    }
-
-    // Always recommend mood tracking
-    if (tracker.id === "mood") score += 2;
-
-    return {...tracker, score};
-  });
-
-  // Sort by score and take top recommendations
-  const topTrackers = scoredTrackers
-    .sort((a, b) => b.score - a.score)
-    .slice(0, commitmentLevel === "light" ? 5 : commitmentLevel === "moderate" ? 6 : 8);
-
-  // Convert to recommendation format
-  topTrackers.forEach((tracker, index) => {
-    let reason = `Great for your ${tracker.category.toLowerCase()} focus area`;
-
-    if (goalKeywords.includes("stress") && ["meditation", "mindfulness"].includes(tracker.id)) {
-      reason = "Proven to reduce stress and promote mental clarity";
-    } else if (goalKeywords.includes("health") && ["exercise", "water-intake"].includes(tracker.id)) {
-      reason = "Essential for physical health and energy levels";
-    } else if (goalKeywords.includes("spending") && ["budget-tracking", "spending-check"].includes(tracker.id)) {
-      reason = "Helps build financial awareness and control spending habits";
-    } else if (goalKeywords.includes("read") && tracker.id === "reading") {
-      reason = "Regular reading improves knowledge, focus, and mental stimulation";
-    } else if (tracker.id === "mood") {
-      reason = "Daily mood tracking helps identify patterns and triggers";
-    }
-
-    recommendations.push({
-      trackerId: tracker.id,
-      reason,
-      priority: 10 - index,
-      customTarget: undefined,
-    });
-  });
-
-  logger.info("Fallback recommendations generated", {
-    count: recommendations.length,
-    trackers: recommendations.map((r) => r.trackerId),
-  });
-
-  return {
-    recommendations,
-    source: "fallback",
-    model: "rule-based",
-  };
-}
 
 interface LogTrackerEntryRequest {
   trackerId: string;
@@ -616,8 +446,8 @@ interface LogTrackerEntryRequest {
  */
 export const logTrackerEntry = onCall<LogTrackerEntryRequest>(
   {
-    maxInstances: 10,
-    cors: true, // Enable CORS for web requests
+    cors: true,
+    invoker: 'public',
   },
   async (request) => {
     try {
@@ -703,3 +533,6 @@ export const logTrackerEntry = onCall<LogTrackerEntryRequest>(
     }
   }
 );
+
+// NOTE: getTrackerEntryCount function removed - now using computed entryCount field in tracker documents
+// This eliminates expensive count() queries and reduces billing costs

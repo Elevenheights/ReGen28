@@ -3,6 +3,14 @@
  * This ensures consistency in tracker templates and app configuration
  */
 
+// Local enum definition to avoid cross-package runtime dependencies
+export enum TrackerFrequency {
+  DAILY = 'daily',
+  WEEKLY = 'weekly',
+  MONTHLY = 'monthly',
+}
+
+// Default tracker templates configuration
 export interface DefaultTrackerTemplate {
   id: string;
   name: string;
@@ -10,7 +18,7 @@ export interface DefaultTrackerTemplate {
   type: string;
   target: number;
   unit: string;
-  frequency: string;
+  frequency: TrackerFrequency; // Updated to use enum
   color: string;
   icon: string;
   description?: string;
@@ -22,7 +30,6 @@ export interface AppConfig {
   suggestionsCacheDuration: number;
   cleanupBatchSize: number;
   defaultCommitmentLevel: string;
-  fallbackRecommendationCount: number;
 }
 
 export const APP_CONFIG: AppConfig = {
@@ -31,7 +38,6 @@ export const APP_CONFIG: AppConfig = {
   suggestionsCacheDuration: 24 * 60 * 60 * 1000, // 24 hours in ms
   cleanupBatchSize: 10,
   defaultCommitmentLevel: 'moderate',
-  fallbackRecommendationCount: 3
 };
 
 export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
@@ -43,7 +49,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'duration',
     target: 10,
     unit: 'minutes',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#3b82f6',
     icon: 'fa-brain',
     description: 'Daily meditation practice for mindfulness and mental clarity'
@@ -55,7 +61,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'count',
     target: 3,
     unit: 'sessions',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#1e40af',
     icon: 'fa-bullseye',
     description: 'Deep work sessions without distractions'
@@ -67,7 +73,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'duration',
     target: 2,
     unit: 'hours',
-    frequency: 'weekly',
+    frequency: TrackerFrequency.WEEKLY,
     color: '#1d4ed8',
     icon: 'fa-graduation-cap',
     description: 'Time spent learning new skills or knowledge'
@@ -79,7 +85,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'count',
     target: 5,
     unit: 'minutes',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#2563eb',
     icon: 'fa-leaf',
     description: 'Mindful moments throughout the day'
@@ -93,7 +99,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'count',
     target: 4,
     unit: 'sessions',
-    frequency: 'weekly',
+    frequency: TrackerFrequency.WEEKLY,
     color: '#10b981',
     icon: 'fa-dumbbell',
     description: 'Physical activity and workout sessions'
@@ -105,7 +111,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'rating',
     target: 8,
     unit: 'hours',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#059669',
     icon: 'fa-bed',
     description: 'Track your sleep duration each night'
@@ -117,7 +123,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'count',
     target: 8,
     unit: 'glasses',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#0891b2',
     icon: 'fa-glass-water',
     description: 'Daily water consumption tracking'
@@ -129,7 +135,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'count',
     target: 10000,
     unit: 'steps',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#0d9488',
     icon: 'fa-walking',
     description: 'Daily step count for activity monitoring'
@@ -141,7 +147,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'duration',
     target: 15,
     unit: 'minutes',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#059669',
     icon: 'fa-child-reaching',
     description: 'Daily stretching and flexibility exercises'
@@ -155,7 +161,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'count',
     target: 1,
     unit: 'entry',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#8b5cf6',
     icon: 'fa-heart',
     description: 'Daily gratitude journaling and appreciation'
@@ -167,7 +173,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'duration',
     target: 15,
     unit: 'minutes',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#7c3aed',
     icon: 'fa-praying-hands',
     description: 'Spiritual practice and connection time'
@@ -179,7 +185,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'count',
     target: 3,
     unit: 'interactions',
-    frequency: 'weekly',
+    frequency: TrackerFrequency.WEEKLY,
     color: '#6d28d9',
     icon: 'fa-users',
     description: 'Meaningful connections with others'
@@ -191,7 +197,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'count',
     target: 2,
     unit: 'acts',
-    frequency: 'weekly',
+    frequency: TrackerFrequency.WEEKLY,
     color: '#5b21b6',
     icon: 'fa-hand-holding-heart',
     description: 'Random acts of kindness and giving'
@@ -205,7 +211,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'count',
     target: 1,
     unit: 'routine',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#ec4899',
     icon: 'fa-sparkles',
     description: 'Morning and evening skincare routines'
@@ -217,7 +223,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'duration',
     target: 2,
     unit: 'hours',
-    frequency: 'weekly',
+    frequency: TrackerFrequency.WEEKLY,
     color: '#db2777',
     icon: 'fa-spa',
     description: 'Dedicated time for personal care and relaxation'
@@ -229,7 +235,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'count',
     target: 1,
     unit: 'session',
-    frequency: 'weekly',
+    frequency: TrackerFrequency.WEEKLY,
     color: '#be185d',
     icon: 'fa-mirror',
     description: 'Beauty treatments and personal grooming'
@@ -241,24 +247,24 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'duration',
     target: 15,
     unit: 'minutes',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#9d174d',
     icon: 'fa-cut',
-    description: 'Daily grooming and personal care'
+    description: 'Daily grooming and personal care routine'
   },
 
-  // MOOD TRACKER (Universal)
+  // MOOD TRACKERS
   {
     id: 'mood',
-    name: 'Daily Mood',
+    name: 'Daily Mood Check',
     category: 'mood',
     type: 'scale',
     target: 1,
     unit: 'check-in',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#f59e0b',
-    icon: 'fa-face-smile',
-    description: 'Track your overall mood and emotional state'
+    icon: 'fa-smile',
+    description: 'Track your daily emotional state and mood patterns'
   },
   {
     id: 'energy',
@@ -267,7 +273,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'scale',
     target: 1,
     unit: 'check-in',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#d97706',
     icon: 'fa-bolt',
     description: 'Monitor your daily energy levels'
@@ -279,7 +285,7 @@ export const DEFAULT_TRACKER_TEMPLATES: DefaultTrackerTemplate[] = [
     type: 'scale',
     target: 1,
     unit: 'check-in',
-    frequency: 'daily',
+    frequency: TrackerFrequency.DAILY,
     color: '#b45309',
     icon: 'fa-heart-pulse',
     description: 'Rate your overall sense of wellbeing'
@@ -298,58 +304,6 @@ export function getTrackerTemplate(trackerId: string): DefaultTrackerTemplate | 
  */
 export function getTemplatesByCategory(category: string): DefaultTrackerTemplate[] {
   return DEFAULT_TRACKER_TEMPLATES.filter(template => template.category === category);
-}
-
-/**
- * Get fallback suggestions for daily recommendations
- */
-export function getFallbackDailySuggestions(): Array<{ text: string; type: string; icon: string }> {
-  return [
-    {
-      text: 'Start your day with 5 minutes of mindful breathing',
-      type: 'mindfulness',
-      icon: '🧘'
-    },
-    {
-      text: 'Take a moment to appreciate something beautiful around you',
-      type: 'gratitude',
-      icon: '✨'
-    },
-    {
-      text: 'Stay hydrated - drink a glass of water now',
-      type: 'physical',
-      icon: '💧'
-    }
-  ];
-}
-
-/**
- * Get fallback tracker recommendations
- */
-export function getFallbackTrackerRecommendations(): Array<{ name: string; category: string; icon: string; description: string; reason?: string }> {
-  return [
-    {
-      name: 'Sleep Quality',
-      category: 'body',
-      icon: 'fa-bed',
-      description: 'Track your rest and recovery',
-      reason: 'Essential for overall health'
-    },
-    {
-      name: 'Water Intake',
-      category: 'body', 
-      icon: 'fa-glass-water',
-      description: 'Stay hydrated throughout the day',
-      reason: 'Basic wellness foundation'
-    },
-    {
-      name: 'Daily Mood',
-      category: 'mood',
-      icon: 'fa-face-smile',
-      description: 'Monitor your emotional state',
-      reason: 'Mental health awareness'
-    }
-  ];
 }
 
 /**
