@@ -17,7 +17,7 @@ import {
   updateProfile,
   onAuthStateChanged
 } from '@angular/fire/auth';
-import { Observable, BehaviorSubject, from, of, switchMap, firstValueFrom } from 'rxjs';
+import { Observable, BehaviorSubject, from, of, switchMap, firstValueFrom, take } from 'rxjs';
 import { UserService } from './user.service';
 
 export interface AuthState {
@@ -39,7 +39,7 @@ export class AuthService {
   
   private authStateSubject = new BehaviorSubject<AuthState>({
     user: null,
-    loading: true,
+    loading: false, // Start with false to avoid stuck loading state
     error: null
   });
   
@@ -54,7 +54,10 @@ export class AuthService {
     this.initializeAuthState();
     
     // Check for redirect result on app load (for mobile OAuth)
-    this.handleRedirectResult();
+    // Only if we're coming back from a redirect
+    if (this.shouldCheckRedirectResult()) {
+      this.handleRedirectResult();
+    }
     
     // Initialize UserService connection after a brief delay to avoid circular dependency
     setTimeout(() => {
@@ -73,23 +76,73 @@ export class AuthService {
   }
 
   private isMobile(): boolean {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
-           window.innerWidth <= 768;
+    const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
+    
+    // Check for mobile user agents including Chrome Mobile
+    const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Chrome.*Mobile|Mobile.*Chrome/i.test(userAgent);
+    const isNarrowScreen = window.innerWidth <= 768;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isCapacitorApp = !!(window as any).Capacitor;
+    
+    console.log('Mobile detection:', {
+      userAgent,
+      isMobileUserAgent,
+      isNarrowScreen,
+      isTouchDevice,
+      isCapacitorApp,
+      windowWidth: window.innerWidth,
+      maxTouchPoints: navigator.maxTouchPoints,
+      final: isCapacitorApp || isMobileUserAgent || (isNarrowScreen && isTouchDevice)
+    });
+    
+    // More robust mobile detection: 
+    // - If it's a Capacitor app, always treat as mobile
+    // - Check for mobile Chrome specifically
+    // - Must have mobile user agent OR be narrow screen with touch capability
+    return isCapacitorApp || isMobileUserAgent || (isNarrowScreen && isTouchDevice);
+  }
+  
+  private shouldCheckRedirectResult(): boolean {
+    // Check if we're coming back from an OAuth redirect
+    // This prevents unnecessary loading states on normal app loads
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasOAuthParams = urlParams.has('code') || urlParams.has('state') || 
+                          window.location.hash.includes('access_token') ||
+                          sessionStorage.getItem('pendingOAuthRedirect') === 'true';
+    
+    console.log('Should check redirect result:', {
+      hasOAuthParams,
+      url: window.location.href,
+      search: window.location.search,
+      hash: window.location.hash,
+      pendingRedirect: sessionStorage.getItem('pendingOAuthRedirect')
+    });
+    return hasOAuthParams;
   }
 
   private async handleRedirectResult(): Promise<void> {
     try {
       console.log('Checking for OAuth redirect result...');
+      this.setLoading(true); // Set loading while checking
+      
       const result = await getRedirectResult(this.auth);
+      
+      // Clear the pending redirect flag
+      sessionStorage.removeItem('pendingOAuthRedirect');
+      
       if (result?.user) {
         // User signed in via redirect (mobile OAuth flow)
         console.log('OAuth redirect successful:', result.user.email);
         // The auth state will be updated automatically by onAuthStateChanged
+        // which will clear the loading state
       } else {
         console.log('No redirect result found');
+        // Clear loading state since no redirect result
+        this.setLoading(false);
       }
     } catch (error: any) {
       console.error('OAuth redirect error:', error);
+      sessionStorage.removeItem('pendingOAuthRedirect');
       const authError = this.handleAuthError(error);
       this.setError(authError.message);
     }
@@ -107,7 +160,14 @@ export class AuthService {
   private initializeAuthState(): void {
     onAuthStateChanged(this.auth, async (user) => {
       console.log('Auth state changed:', user ? `User: ${user.email}` : 'No user');
-      this.setLoading(true);
+      
+      // Only set loading if we're actually processing something
+      const currentState = this.authStateSubject.value;
+      const isInitialLoad = currentState.user === null && user !== null;
+      
+      if (isInitialLoad) {
+        this.setLoading(true);
+      }
       
       if (user) {
         // User is signed in
@@ -137,16 +197,51 @@ export class AuthService {
     try {
       const userService = this.getUserService();
       if (userService) {
-        // Create basic user profile document in Firestore
+        // Check if user profile already exists
+        const existingProfile = await firstValueFrom(userService.getCurrentUserProfile().pipe(take(1)));
+        
+        if (existingProfile) {
+          console.log('✅ User profile already exists for:', user.email, 'skipping creation');
+          
+          // Check if existing user still has a Google photo URL that needs to be migrated
+          if (existingProfile.photoURL && existingProfile.photoURL.includes('googleusercontent.com')) {
+            console.log('🔄 Migrating existing Google photo URL to Firebase Storage...');
+            try {
+              const storedPhotoURL = await userService.downloadAndStoreGooglePhoto(existingProfile.photoURL);
+              await userService.updateUserProfile({ photoURL: storedPhotoURL });
+              console.log('✅ Successfully migrated Google photo to Firebase Storage');
+            } catch (error) {
+              console.error('❌ Failed to migrate Google photo:', error);
+            }
+          }
+          
+          return;
+        }
+
+        console.log('🆕 Creating new user profile for:', user.email);
+        
+        // Download and store Google profile photo if available
+        let storedPhotoURL = '';
+        if (user.photoURL) {
+          console.log('📸 Downloading and storing Google profile photo...');
+          storedPhotoURL = await userService.downloadAndStoreGooglePhoto(user.photoURL);
+        }
+        
+        // Create basic user profile document in Firestore (only for new users)
         await userService.createUserProfile({
           id: user.uid,
           email: user.email || '',
           displayName: user.displayName || '',
-          photoURL: user.photoURL || '',
+          photoURL: storedPhotoURL,
           joinDate: new Date(),
           currentDay: 1,
           streakCount: 0,
           isOnboardingComplete: false, // Will be set to true after onboarding
+          // Subscription defaults
+          status: 'active', // New users start with trial
+          subscriptionType: 'trial', // Everyone gets a trial period
+          trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
+          lastActiveAt: new Date(),
           preferences: {
             dailyReminders: true,
             reminderTime: '09:00',
@@ -154,6 +249,7 @@ export class AuthService {
             milestoneNotifications: true,
             darkMode: false,
             language: 'en',
+            timezone: 'UTC', // Default fallback, will be updated during onboarding
             dataSharing: false,
             analytics: true,
             backupEnabled: true
@@ -171,12 +267,12 @@ export class AuthService {
           createdAt: new Date(),
           updatedAt: new Date()
         });
-        console.log('✅ User profile created in Firestore for:', user.email);
+        console.log('✅ New user profile created in Firestore for:', user.email);
       } else {
         console.warn('⚠️ UserService not available, user profile creation deferred');
       }
     } catch (error) {
-      console.error('❌ Error creating user profile:', error);
+      console.error('❌ Error initializing user profile:', error);
       throw error;
     }
   }
@@ -300,6 +396,7 @@ export class AuthService {
   }
 
   async loginWithGoogle(): Promise<User | null> {
+    console.log('🔑 Starting Google login...');
     this.setLoading(true);
     this.setError(null);
     
@@ -308,16 +405,31 @@ export class AuthService {
       provider.addScope('profile');
       provider.addScope('email');
       
-      if (this.isMobile()) {
-        // Use redirect on mobile for better UX
+      // For Capacitor/mobile apps, always use popup to avoid redirect issues
+      const isCapacitorApp = !!(window as any).Capacitor;
+      
+      if (this.isMobile() && !isCapacitorApp) {
+        console.log('🔑 Using mobile redirect flow for Google login (web mobile)');
+        // Set a flag to indicate we're expecting a redirect result
+        sessionStorage.setItem('pendingOAuthRedirect', 'true');
+        // Use redirect on mobile web for better UX
         await signInWithRedirect(this.auth, provider);
+        console.log('🔑 Google redirect initiated, user will be redirected...');
+        // Don't set loading to false here as the redirect is happening
+        // handleRedirectResult() will handle the auth state when user returns
         return null; // Redirect will handle the rest
       } else {
-        // Use popup on desktop
+        console.log('🔑 Using popup flow for Google login (desktop or Capacitor app)');
+        // Use popup on desktop AND in Capacitor apps
         const result = await signInWithPopup(this.auth, provider);
+        console.log('🔑 Google popup login successful:', result.user.email);
+        this.setLoading(false);
         return result.user;
       }
     } catch (error: any) {
+      console.error('🔑 Google login error:', error);
+      this.setLoading(false);
+      sessionStorage.removeItem('pendingOAuthRedirect');
       const authError = this.handleAuthError(error);
       this.setError(authError.message);
       throw authError;
@@ -333,16 +445,26 @@ export class AuthService {
       provider.addScope('email');
       provider.addScope('name');
       
-      if (this.isMobile()) {
-        // Use redirect on mobile for better UX
+      // For Capacitor/mobile apps, always use popup to avoid redirect issues
+      const isCapacitorApp = !!(window as any).Capacitor;
+      
+      if (this.isMobile() && !isCapacitorApp) {
+        // Set a flag to indicate we're expecting a redirect result
+        sessionStorage.setItem('pendingOAuthRedirect', 'true');
+        // Use redirect on mobile web for better UX
         await signInWithRedirect(this.auth, provider);
+        // Don't set loading to false here as the redirect is happening
+        // handleRedirectResult() will handle the auth state when user returns
         return null; // Redirect will handle the rest
       } else {
-        // Use popup on desktop
+        // Use popup on desktop AND in Capacitor apps
         const result = await signInWithPopup(this.auth, provider);
+        this.setLoading(false);
         return result.user;
       }
     } catch (error: any) {
+      this.setLoading(false);
+      sessionStorage.removeItem('pendingOAuthRedirect');
       const authError = this.handleAuthError(error);
       this.setError(authError.message);
       throw authError;
@@ -357,16 +479,26 @@ export class AuthService {
       const provider = new FacebookAuthProvider();
       provider.addScope('email');
       
-      if (this.isMobile()) {
-        // Use redirect on mobile for better UX
+      // For Capacitor/mobile apps, always use popup to avoid redirect issues
+      const isCapacitorApp = !!(window as any).Capacitor;
+      
+      if (this.isMobile() && !isCapacitorApp) {
+        // Set a flag to indicate we're expecting a redirect result
+        sessionStorage.setItem('pendingOAuthRedirect', 'true');
+        // Use redirect on mobile web for better UX
         await signInWithRedirect(this.auth, provider);
+        // Don't set loading to false here as the redirect is happening
+        // handleRedirectResult() will handle the auth state when user returns
         return null; // Redirect will handle the rest
       } else {
-        // Use popup on desktop
+        // Use popup on desktop AND in Capacitor apps
         const result = await signInWithPopup(this.auth, provider);
+        this.setLoading(false);
         return result.user;
       }
     } catch (error: any) {
+      this.setLoading(false);
+      sessionStorage.removeItem('pendingOAuthRedirect');
       const authError = this.handleAuthError(error);
       this.setError(authError.message);
       throw authError;

@@ -2,7 +2,11 @@
 <header class="bg-white border-b border-neutral-200 px-4 py-3">
   <div class="flex items-center justify-between">
     <div class="flex items-center space-x-3">
-      <img src="https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=42" alt="Profile" class="w-8 h-8 rounded-full">
+      <img [src]="profileImageUrl" 
+           [alt]="userDisplayName + ' profile'" 
+           class="w-8 h-8 rounded-full object-cover"
+           (error)="onImageError($event)"
+           (load)="onImageLoad($event)">
       <div>
         <h1 class="text-lg text-neutral-900">Settings</h1>
         <p class="text-xs text-neutral-500">Customize your wellness experience</p>

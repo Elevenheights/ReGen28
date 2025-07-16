@@ -92,6 +92,9 @@ export interface Tracker {
   createdAt: Date;
   updatedAt: Date;
 
+  // Computed fields for performance optimization
+  entryCount?: number;     // Total number of entries for this tracker (computed)
+
   // Optional stats (calculated, not required for every tracker)
   stats?: TrackerStats;
 }
@@ -99,7 +102,8 @@ export interface Tracker {
 export interface TrackerConfig {
   // Reminders
   reminderEnabled: boolean;
-  reminderTime?: string;
+  reminderTime?: string; // Legacy support for single time
+  reminderTimes?: string[]; // Multiple notification times ['09:00', '18:00', ...]
   reminderDays?: string[]; // ['monday', 'tuesday', ...]
   
   // Logging configuration - which fields to show/require

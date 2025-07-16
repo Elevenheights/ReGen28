@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 import { LoggingService } from './logging.service';
+import { ToastService } from './toast.service';
 
 export interface AppError {
   code: string;
@@ -59,7 +60,10 @@ export enum ErrorCode {
   providedIn: 'root'
 })
 export class ErrorHandlingService {
-  constructor(private logging: LoggingService) {}
+  constructor(
+    private logging: LoggingService,
+    private toastService: ToastService
+  ) {}
 
   /**
    * Handle error gracefully and return observable with error info (no fallback data)
@@ -310,5 +314,71 @@ export class ErrorHandlingService {
    */
   logInfo(message: string, context?: any): void {
     this.logging.info(message, context);
+  }
+
+  /**
+   * Show error message via toast
+   */
+  async showError(error: AppError | string, options?: { showRetry?: boolean }): Promise<void> {
+    const errorMessage = typeof error === 'string' ? error : error.userMessage;
+    
+    if (options?.showRetry && typeof error === 'object' && error.retryable) {
+      await this.toastService.showWithAction(
+        errorMessage,
+        'Retry',
+        () => {
+          // Emit retry event - components can listen for this
+          this.logging.info('User requested retry for error', { error });
+        },
+        { type: 'error', duration: 8000 }
+      );
+    } else {
+      await this.toastService.showError(errorMessage);
+    }
+  }
+
+  /**
+   * Show success message via toast
+   */
+  async showSuccess(message: string): Promise<void> {
+    await this.toastService.showSuccess(message);
+  }
+
+  /**
+   * Show warning message via toast
+   */
+  async showWarning(message: string): Promise<void> {
+    await this.toastService.showWarning(message);
+  }
+
+  /**
+   * Show info message via toast
+   */
+  async showInfo(message: string): Promise<void> {
+    await this.toastService.showInfo(message);
+  }
+
+  /**
+   * Handle error gracefully and optionally show toast
+   */
+  async handleErrorWithToast<T>(
+    operation: string,
+    error: any,
+    userMessage?: string,
+    showToast: boolean = true
+  ): Promise<Observable<never>> {
+    const appError = this.createAppError(error, operation, userMessage);
+    
+    this.logging.error(appError.message, {
+      operation,
+      error: appError,
+      originalError: error
+    });
+
+    if (showToast) {
+      await this.showError(appError, { showRetry: appError.retryable });
+    }
+
+    return throwError(() => appError);
   }
 } 

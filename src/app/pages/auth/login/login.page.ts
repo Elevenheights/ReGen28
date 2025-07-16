@@ -85,47 +85,31 @@ export class LoginPage implements OnInit {
   ngOnInit() {
     console.log('Login page initialized');
     
+    // Check if we're returning from an OAuth redirect
+    const isPendingRedirect = sessionStorage.getItem('pendingOAuthRedirect') === 'true';
+    console.log('Login page - Pending redirect:', isPendingRedirect);
+    
     // Subscribe to auth state changes
     this.authService.authState$.subscribe(async (authState: any) => {
       console.log('Login page - Auth state changed:', {
         hasUser: !!authState.user,
         loading: authState.loading,
-        error: authState.error
+        error: authState.error,
+        isPendingRedirect
       });
       
       this.isLoading = authState.loading;
       this.errorMessage = authState.error;
       
-      // If user is authenticated, check onboarding status and navigate
+      // If user is authenticated, navigate to main app and let guards handle onboarding
       if (authState.user && !authState.loading) {
-        console.log('User authenticated, checking onboarding status...');
+        console.log('User authenticated, navigating to main app...');
         
-        try {
-          // Wait a moment for user profile to be created
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          
-          this.userService.getCurrentUserProfile().subscribe({
-            next: (userProfile) => {
-              console.log('User profile:', userProfile);
-              
-              if (userProfile && userProfile.isOnboardingComplete) {
-                console.log('Onboarding complete, navigating to dashboard');
-                this.router.navigate(['/tabs/dashboard']);
-              } else {
-                console.log('Onboarding needed, navigating to onboarding');
-                this.router.navigate(['/onboarding']);
-              }
-            },
-            error: (error) => {
-              console.error('Error checking user profile:', error);
-              // Default to onboarding if we can't get profile
-              this.router.navigate(['/onboarding']);
-            }
-          });
-        } catch (error) {
-          console.error('Error during navigation:', error);
-          this.router.navigate(['/onboarding']);
-        }
+        // Small delay to ensure auth state is fully settled
+        setTimeout(() => {
+          // Let the OnboardingGuard handle onboarding detection and redirect
+          this.router.navigate(['/tabs/dashboard']);
+        }, 100);
       }
     });
   }

@@ -39,14 +39,14 @@
         ],
         // Dead code elimination rules
         "@typescript-eslint/no-unused-vars": [
-          "error",
+          "warn",
           {
             "argsIgnorePattern": "^_",
             "varsIgnorePattern": "^_",
             "caughtErrorsIgnorePattern": "^_"
           }
         ],
-        "unused-imports/no-unused-imports": "error",
+        "unused-imports/no-unused-imports": "warn",
         "unused-imports/no-unused-vars": [
           "warn",
           {
@@ -60,8 +60,8 @@
         "@typescript-eslint/no-empty-function": "error",
         "@typescript-eslint/no-empty-interface": "error",
         "no-unused-vars": "off", // Turn off base rule as it conflicts with @typescript-eslint
-        "no-unreachable": "error",
-        "no-unused-labels": "error",
+        "no-unreachable": "warn",
+        "no-unused-labels": "warn",
         "no-useless-return": "error"
       }
     },

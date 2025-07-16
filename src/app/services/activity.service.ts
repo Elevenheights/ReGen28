@@ -1,256 +1,339 @@
 import { Injectable } from '@angular/core';
-import { Firestore, doc, addDoc, collection, query, where, getDocs, orderBy, deleteDoc, limit } from '@angular/fire/firestore';
 import { AuthService } from './auth.service';
+import { DatabaseService } from './database.service';
+import { ErrorHandlingService } from './error-handling.service';
+import { LoggingService } from './logging.service';
 import { Activity, ActivityType, RecentActivitySummary, ActivityHelper } from '../models/activity.interface';
 import { TrackerEntry } from '../models/tracker.interface';
 import { JournalEntry } from '../models/journal.interface';
-import { Observable, switchMap, of, take, firstValueFrom, shareReplay } from 'rxjs';
+import { Observable, switchMap, of, take, firstValueFrom, shareReplay, map, catchError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ActivityService {
-  // Cache recent activities to prevent repeated queries
-  private recentActivities$: Observable<Activity[]> | null = null;
-  private cacheExpiry: number = 0;
-  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+  private readonly COLLECTION_NAME = 'activities';
+  
+  // Fallback cache data (only used when real-time fails)
+  private cachedActivities: Activity[] | null = null;
 
   constructor(
-    private firestore: Firestore,
-    private authService: AuthService
+    private databaseService: DatabaseService,
+    private authService: AuthService,
+    private errorHandlingService: ErrorHandlingService,
+    private loggingService: LoggingService
   ) {
     // Clear cache when user changes
-    this.authService.user$.subscribe(() => {
-      this.clearActivityCache();
+    this.authService.user$.subscribe(user => {
+      if (!user) {
+        this.clearActivityCache();
+      }
     });
   }
 
   // Clear the activities cache
   private clearActivityCache() {
-    this.recentActivities$ = null;
-    this.cacheExpiry = 0;
+    this.cachedActivities = null;
   }
 
   // Create a new activity entry
   async createActivity(activityData: Omit<Activity, 'id' | 'createdAt'>): Promise<string> {
-    const authUser = this.authService.getCurrentUser();
-    if (!authUser) throw new Error('No authenticated user');
+    try {
+      this.loggingService.debug('Creating new activity', { type: activityData.type });
+      
+      const authUser = this.authService.getCurrentUser();
+      if (!authUser) {
+        throw new Error('No authenticated user');
+      }
 
-    const activity: Omit<Activity, 'id'> = {
-      ...activityData,
-      userId: authUser.uid,
-      createdAt: new Date()
-    };
+      const activity: Omit<Activity, 'id'> = {
+        ...activityData,
+        userId: authUser.uid,
+        createdAt: new Date()
+      };
 
-    const activitiesCollection = collection(this.firestore, 'activities');
-    const docRef = await addDoc(activitiesCollection, activity);
+      const activityId = await firstValueFrom(this.databaseService.createDocument(this.COLLECTION_NAME, activity));
+      
+      if (!activityId) {
+        throw new Error('Failed to create activity');
+      }
 
-    // Clear cache to reflect new activity
-    this.clearActivityCache();
+      // Clear cache to reflect new activity
+      this.clearActivityCache();
 
-    return docRef.id;
-  }
-
-  // Auto-create activity from tracker entry
-  async createActivityFromTrackerEntry(trackerEntry: TrackerEntry, trackerName: string, trackerColor: string, trackerIcon: string, trackerUnit: string = ''): Promise<string> {
-    const activity = ActivityHelper.createTrackerEntryActivity(
-      trackerEntry.userId,
-      trackerEntry.trackerId,
-      trackerName,
-      trackerIcon,
-      trackerColor,
-      trackerEntry.value,
-      trackerUnit,
-      trackerEntry.mood
-    );
-
-    return this.createActivity(activity);
-  }
-
-  // Auto-create activity from journal entry
-  async createActivityFromJournalEntry(journalEntry: JournalEntry): Promise<string> {
-    const activity = ActivityHelper.createJournalEntryActivity(
-      journalEntry.userId,
-      journalEntry.id,
-      journalEntry.title || 'New Journal Entry',
-      journalEntry.mood
-    );
-
-    return this.createActivity(activity);
-  }
-
-  // Auto-create activity from goal completion
-  async createActivityFromGoalCompletion(goalId: string, goalTitle: string, goalCategory: string): Promise<string> {
-    const authUser = this.authService.getCurrentUser();
-    if (!authUser) throw new Error('No authenticated user');
-
-    const activity = ActivityHelper.createGoalCompletedActivity(
-      authUser.uid,
-      goalId,
-      goalTitle,
-      goalCategory
-    );
-
-    return this.createActivity(activity);
-  }
-
-  // Auto-create activity from achievement earned
-  async createActivityFromAchievement(achievementId: string, achievementTitle: string, achievementIcon: string, achievementColor: string, points: number, rarity: string): Promise<string> {
-    const authUser = this.authService.getCurrentUser();
-    if (!authUser) throw new Error('No authenticated user');
-
-    const activity = ActivityHelper.createAchievementEarnedActivity(
-      authUser.uid,
-      achievementId,
-      achievementTitle,
-      achievementIcon,
-      achievementColor,
-      points,
-      rarity
-    );
-
-    return this.createActivity(activity);
-  }
-
-  // Get recent activities for current user (cached with time-based expiry)
-  getRecentActivities(limitCount: number = 20): Observable<Activity[]> {
-    const now = Date.now();
-    
-    // Return cached data if it's still valid
-    if (this.recentActivities$ && now < this.cacheExpiry) {
-      return this.recentActivities$;
+      this.loggingService.info('Activity created successfully', { activityId, type: activityData.type });
+      return activityId;
+    } catch (error) {
+      this.loggingService.error('Failed to create activity', error);
+      throw this.errorHandlingService.createAppError(error, 'Failed to create activity');
     }
+  }
 
-    // Create new cached observable
-    this.recentActivities$ = this.authService.user$.pipe(
+  // Create activity from tracker entry
+  async createActivityFromTrackerEntry(trackerEntry: TrackerEntry, trackerName: string, trackerColor: string, trackerIcon: string, trackerUnit: string = '', trackerCategory?: string): Promise<string> {
+    try {
+      this.loggingService.debug('Creating activity from tracker entry', { trackerId: trackerEntry.trackerId });
+      
+      const activity = ActivityHelper.createTrackerEntryActivity(
+        trackerEntry.userId,
+        trackerEntry.trackerId,
+        trackerName,
+        trackerIcon,
+        trackerColor,
+        trackerEntry.value,
+        trackerUnit,
+        trackerEntry.mood,
+        trackerCategory
+      );
+
+      return await this.createActivity(activity);
+    } catch (error) {
+      this.loggingService.error('Failed to create activity from tracker entry', error);
+      throw this.errorHandlingService.createAppError(error, 'Failed to create tracker activity');
+    }
+  }
+
+  // Create activity from journal entry
+  async createActivityFromJournalEntry(journalEntry: JournalEntry): Promise<string> {
+    try {
+      this.loggingService.debug('Creating activity from journal entry', { entryId: journalEntry.id });
+      
+      const activity = ActivityHelper.createJournalEntryActivity(
+        journalEntry.userId,
+        journalEntry.id,
+        journalEntry.title,
+        journalEntry.mood
+      );
+
+      return await this.createActivity(activity);
+    } catch (error) {
+      this.loggingService.error('Failed to create activity from journal entry', error);
+      throw this.errorHandlingService.createAppError(error, 'Failed to create journal activity');
+    }
+  }
+
+  // Create activity from goal completion
+  async createActivityFromGoalCompletion(goalId: string, goalTitle: string, goalCategory: string): Promise<string> {
+    try {
+      this.loggingService.debug('Creating activity from goal completion', { goalId });
+      
+      const authUser = this.authService.getCurrentUser();
+      if (!authUser) {
+        throw new Error('No authenticated user');
+      }
+      
+      const activity = ActivityHelper.createGoalCompletedActivity(
+        authUser.uid,
+        goalId,
+        goalTitle,
+        goalCategory
+      );
+
+      return await this.createActivity(activity);
+    } catch (error) {
+      this.loggingService.error('Failed to create activity from goal completion', error);
+      throw this.errorHandlingService.createAppError(error, 'Failed to create goal activity');
+    }
+  }
+
+  // Create activity from achievement
+  async createActivityFromAchievement(achievementId: string, achievementTitle: string, achievementIcon: string, achievementColor: string, points: number, rarity: string): Promise<string> {
+    try {
+      this.loggingService.debug('Creating activity from achievement', { achievementId });
+      
+      const authUser = this.authService.getCurrentUser();
+      if (!authUser) {
+        throw new Error('No authenticated user');
+      }
+      
+      const activity = ActivityHelper.createAchievementEarnedActivity(
+        authUser.uid,
+        achievementId,
+        achievementTitle,
+        achievementIcon,
+        achievementColor,
+        points,
+        rarity
+      );
+
+      return await this.createActivity(activity);
+    } catch (error) {
+      this.loggingService.error('Failed to create activity from achievement', error);
+      throw this.errorHandlingService.createAppError(error, 'Failed to create achievement activity');
+    }
+  }
+
+  // Get recent activities with database ordering for performance
+  getRecentActivities(limitCount: number = 20): Observable<Activity[]> {
+    return this.authService.user$.pipe(
       switchMap(authUser => {
         if (!authUser) return of([]);
         
-        const activitiesQuery = query(
-          collection(this.firestore, 'activities'),
-          where('userId', '==', authUser.uid),
-          orderBy('activityDate', 'desc'),
-          limit(limitCount)
-        );
-        
-        return getDocs(activitiesQuery).then(snapshot => 
-          snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Activity))
+        return this.databaseService.getUserDocuments<Activity>(
+          this.COLLECTION_NAME,
+          authUser.uid,
+          {
+            orderBy: [{ field: 'createdAt', direction: 'desc' }], // Database ordering for performance
+            limit: limitCount
+          }
+        ).pipe(
+          map(activities => {
+            // Update cache when real data succeeds
+            this.cachedActivities = activities;
+            return this.cachedActivities;
+          }),
+          catchError(error => {
+            this.loggingService.error('Failed to fetch recent activities, using cache fallback', { error });
+            // Only use cache as fallback when real-time fails
+            if (this.cachedActivities) {
+              return of(this.cachedActivities);
+            }
+            // If no cache available, return empty array
+            return of([]);
+          })
         );
       }),
-      shareReplay(1) // Cache the result
+      shareReplay(1)
     );
-
-    // Set cache expiry
-    this.cacheExpiry = now + this.CACHE_DURATION;
-
-    return this.recentActivities$;
   }
 
-  // Get activities by type
+  // Get activities by type with database ordering
   getActivitiesByType(type: ActivityType, limitCount: number = 10): Observable<Activity[]> {
     return this.authService.user$.pipe(
       switchMap(authUser => {
         if (!authUser) return of([]);
         
-        const activitiesQuery = query(
-          collection(this.firestore, 'activities'),
-          where('userId', '==', authUser.uid),
-          where('type', '==', type),
-          orderBy('activityDate', 'desc'),
-          limit(limitCount)
+        return this.databaseService.getUserDocuments<Activity>(
+          this.COLLECTION_NAME,
+          authUser.uid,
+          {
+            where: [{ field: 'type', operator: '==', value: type }],
+            orderBy: [{ field: 'createdAt', direction: 'desc' }], // Database ordering for performance
+            limit: limitCount
+          }
         );
-        
-        return getDocs(activitiesQuery).then(snapshot => 
-          snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Activity))
-        );
+      }),
+      catchError(error => {
+        this.loggingService.error('Failed to fetch activities by type', error);
+        return of([]);
       })
     );
   }
 
-  // Get activities for specific date range
+  // Get activities by date range with database ordering
   getActivitiesByDateRange(startDate: Date, endDate: Date): Observable<Activity[]> {
     return this.authService.user$.pipe(
       switchMap(authUser => {
         if (!authUser) return of([]);
         
-        const activitiesQuery = query(
-          collection(this.firestore, 'activities'),
-          where('userId', '==', authUser.uid),
-          where('activityDate', '>=', startDate),
-          where('activityDate', '<=', endDate),
-          orderBy('activityDate', 'desc')
-        );
-        
-        return getDocs(activitiesQuery).then(snapshot => 
-          snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Activity))
+        return this.databaseService.getUserDocuments<Activity>(
+          this.COLLECTION_NAME,
+          authUser.uid,
+          {
+            where: [
+              { field: 'createdAt', operator: '>=', value: startDate },
+              { field: 'createdAt', operator: '<=', value: endDate }
+            ],
+            orderBy: [{ field: 'createdAt', direction: 'desc' }] // Database ordering for performance
+          }
         );
       })
     );
   }
 
-  // Get today's activities
+  // Get today's activities with database ordering
   getTodaysActivities(): Observable<Activity[]> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-
-    return this.getActivitiesByDateRange(today, tomorrow);
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+    
+    return this.getActivitiesByDateRange(startOfDay, endOfDay);
   }
 
-  // Get activity summary for dashboard
+  // Get activity summary
   async getActivitySummary(): Promise<RecentActivitySummary> {
-    const authUser = this.authService.getCurrentUser();
-    if (!authUser) throw new Error('No authenticated user');
+    try {
+      this.loggingService.debug('Calculating activity summary');
+      
+      const authUser = this.authService.getCurrentUser();
+      if (!authUser) {
+        throw new Error('No authenticated user');
+      }
 
-    const activities = await firstValueFrom(this.getRecentActivities(10).pipe(take(1)));
+      const activities = await firstValueFrom(this.getRecentActivities(50));
 
-    return {
-      userId: authUser.uid,
-      activities: activities || [],
-      totalCount: activities?.length || 0,
-      lastUpdated: new Date()
-    };
+      const summary: RecentActivitySummary = {
+        userId: authUser.uid,
+        activities: activities.slice(0, 10), // Show recent 10
+        totalCount: activities.length,
+        lastUpdated: new Date()
+      };
+
+      this.loggingService.info('Activity summary calculated', { totalCount: summary.totalCount });
+      return summary;
+    } catch (error) {
+      this.loggingService.error('Failed to calculate activity summary', error);
+      throw this.errorHandlingService.createAppError(error, 'Failed to calculate activity summary');
+    }
   }
 
-  // Get activity feed with time formatting for dashboard
+  // Get activity feed for dashboard
   getActivityFeedForDashboard(): Observable<Array<Activity & { timeAgo: string }>> {
-    return this.getRecentActivities(10).pipe(
-      switchMap(activities => {
-        const activitiesWithTime = activities.map(activity => ({
-          ...activity,
-          timeAgo: ActivityHelper.getTimeAgo(activity.activityDate)
-        }));
-        return of(activitiesWithTime);
+    return this.getRecentActivities(20).pipe(
+      map(activities => activities.map(activity => ({
+        ...activity,
+        timeAgo: this.getTimeAgo(activity.createdAt)
+      }))),
+      catchError(error => {
+        this.loggingService.error('Failed to get activity feed for dashboard', error);
+        return of([]);
       })
     );
   }
 
-  // Clean up old activities (delete activities older than X months)
+  // Cleanup old activities
   async cleanupOldActivities(monthsOld: number = 6): Promise<number> {
-    const authUser = this.authService.getCurrentUser();
-    if (!authUser) throw new Error('No authenticated user');
+    try {
+      this.loggingService.debug('Cleaning up old activities', { monthsOld });
+      
+      const authUser = this.authService.getCurrentUser();
+      if (!authUser) {
+        throw new Error('No authenticated user');
+      }
 
-    const cutoffDate = new Date();
-    cutoffDate.setMonth(cutoffDate.getMonth() - monthsOld);
+      const cutoffDate = new Date();
+      cutoffDate.setMonth(cutoffDate.getMonth() - monthsOld);
 
-    const activitiesQuery = query(
-      collection(this.firestore, 'activities'),
-      where('userId', '==', authUser.uid),
-      where('activityDate', '<', cutoffDate)
-    );
+      const oldActivities = await firstValueFrom(this.databaseService.getUserDocuments<Activity>(
+        this.COLLECTION_NAME,
+        authUser.uid,
+        {
+          where: [
+            { field: 'createdAt', operator: '<', value: cutoffDate }
+          ]
+        }
+      ));
 
-    const snapshot = await getDocs(activitiesQuery);
-    let deletedCount = 0;
+      if (oldActivities.length === 0) {
+        return 0;
+      }
 
-    // Delete old activities in batches
-    const deletePromises = snapshot.docs.map(async (docSnapshot) => {
-      await deleteDoc(doc(this.firestore, `activities/${docSnapshot.id}`));
-      deletedCount++;
-    });
+      // Delete old activities in batches
+      const batchOperations = oldActivities.map(activity => ({
+        type: 'delete' as const,
+        collection: this.COLLECTION_NAME,
+        id: activity.id
+      }));
 
-    await Promise.all(deletePromises);
-    return deletedCount;
+      await firstValueFrom(this.databaseService.batchWrite(batchOperations));
+
+      this.loggingService.info('Old activities cleaned up', { deletedCount: oldActivities.length });
+      return oldActivities.length;
+    } catch (error) {
+      this.loggingService.error('Failed to cleanup old activities', error);
+      throw this.errorHandlingService.createAppError(error, 'Failed to cleanup old activities');
+    }
   }
 
   // Get activity statistics
@@ -261,153 +344,293 @@ export class ActivityService {
     monthCount: number;
     typeBreakdown: { [key in ActivityType]: number };
   }> {
-    const authUser = this.authService.getCurrentUser();
-    if (!authUser) throw new Error('No authenticated user');
+    try {
+      this.loggingService.debug('Calculating activity statistics');
+      
+      const authUser = this.authService.getCurrentUser();
+      if (!authUser) {
+        throw new Error('No authenticated user');
+      }
 
-    // Get activities for different time periods
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+      const allActivities = await firstValueFrom(this.databaseService.getUserDocuments<Activity>(
+        this.COLLECTION_NAME,
+        authUser.uid,
+        {
+          orderBy: [{ field: 'createdAt', direction: 'desc' }]
+        }
+      ));
 
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    const oneMonthAgo = new Date();
-    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      const todayActivities = allActivities.filter(activity => 
+        new Date(activity.createdAt) >= today
+      );
 
-    const [todayActivities, weekActivities, monthActivities, allActivities] = await Promise.all([
-      this.getTodaysActivities().pipe(switchMap(activities => of(activities))).toPromise(),
-      this.getActivitiesByDateRange(oneWeekAgo, new Date()).pipe(switchMap(activities => of(activities))).toPromise(),
-      this.getActivitiesByDateRange(oneMonthAgo, new Date()).pipe(switchMap(activities => of(activities))).toPromise(),
-      this.getRecentActivities(1000).pipe(switchMap(activities => of(activities))).toPromise()
-    ]);
+      const weekActivities = allActivities.filter(activity => 
+        new Date(activity.createdAt) >= weekAgo
+      );
 
-    // Calculate type breakdown - initialize all activity types to 0
-    const typeBreakdown: { [key in ActivityType]: number } = Object.values(ActivityType).reduce((acc, type) => {
-      acc[type] = 0;
-      return acc;
-    }, {} as { [key in ActivityType]: number });
+      const monthActivities = allActivities.filter(activity => 
+        new Date(activity.createdAt) >= monthAgo
+      );
 
-    (allActivities || []).forEach(activity => {
-      typeBreakdown[activity.type]++;
-    });
-
-    return {
-      totalActivities: allActivities?.length || 0,
-      todayCount: todayActivities?.length || 0,
-      weekCount: weekActivities?.length || 0,
-      monthCount: monthActivities?.length || 0,
-      typeBreakdown
-    };
-  }
-
-  // Delete specific activity
-  async deleteActivity(activityId: string): Promise<void> {
-    const activityDoc = doc(this.firestore, `activities/${activityId}`);
-    await deleteDoc(activityDoc);
-  }
-
-  // Batch create activities (for bulk operations)
-  async batchCreateActivities(activities: Omit<Activity, 'id' | 'createdAt'>[]): Promise<string[]> {
-    const authUser = this.authService.getCurrentUser();
-    if (!authUser) throw new Error('No authenticated user');
-
-    const createPromises = activities.map(async (activityData) => {
-      const activity: Omit<Activity, 'id'> = {
-        ...activityData,
-        userId: authUser.uid,
-        createdAt: new Date()
+      // Calculate type breakdown
+      const typeBreakdown: { [key in ActivityType]: number } = {
+        [ActivityType.TRACKER_ENTRY]: 0,
+        [ActivityType.JOURNAL_ENTRY]: 0,
+        [ActivityType.GOAL_CREATED]: 0,
+        [ActivityType.GOAL_UPDATED]: 0,
+        [ActivityType.GOAL_COMPLETED]: 0,
+        [ActivityType.MILESTONE_COMPLETED]: 0,
+        [ActivityType.STREAK_ACHIEVED]: 0,
+        [ActivityType.TRACKER_CREATED]: 0,
+        [ActivityType.ACHIEVEMENT_EARNED]: 0,
+        [ActivityType.STREAK_MILESTONE]: 0
       };
 
-      const activitiesCollection = collection(this.firestore, 'activities');
-      const docRef = await addDoc(activitiesCollection, activity);
-      return docRef.id;
-    });
+      allActivities.forEach(activity => {
+        typeBreakdown[activity.type] = (typeBreakdown[activity.type] || 0) + 1;
+      });
 
-    return Promise.all(createPromises);
-  }
+      const stats = {
+        totalActivities: allActivities.length,
+        todayCount: todayActivities.length,
+        weekCount: weekActivities.length,
+        monthCount: monthActivities.length,
+        typeBreakdown
+      };
 
-  // Get user's activity streak (consecutive days with activities)
-  async getUserActivityStreak(): Promise<number> {
-    const authUser = this.authService.getCurrentUser();
-    if (!authUser) throw new Error('No authenticated user');
-
-    // Get recent activities and calculate consecutive days
-    const activities = await this.getRecentActivities(100).pipe(
-      switchMap(activities => of(activities))
-    ).toPromise();
-
-    if (!activities || activities.length === 0) return 0;
-
-    // Group activities by date
-    const activitiesByDate = new Map<string, Activity[]>();
-    
-    activities.forEach(activity => {
-      const date = new Date(activity.activityDate).toDateString();
-      
-      if (!activitiesByDate.has(date)) {
-        activitiesByDate.set(date, []);
-      }
-      activitiesByDate.get(date)?.push(activity);
-    });
-
-    // Calculate consecutive days from today backwards
-    let streak = 0;
-    let currentDate = new Date();
-    currentDate.setHours(0, 0, 0, 0);
-
-    while (true) {
-      const dateString = currentDate.toDateString();
-      if (activitiesByDate.has(dateString)) {
-        streak++;
-        currentDate.setDate(currentDate.getDate() - 1);
-      } else {
-        break;
-      }
+      this.loggingService.info('Activity statistics calculated', { totalActivities: stats.totalActivities });
+      return stats;
+    } catch (error) {
+      this.loggingService.error('Failed to calculate activity statistics', error);
+      throw this.errorHandlingService.createAppError(error, 'Failed to calculate activity statistics');
     }
-
-    return streak;
   }
 
-  // Get mood correlation from activities
+  // Delete activity
+  async deleteActivity(activityId: string): Promise<void> {
+    try {
+      this.loggingService.debug('Deleting activity', { activityId });
+      
+      await firstValueFrom(this.databaseService.deleteDocument(this.COLLECTION_NAME, activityId));
+      
+      // Clear cache
+      this.clearActivityCache();
+      
+      this.loggingService.info('Activity deleted successfully', { activityId });
+    } catch (error) {
+      this.loggingService.error('Failed to delete activity', error);
+      throw this.errorHandlingService.createAppError(error, 'Failed to delete activity');
+    }
+  }
+
+  // Batch create activities
+  async batchCreateActivities(activities: Omit<Activity, 'id' | 'createdAt'>[]): Promise<string[]> {
+    try {
+      this.loggingService.debug('Batch creating activities', { count: activities.length });
+      
+      const authUser = this.authService.getCurrentUser();
+      if (!authUser) {
+        throw new Error('No authenticated user');
+      }
+
+      const batchOperations = activities.map(activityData => ({
+        type: 'create' as const,
+        collection: this.COLLECTION_NAME,
+        data: {
+          ...activityData,
+          userId: authUser.uid,
+          createdAt: new Date()
+        }
+      }));
+
+      await firstValueFrom(this.databaseService.batchWrite(batchOperations));
+
+      // Clear cache
+      this.clearActivityCache();
+
+      this.loggingService.info('Activities batch created successfully', { count: activities.length });
+      return batchOperations.map((_, index) => `batch_${index}`); // Return placeholder IDs
+    } catch (error) {
+      this.loggingService.error('Failed to batch create activities', error);
+      throw this.errorHandlingService.createAppError(error, 'Failed to batch create activities');
+    }
+  }
+
+  // Get user activity streak
+  async getUserActivityStreak(): Promise<number> {
+    try {
+      this.loggingService.debug('Calculating user activity streak');
+      
+      const authUser = this.authService.getCurrentUser();
+      if (!authUser) {
+        throw new Error('No authenticated user');
+      }
+
+      const activities = await firstValueFrom(this.databaseService.getUserDocuments<Activity>(
+        this.COLLECTION_NAME,
+        authUser.uid,
+        {
+          orderBy: [{ field: 'createdAt', direction: 'desc' }]
+        }
+      ));
+
+      if (activities.length === 0) {
+        return 0;
+      }
+
+      // Group activities by date
+      const activitiesByDate = new Map<string, Activity[]>();
+      activities.forEach(activity => {
+        const dateStr = new Date(activity.createdAt).toDateString();
+        if (!activitiesByDate.has(dateStr)) {
+          activitiesByDate.set(dateStr, []);
+        }
+        activitiesByDate.get(dateStr)!.push(activity);
+      });
+
+      // Calculate streak
+      let streak = 0;
+      let currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+
+      while (true) {
+        const dateStr = currentDate.toDateString();
+        if (activitiesByDate.has(dateStr)) {
+          streak++;
+          currentDate.setDate(currentDate.getDate() - 1);
+        } else {
+          break;
+        }
+      }
+
+      this.loggingService.info('User activity streak calculated', { streak });
+      return streak;
+    } catch (error) {
+      this.loggingService.error('Failed to calculate user activity streak', error);
+      throw this.errorHandlingService.createAppError(error, 'Failed to calculate activity streak');
+    }
+  }
+
+  // Get mood-activity correlation
   async getMoodActivityCorrelation(): Promise<{
     averageMoodWithActivities: number;
     moodByActivityType: { [key in ActivityType]: number };
   }> {
-    const activities = await this.getRecentActivities(200).pipe(
-      switchMap(activities => of(activities))
-    ).toPromise();
-
-    const activitiesWithMood = (activities || []).filter(activity => activity.mood !== undefined);
-
-    if (activitiesWithMood.length === 0) {
-      return {
-        averageMoodWithActivities: 0,
-        moodByActivityType: Object.values(ActivityType).reduce((acc, type) => {
-          acc[type] = 0;
-          return acc;
-        }, {} as { [key in ActivityType]: number })
-      };
-    }
-
-    // Calculate overall average mood
-    const averageMoodWithActivities = activitiesWithMood.reduce((sum, activity) => sum + (activity.mood || 0), 0) / activitiesWithMood.length;
-
-    // Calculate mood by activity type
-    const moodByActivityType: { [key in ActivityType]: number } = Object.values(ActivityType).reduce((acc, type) => {
-      acc[type] = 0;
-      return acc;
-    }, {} as { [key in ActivityType]: number });
-
-    Object.values(ActivityType).forEach(type => {
-      const activitiesOfType = activitiesWithMood.filter(activity => activity.type === type);
-      if (activitiesOfType.length > 0) {
-        moodByActivityType[type] = activitiesOfType.reduce((sum, activity) => sum + (activity.mood || 0), 0) / activitiesOfType.length;
+    try {
+      this.loggingService.debug('Calculating mood-activity correlation');
+      
+      const authUser = this.authService.getCurrentUser();
+      if (!authUser) {
+        throw new Error('No authenticated user');
       }
-    });
 
-    return {
-      averageMoodWithActivities: Math.round(averageMoodWithActivities * 10) / 10,
-      moodByActivityType
-    };
+      const activities = await firstValueFrom(this.databaseService.getUserDocuments<Activity>(
+        this.COLLECTION_NAME,
+        authUser.uid,
+        {
+          orderBy: [{ field: 'createdAt', direction: 'desc' }]
+        }
+      ));
+
+      const activitiesWithMood = activities.filter(activity => activity.mood !== undefined);
+      
+      if (activitiesWithMood.length === 0) {
+        return {
+          averageMoodWithActivities: 0,
+          moodByActivityType: {
+            [ActivityType.TRACKER_ENTRY]: 0,
+            [ActivityType.JOURNAL_ENTRY]: 0,
+            [ActivityType.GOAL_CREATED]: 0,
+            [ActivityType.GOAL_UPDATED]: 0,
+            [ActivityType.GOAL_COMPLETED]: 0,
+            [ActivityType.MILESTONE_COMPLETED]: 0,
+            [ActivityType.STREAK_ACHIEVED]: 0,
+            [ActivityType.TRACKER_CREATED]: 0,
+            [ActivityType.ACHIEVEMENT_EARNED]: 0,
+            [ActivityType.STREAK_MILESTONE]: 0
+          }
+        };
+      }
+
+      // Calculate average mood
+      const totalMood = activitiesWithMood.reduce((sum, activity) => sum + (activity.mood || 0), 0);
+      const averageMoodWithActivities = totalMood / activitiesWithMood.length;
+
+      // Calculate mood by activity type
+      const moodByActivityType: { [key in ActivityType]: number } = {
+        [ActivityType.TRACKER_ENTRY]: 0,
+        [ActivityType.JOURNAL_ENTRY]: 0,
+        [ActivityType.GOAL_CREATED]: 0,
+        [ActivityType.GOAL_UPDATED]: 0,
+        [ActivityType.GOAL_COMPLETED]: 0,
+        [ActivityType.MILESTONE_COMPLETED]: 0,
+        [ActivityType.STREAK_ACHIEVED]: 0,
+        [ActivityType.TRACKER_CREATED]: 0,
+        [ActivityType.ACHIEVEMENT_EARNED]: 0,
+        [ActivityType.STREAK_MILESTONE]: 0
+      };
+
+      const countByType: { [key in ActivityType]: number } = {
+        [ActivityType.TRACKER_ENTRY]: 0,
+        [ActivityType.JOURNAL_ENTRY]: 0,
+        [ActivityType.GOAL_CREATED]: 0,
+        [ActivityType.GOAL_UPDATED]: 0,
+        [ActivityType.GOAL_COMPLETED]: 0,
+        [ActivityType.MILESTONE_COMPLETED]: 0,
+        [ActivityType.STREAK_ACHIEVED]: 0,
+        [ActivityType.TRACKER_CREATED]: 0,
+        [ActivityType.ACHIEVEMENT_EARNED]: 0,
+        [ActivityType.STREAK_MILESTONE]: 0
+      };
+
+      activitiesWithMood.forEach(activity => {
+        moodByActivityType[activity.type] += activity.mood || 0;
+        countByType[activity.type]++;
+      });
+
+      // Calculate averages
+      Object.keys(moodByActivityType).forEach(type => {
+        const activityType = type as ActivityType;
+        if (countByType[activityType] > 0) {
+          moodByActivityType[activityType] = moodByActivityType[activityType] / countByType[activityType];
+        }
+      });
+
+      const result = {
+        averageMoodWithActivities,
+        moodByActivityType
+      };
+
+      this.loggingService.info('Mood-activity correlation calculated', { averageMood: result.averageMoodWithActivities });
+      return result;
+    } catch (error) {
+      this.loggingService.error('Failed to calculate mood-activity correlation', error);
+      throw this.errorHandlingService.createAppError(error, 'Failed to calculate mood-activity correlation');
+    }
+  }
+
+  // Helper method to format time ago
+  private getTimeAgo(date: Date): string {
+    const now = new Date();
+    const diffInMs = now.getTime() - new Date(date).getTime();
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInHours < 1) {
+      return 'Just now';
+    } else if (diffInHours < 24) {
+      return `${diffInHours}h ago`;
+    } else if (diffInDays === 1) {
+      return 'Yesterday';
+    } else if (diffInDays < 7) {
+      return `${diffInDays}d ago`;
+    } else {
+      return new Date(date).toLocaleDateString();
+    }
   }
 } 

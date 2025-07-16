@@ -1,0 +1,819 @@
+<ion-header [translucent]="true" class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button 
+        fill="clear" 
+        (click)="goBack()"
+        aria-label="Go back"
+        class="back-button">
+        <span class="back-arrow">‹</span>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <!-- Main content -->
+  <div class="container">
+    <div class="header-section">
+      <h1>Add New Activity</h1>
+      <p>Select from our templates or create your own custom activity</p>
+    </div>
+
+    <!-- Mode Selection -->
+    <ion-segment [(ngModel)]="selectedMode" class="mode-segment">
+      <ion-segment-button value="template">
+        <div class="segment-content">
+          <ion-icon name="grid-outline"></ion-icon>
+          <ion-label>Choose Template</ion-label>
+        </div>
+      </ion-segment-button>
+      <ion-segment-button value="custom">
+        <div class="segment-content">
+          <ion-icon name="create-outline"></ion-icon>
+          <ion-label>Create Custom</ion-label>
+        </div>
+      </ion-segment-button>
+    </ion-segment>
+
+
+
+    <!-- Template Selection Mode -->
+    <div *ngIf="selectedMode === 'template'" class="trackers-section">
+      <!-- Category Tabs -->
+      <div class="category-tabs">
+        <ion-chip *ngFor="let category of trackerCategories" 
+                  [class.category-selected]="category.key === selectedCategory"
+                  (click)="selectCategory(category.key)">
+          <ion-icon [name]="category.icon"></ion-icon>
+          <ion-label>{{ category.label }}</ion-label>
+        </ion-chip>
+      </div>
+      
+      <!-- Available Activities -->
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12" size-md="6" *ngFor="let template of getTemplatesForCategory(selectedCategory)">
+            <ion-card 
+              class="tracker-card interactive"
+              [class.selected]="isTrackerSelected(template.id)"
+              [class.disabled]="isTemplateAlreadyAdded(template)"
+              (click)="toggleTracker(template)">
+              <ion-card-content>
+                <div class="tracker-content">
+                  <div class="tracker-header">
+                    <div class="icon-name">
+                      <span class="tracker-icon">
+                        {{ getTemplateEmoji(template.icon) }}
+                      </span>
+                      <div class="tracker-info">
+                        <h3>{{ template.name }}</h3>
+                        <p class="category">{{ template.category }} • {{ getFrequencyText(getTrackerFrequency(template.id)) }}</p>
+                      </div>
+                    </div>
+                    <div class="selection-indicator" *ngIf="isTrackerSelected(template.id)">
+                      <ion-chip class="selected-chip" size="small">
+                        <ion-icon name="checkmark"></ion-icon>
+                        <ion-label>Selected</ion-label>
+                      </ion-chip>
+                    </div>
+                  </div>
+
+                  <!-- Target adjustment -->
+                  <div class="target-section" *ngIf="isTrackerSelected(template.id)">
+                    <div class="target-controls">
+                      <p class="target-label">{{ getFrequencyLabel(getTrackerFrequency(template.id)) }} Goal:</p>
+                      <div class="target-input">
+                        <ion-button 
+                          fill="clear" 
+                          size="small"
+                          (click)="updateTrackerTarget(template.id, -1); $event.stopPropagation()">
+                          <ion-icon name="remove"></ion-icon>
+                        </ion-button>
+                        <span class="target-value" 
+                              (click)="startEditingTarget(template.id); $event.stopPropagation()">
+                          <strong *ngIf="!isEditingTarget(template.id)">{{ getTrackerTarget(template.id) }}</strong>
+                          <input *ngIf="isEditingTarget(template.id)"
+                                 type="number"
+                                 min="1"
+                                 max="1000"
+                                 [value]="getTrackerTarget(template.id)"
+                                 (blur)="finishEditingTarget(template.id, $event)"
+                                 (keyup.enter)="finishEditingTarget(template.id, $event)"
+                                 (click)="$event.stopPropagation()"
+                                 #targetInput>
+                          <span *ngIf="!isEditingTarget(template.id)"> {{ template.unit }} {{ getFrequencyText(getTrackerFrequency(template.id)) }}</span>
+                        </span>
+                        <ion-button 
+                          fill="clear" 
+                          size="small"
+                          (click)="updateTrackerTarget(template.id, 1); $event.stopPropagation()">
+                          <ion-icon name="add"></ion-icon>
+                        </ion-button>
+                      </div>
+                    </div>
+
+                    <!-- Frequency Selection -->
+                    <div class="frequency-section">
+                      <p class="frequency-label">Tracking Frequency:</p>
+                      <div class="frequency-options">
+                        <div class="frequency-option" 
+                             [class.selected]="getTrackerFrequency(template.id) === TrackerFrequency.DAILY"
+                             (click)="updateTrackerFrequency(template.id, TrackerFrequency.DAILY); $event.stopPropagation()">
+                          <div class="frequency-icon">📅</div>
+                          <div class="frequency-text">
+                            <h4>Daily</h4>
+                            <p>Track every day</p>
+                          </div>
+                        </div>
+                        
+                        <div class="frequency-option" 
+                             [class.selected]="getTrackerFrequency(template.id) === TrackerFrequency.WEEKLY"
+                             (click)="updateTrackerFrequency(template.id, TrackerFrequency.WEEKLY); $event.stopPropagation()">
+                          <div class="frequency-icon">📊</div>
+                          <div class="frequency-text">
+                            <h4>Weekly</h4>
+                            <p>Track weekly goals</p>
+                          </div>
+                        </div>
+                        
+                        <div class="frequency-option" 
+                             [class.selected]="getTrackerFrequency(template.id) === TrackerFrequency.MONTHLY"
+                             (click)="updateTrackerFrequency(template.id, TrackerFrequency.MONTHLY); $event.stopPropagation()">
+                          <div class="frequency-icon">🗓️</div>
+                          <div class="frequency-text">
+                            <h4>Monthly</h4>
+                            <p>Track monthly objectives</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Activity Mode Selection -->
+                    <div class="tracker-mode-section">
+                      <p class="mode-section-label">Tracking Style:</p>
+                      
+                      <!-- Segmented Mode Toggle -->
+                      <div class="mode-toggle-container">
+                        <div class="mode-option" 
+                             [class.selected]="!isTrackerOngoing(template.id)"
+                             (click)="setTrackerMode(template.id, false); $event.stopPropagation()">
+                          <div class="mode-icon">🎯</div>
+                          <div class="mode-text">
+                            <h4>Challenge</h4>
+                            <p>Time-limited goal</p>
+                          </div>
+                        </div>
+                        
+                        <div class="mode-option" 
+                             [class.selected]="isTrackerOngoing(template.id)"
+                             (click)="setTrackerMode(template.id, true); $event.stopPropagation()">
+                          <div class="mode-icon">♾️</div>
+                          <div class="mode-text">
+                            <h4>Ongoing</h4>
+                            <p>Continuous habit</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Challenge Duration Controls -->
+                      <div class="duration-settings" *ngIf="!isTrackerOngoing(template.id)">
+                        <div class="duration-header">
+                          <p class="duration-label">Challenge Duration:</p>
+                          <div class="duration-controls-row">
+                            <ion-button 
+                              fill="clear" 
+                              size="small"
+                              [disabled]="getTrackerDuration(template.id) <= 1"
+                              (click)="updateTrackerDuration(template.id, -1); $event.stopPropagation()">
+                              <ion-icon name="remove"></ion-icon>
+                            </ion-button>
+                            <span class="duration-display" 
+                                  (click)="startEditingDuration(template.id); $event.stopPropagation()">
+                              <strong *ngIf="!isEditingDuration(template.id)">{{ getTrackerDuration(template.id) }}</strong>
+                              <input *ngIf="isEditingDuration(template.id)"
+                                     type="number"
+                                     min="1"
+                                     max="365"
+                                     [value]="getTrackerDuration(template.id)"
+                                     (blur)="finishEditingDuration(template.id, $event)"
+                                     (keyup.enter)="finishEditingDuration(template.id, $event)"
+                                     (click)="$event.stopPropagation()"
+                                     #durationInput>
+                              <span *ngIf="!isEditingDuration(template.id)"> days</span>
+                            </span>
+                                                          <ion-button 
+                                fill="clear" 
+                                size="small"
+                                [disabled]="getTrackerDuration(template.id) >= 365"
+                                (click)="updateTrackerDuration(template.id, 1); $event.stopPropagation()">
+                                <ion-icon name="add"></ion-icon>
+                              </ion-button>
+                          </div>
+                        </div>
+                        
+                        <!-- Quick Duration Presets -->
+                        <div class="duration-presets">
+                          <ion-chip 
+                            size="small"
+                            [class.preset-selected]="getTrackerDuration(template.id) === 7"
+                            (click)="setTrackerDuration(template.id, 7); $event.stopPropagation()">
+                            1 week
+                          </ion-chip>
+                          <ion-chip 
+                            size="small"
+                            [class.preset-selected]="getTrackerDuration(template.id) === 21"
+                            (click)="setTrackerDuration(template.id, 21); $event.stopPropagation()">
+                            3 weeks
+                          </ion-chip>
+                          <ion-chip 
+                            size="small"
+                            [class.preset-selected]="getTrackerDuration(template.id) === 28"
+                            (click)="setTrackerDuration(template.id, 28); $event.stopPropagation()">
+                            4 weeks
+                          </ion-chip>
+                          <ion-chip 
+                            size="small"
+                            [class.preset-selected]="getTrackerDuration(template.id) === 90"
+                            (click)="setTrackerDuration(template.id, 90); $event.stopPropagation()">
+                            3 months
+                          </ion-chip>
+                        </div>
+
+
+                        
+                        <p class="duration-description">
+                          {{ getDurationDescription(getTrackerDuration(template.id)) }}
+                        </p>
+                      </div>
+
+                      <!-- Ongoing Mode Info -->
+                      <div class="ongoing-settings" *ngIf="isTrackerOngoing(template.id)">
+                        <div class="ongoing-benefits">
+                          <div class="benefit-item">
+                            <ion-icon name="infinite-outline"></ion-icon>
+                            <span>No time pressure</span>
+                          </div>
+                          <div class="benefit-item">
+                            <ion-icon name="trending-up-outline"></ion-icon>
+                            <span>Focus on consistency</span>
+                          </div>
+                          <div class="benefit-item">
+                            <ion-icon name="refresh-outline"></ion-icon>
+                            <span>Lifetime habit building</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Notification Times Section -->
+                    <div class="notification-times-section">
+                      <h4 class="notification-section-title">
+                        <ion-icon name="notifications"></ion-icon>
+                        Reminder Times
+                      </h4>
+                      
+                      <!-- Quick preset buttons -->
+                      <div class="preset-times">
+                        <div class="preset-buttons">
+                          <button 
+                            *ngFor="let preset of getPresetTimes()"
+                            type="button"
+                            class="preset-time-btn small"
+                            [class.disabled]="getTrackerNotificationTimes(template.id).includes(preset.value)"
+                            (click)="addTrackerPresetTime(template.id, preset.value); $event.stopPropagation()"
+                            [disabled]="getTrackerNotificationTimes(template.id).includes(preset.value)">
+                            {{ preset.label }}
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Custom time input -->
+                      <div class="custom-time-input">
+                        <div class="time-input-row">
+                                                     <input 
+                             type="time" 
+                             [(ngModel)]="trackerNewNotificationTime[template.id]"
+                             [ngModelOptions]="{standalone: true}"
+                             class="time-input small"
+                             placeholder="Select time"
+                             (click)="$event.stopPropagation()">
+                          <button 
+                            type="button"
+                            class="add-time-btn small"
+                            (click)="addTrackerNotificationTime(template.id); $event.stopPropagation()"
+                            [disabled]="!trackerNewNotificationTime[template.id] || getTrackerNotificationTimes(template.id).includes(trackerNewNotificationTime[template.id])">
+                            <ion-icon name="add"></ion-icon>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Selected notification times -->
+                      <div *ngIf="getTrackerNotificationTimes(template.id).length > 0" class="selected-times">
+                        <div class="time-chips">
+                          <div 
+                            *ngFor="let time of getTrackerNotificationTimes(template.id); let i = index"
+                            class="time-chip small">
+                            <span class="time-text">{{ formatTime(time) }}</span>
+                            <button 
+                              type="button"
+                              class="remove-time-btn"
+                              (click)="removeTrackerNotificationTime(template.id, i); $event.stopPropagation()">
+                              <ion-icon name="close"></ion-icon>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Empty state -->
+                      <div *ngIf="getTrackerNotificationTimes(template.id).length === 0" class="empty-times small">
+                        <ion-icon name="notifications-outline" class="empty-icon"></ion-icon>
+                        <p>No reminders set</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Already Added indicator -->
+                  <div class="already-added-badge" *ngIf="isTemplateAlreadyAdded(template)">
+                    <ion-chip class="disabled-chip" size="small">
+                      Already Added
+                    </ion-chip>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <!-- Create Button (only show if tracker is selected) -->
+      <div class="action-buttons" *ngIf="hasSelectedTracker()">
+        <ion-button 
+          expand="block"
+          class="primary-action"
+          [disabled]="isLoading"
+          (click)="createSelectedTracker()">
+          <ion-icon *ngIf="!isLoading" name="add" slot="start"></ion-icon>
+          <ion-spinner *ngIf="isLoading" slot="start"></ion-spinner>
+          <span>{{ isLoading ? 'Creating...' : 'Add Activity' }}</span>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Custom Creation Mode -->
+    <div *ngIf="selectedMode === 'custom'" class="custom-tracker-section">
+      <form [formGroup]="customTrackerForm">
+        
+                  <!-- Basic Information Card -->
+          <ion-card class="form-card">
+          <ion-card-content>
+            <div class="form-section">
+              <h3 class="section-title">Basic Information</h3>
+              
+              <!-- Activity Name -->
+              <ion-item class="form-item">
+                <ion-input 
+                  label="Activity Name"
+                  labelPlacement="stacked"
+                  placeholder="e.g., Daily Reading"
+                  formControlName="name"
+                  [class.ion-invalid]="isFieldInvalid('name')"
+                  maxlength="50">
+                </ion-input>
+              </ion-item>
+              <div *ngIf="isFieldInvalid('name')" class="error-message">
+                {{ getFieldError('name') }}
+              </div>
+              
+              <!-- Category Selection -->
+              <ion-item class="form-item">
+                <ion-select 
+                  label="Category"
+                  labelPlacement="stacked"
+                  placeholder="Choose category"
+                  formControlName="category">
+                  <ion-select-option *ngFor="let category of trackerCategories" [value]="category.key">
+                    {{ category.label }}
+                  </ion-select-option>
+                </ion-select>
+              </ion-item>
+              
+              <!-- Activity Type -->
+              <ion-item class="form-item">
+                <ion-select 
+                  label="Tracking Type"
+                  labelPlacement="stacked"
+                  placeholder="How do you want to track this?"
+                  formControlName="type">
+                  <ion-select-option [value]="TrackerType.COUNT">Count (e.g., glasses of water)</ion-select-option>
+                  <ion-select-option [value]="TrackerType.DURATION">Duration (e.g., minutes)</ion-select-option>
+                  <ion-select-option [value]="TrackerType.RATING">Rating (1-5 scale)</ion-select-option>
+                  <ion-select-option [value]="TrackerType.SCALE">Scale (1-10 scale)</ion-select-option>
+                  <ion-select-option [value]="TrackerType.BOOLEAN">Yes/No completion</ion-select-option>
+                </ion-select>
+              </ion-item>
+
+              <!-- Frequency -->
+              <div class="custom-frequency-section">
+                <h4 class="frequency-section-title">Tracking Frequency</h4>
+                <div class="frequency-options">
+                  <div class="frequency-option" 
+                       [class.selected]="customTrackerForm.get('frequency')?.value === TrackerFrequency.DAILY"
+                       (click)="setCustomFrequency(TrackerFrequency.DAILY)">
+                    <div class="frequency-icon">📅</div>
+                    <div class="frequency-text">
+                      <h4>Daily</h4>
+                      <p>Track every day</p>
+                    </div>
+                  </div>
+                  
+                  <div class="frequency-option" 
+                       [class.selected]="customTrackerForm.get('frequency')?.value === TrackerFrequency.WEEKLY"
+                       (click)="setCustomFrequency(TrackerFrequency.WEEKLY)">
+                    <div class="frequency-icon">📊</div>
+                    <div class="frequency-text">
+                      <h4>Weekly</h4>
+                      <p>Track weekly goals</p>
+                    </div>
+                  </div>
+                  
+                  <div class="frequency-option" 
+                       [class.selected]="customTrackerForm.get('frequency')?.value === TrackerFrequency.MONTHLY"
+                       (click)="setCustomFrequency(TrackerFrequency.MONTHLY)">
+                    <div class="frequency-icon">🗓️</div>
+                    <div class="frequency-text">
+                      <h4>Monthly</h4>
+                      <p>Track monthly objectives</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Target & Unit Card -->
+        <ion-card class="form-card">
+          <ion-card-content>
+            <div class="form-section">
+              <h3 class="section-title">Target & Unit</h3>
+              
+              <!-- Unit -->
+              <ion-item class="form-item">
+                <ion-input 
+                  label="Unit"
+                  labelPlacement="stacked"
+                  placeholder="e.g., glasses, minutes, pages"
+                  formControlName="unit"
+                  [class.ion-invalid]="isFieldInvalid('unit')"
+                  maxlength="20">
+                </ion-input>
+              </ion-item>
+              <div *ngIf="isFieldInvalid('unit')" class="error-message">
+                {{ getFieldError('unit') }}
+              </div>
+              
+              <!-- Target -->
+              <ion-item class="form-item">
+                <ion-input 
+                  [label]="getFrequencyLabel(customTrackerForm.get('frequency')?.value) + ' Target'"
+                  labelPlacement="stacked"
+                  type="number"
+                  placeholder="1"
+                  formControlName="target"
+                  [class.ion-invalid]="isFieldInvalid('target')"
+                  min="1"
+                  max="1000">
+                </ion-input>
+              </ion-item>
+              <div *ngIf="isFieldInvalid('target')" class="error-message">
+                {{ getFieldError('target') }}
+              </div>
+
+              <!-- Target Preview -->
+              <div class="target-preview" *ngIf="customTrackerForm.get('target')?.value && customTrackerForm.get('unit')?.value">
+                <div class="preview-card">
+                  <div class="preview-icon">🎯</div>
+                  <div class="preview-text">
+                    <h4>Your Goal</h4>
+                    <p>{{ customTrackerForm.get('target')?.value }} {{ customTrackerForm.get('unit')?.value }} {{ getFrequencyText(customTrackerForm.get('frequency')?.value) }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Duration Settings Card -->
+        <ion-card class="form-card">
+          <ion-card-content>
+            <div class="form-section">
+              <h3 class="section-title">Duration Settings</h3>
+              
+              <!-- Duration Mode Toggle -->
+              <div class="mode-toggle-container">
+                <div class="mode-option" 
+                     [class.selected]="customTrackerForm.get('durationType')?.value === 'challenge'"
+                     (click)="customTrackerForm.get('durationType')?.setValue('challenge')">
+                  <div class="mode-icon">🎯</div>
+                  <div class="mode-text">
+                    <h4>Challenge</h4>
+                    <p>Time-limited goal</p>
+                  </div>
+                </div>
+                
+                <div class="mode-option" 
+                     [class.selected]="customTrackerForm.get('durationType')?.value === 'ongoing'"
+                     (click)="customTrackerForm.get('durationType')?.setValue('ongoing')">
+                  <div class="mode-icon">♾️</div>
+                  <div class="mode-text">
+                    <h4>Ongoing</h4>
+                    <p>Continuous habit</p>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Challenge Duration Controls -->
+              <div class="duration-settings" *ngIf="customTrackerForm.get('durationType')?.value === 'challenge'">
+                <div class="duration-header">
+                  <p class="duration-label">Challenge Duration:</p>
+                  <div class="duration-controls-row">
+                    <ion-button 
+                      fill="clear" 
+                      size="small"
+                      [disabled]="(customTrackerForm.get('durationDays')?.value || 28) <= 7"
+                      (click)="updateDuration(-7)">
+                      <ion-icon name="remove"></ion-icon>
+                    </ion-button>
+                    <span class="duration-display">
+                      <strong>{{ customTrackerForm.get('durationDays')?.value || 28 }}</strong> days
+                    </span>
+                    <ion-button 
+                      fill="clear" 
+                      size="small"
+                      [disabled]="(customTrackerForm.get('durationDays')?.value || 28) >= 365"
+                      (click)="updateDuration(7)">
+                      <ion-icon name="add"></ion-icon>
+                    </ion-button>
+                  </div>
+                </div>
+                
+                <!-- Quick Duration Presets -->
+                <div class="duration-presets">
+                  <ion-chip 
+                    size="small"
+                    [class.preset-selected]="(customTrackerForm.get('durationDays')?.value || 28) === 7"
+                    (click)="setDuration(7)">
+                    1 week
+                  </ion-chip>
+                  <ion-chip 
+                    size="small"
+                    [class.preset-selected]="(customTrackerForm.get('durationDays')?.value || 28) === 21"
+                    (click)="setDuration(21)">
+                    3 weeks
+                  </ion-chip>
+                  <ion-chip 
+                    size="small"
+                    [class.preset-selected]="(customTrackerForm.get('durationDays')?.value || 28) === 28"
+                    (click)="setDuration(28)">
+                    4 weeks
+                  </ion-chip>
+                  <ion-chip 
+                    size="small"
+                    [class.preset-selected]="(customTrackerForm.get('durationDays')?.value || 28) === 90"
+                    (click)="setDuration(90)">
+                    3 months
+                  </ion-chip>
+                </div>
+              </div>
+
+              <!-- Ongoing Mode Info -->
+              <div class="ongoing-settings" *ngIf="customTrackerForm.get('durationType')?.value === 'ongoing'">
+                <div class="ongoing-benefits">
+                  <div class="benefit-item">
+                    <ion-icon name="infinite-outline"></ion-icon>
+                    <span>No time pressure</span>
+                  </div>
+                  <div class="benefit-item">
+                    <ion-icon name="trending-up-outline"></ion-icon>
+                    <span>Focus on consistency</span>
+                  </div>
+                  <div class="benefit-item">
+                    <ion-icon name="refresh-outline"></ion-icon>
+                    <span>Lifetime habit building</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+
+
+        <!-- Additional Fields Card -->
+        <ion-card class="form-card">
+          <ion-card-content>
+            <div class="form-section">
+              <h3 class="section-title">Additional Logging Fields</h3>
+              <p class="section-description">Choose what extra information to track with each entry</p>
+              
+              <!-- Emotional/Mental State -->
+              <div class="field-group">
+                <h4 class="field-group-title">Emotional & Mental State</h4>
+                <ion-item class="toggle-item">
+                  <ion-checkbox formControlName="trackMood"></ion-checkbox>
+                  <ion-label>
+                    <h3>Mood</h3>
+                    <p>Track mood on a 1-10 scale</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item class="toggle-item">
+                  <ion-checkbox formControlName="trackEnergy"></ion-checkbox>
+                  <ion-label>
+                    <h3>Energy Level</h3>
+                    <p>Track energy on a 1-5 scale</p>
+                  </ion-label>
+                </ion-item>
+              </div>
+
+              <!-- Quality Metrics -->
+              <div class="field-group">
+                <h4 class="field-group-title">Quality Metrics</h4>
+                <ion-item class="toggle-item">
+                  <ion-checkbox formControlName="trackDuration"></ion-checkbox>
+                  <ion-label>
+                    <h3>Duration</h3>
+                    <p>Track actual time spent (minutes)</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item class="toggle-item">
+                  <ion-checkbox formControlName="trackIntensity"></ion-checkbox>
+                  <ion-label>
+                    <h3>Intensity</h3>
+                    <p>Track effort/intensity on a 1-10 scale</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item class="toggle-item">
+                  <ion-checkbox formControlName="trackQuality"></ion-checkbox>
+                  <ion-label>
+                    <h3>Quality/Satisfaction</h3>
+                    <p>Track satisfaction on a 1-10 scale</p>
+                  </ion-label>
+                </ion-item>
+              </div>
+
+              <!-- Context & Notes -->
+              <div class="field-group">
+                <h4 class="field-group-title">Context & Notes</h4>
+                <ion-item class="toggle-item">
+                  <ion-checkbox formControlName="trackNotes"></ion-checkbox>
+                  <ion-label>
+                    <h3>Notes</h3>
+                    <p>Add text notes to entries</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item class="toggle-item">
+                  <ion-checkbox formControlName="trackTags"></ion-checkbox>
+                  <ion-label>
+                    <h3>Tags</h3>
+                    <p>Categorize entries with tags</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item class="toggle-item">
+                  <ion-checkbox formControlName="trackSocialContext"></ion-checkbox>
+                  <ion-label>
+                    <h3>Social Context</h3>
+                    <p>Track if alone, with others, or in a group</p>
+                  </ion-label>
+                </ion-item>
+              </div>
+
+              <!-- Media & Location -->
+              <div class="field-group">
+                <h4 class="field-group-title">Media & Location</h4>
+                <ion-item class="toggle-item">
+                  <ion-checkbox formControlName="trackPhotos"></ion-checkbox>
+                  <ion-label>
+                    <h3>Photos</h3>
+                    <p>Attach photos to entries</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item class="toggle-item">
+                  <ion-checkbox formControlName="trackLocation"></ion-checkbox>
+                  <ion-label>
+                    <h3>Location</h3>
+                    <p>Track GPS location</p>
+                  </ion-label>
+                </ion-item>
+                <ion-item class="toggle-item">
+                  <ion-checkbox formControlName="trackWeather"></ion-checkbox>
+                  <ion-label>
+                    <h3>Weather</h3>
+                    <p>Automatically log weather conditions</p>
+                  </ion-label>
+                </ion-item>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Notification Settings Card -->
+        <ion-card class="form-card">
+          <ion-card-content>
+            <div class="form-section">
+              <h3 class="section-title">
+                <ion-icon name="notifications"></ion-icon>
+                Reminder Notifications
+              </h3>
+              <p class="section-description">Set custom times to be reminded to log your tracker</p>
+              
+              <!-- Quick preset buttons -->
+              <div class="preset-times">
+                <h4 class="field-group-title">Quick Add</h4>
+                <div class="preset-buttons">
+                  <button 
+                    *ngFor="let preset of getPresetTimes()"
+                    type="button"
+                    class="preset-time-btn"
+                    [class.disabled]="customNotificationTimes.includes(preset.value)"
+                    (click)="addCustomPresetTime(preset.value)"
+                    [disabled]="customNotificationTimes.includes(preset.value)">
+                    {{ preset.label }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Custom time input -->
+              <div class="custom-time-input">
+                <h4 class="field-group-title">Custom Time</h4>
+                <div class="time-input-row">
+                                     <input 
+                     type="time" 
+                     [(ngModel)]="customNewNotificationTime"
+                     [ngModelOptions]="{standalone: true}"
+                     class="time-input"
+                     placeholder="Select time">
+                  <button 
+                    type="button"
+                    class="add-time-btn"
+                    (click)="addCustomNotificationTime()"
+                    [disabled]="!customNewNotificationTime || customNotificationTimes.includes(customNewNotificationTime)">
+                    <ion-icon name="add"></ion-icon>
+                    Add
+                  </button>
+                </div>
+              </div>
+
+              <!-- Selected notification times -->
+              <div *ngIf="customNotificationTimes.length > 0" class="selected-times">
+                <h4 class="field-group-title">Notification Times ({{ customNotificationTimes.length }})</h4>
+                <div class="time-chips">
+                  <div 
+                    *ngFor="let time of customNotificationTimes; let i = index"
+                    class="time-chip">
+                    <span class="time-text">{{ formatTime(time) }}</span>
+                    <button 
+                      type="button"
+                      class="remove-time-btn"
+                      (click)="removeCustomNotificationTime(i)">
+                      <ion-icon name="close"></ion-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty state -->
+              <div *ngIf="customNotificationTimes.length === 0" class="empty-times">
+                <ion-icon name="notifications-outline" class="empty-icon"></ion-icon>
+                <p>No notification times set. Add times above to get reminders.</p>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+
+        <!-- Create Button -->
+        <div class="onboarding-buttons">
+          <ion-button 
+            expand="block"
+            class="primary-action"
+            [disabled]="customTrackerForm.invalid || isLoading"
+            (click)="createCustomTracker()">
+            <ion-icon *ngIf="!isLoading" name="add" slot="start"></ion-icon>
+            <ion-spinner *ngIf="isLoading" slot="start"></ion-spinner>
+            <span>{{ isLoading ? 'Creating...' : 'Create Activity' }}</span>
+          </ion-button>
+        </div>
+        
+      </form>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Toast for feedback -->
+<ion-toast
+  [isOpen]="showToast"
+  [message]="toastMessage"
+  duration="3000"
+  position="bottom"
+  (didDismiss)="onToastDismiss()">
+</ion-toast> 

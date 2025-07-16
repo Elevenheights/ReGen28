@@ -1,0 +1,342 @@
+// Rich Text Editor Component Styles
+
+.rich-text-editor-container {
+  position: relative;
+  width: 100%;
+  display: block;
+}
+
+// Quill editor styling
+.rich-text-editor {
+  background: white;
+  border-radius: 0;
+  border: none;
+  overflow: hidden;
+  width: 100%;
+  
+  :deep(.ql-toolbar) {
+    border: none;
+    border-bottom: 1px solid rgb(229 229 229); // neutral-200
+    background: rgb(249 250 251); // neutral-50
+    padding: 8px 12px;
+    
+    // Mobile optimizations
+    @media (max-width: 768px) {
+      padding: 6px 8px;
+      
+      .ql-formats {
+        margin-right: 8px;
+      }
+    }
+    
+    .ql-picker-label {
+      color: rgb(64 64 64); // neutral-700
+      
+      &:hover {
+        color: rgb(23 23 23); // neutral-900
+      }
+    }
+    
+    .ql-stroke {
+      stroke: rgb(64 64 64); // neutral-700
+    }
+    
+    .ql-fill {
+      fill: rgb(64 64 64); // neutral-700
+    }
+    
+    button {
+      padding: 6px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background: rgb(243 244 246); // neutral-100
+      }
+      
+      &.ql-active {
+        background: rgb(59 130 246); // blue-500
+        color: white;
+        
+        .ql-stroke {
+          stroke: white;
+        }
+        
+        .ql-fill {
+          fill: white;
+        }
+      }
+      
+      // Mobile touch optimization
+      @media (max-width: 768px) {
+        min-width: 36px;
+        min-height: 36px;
+        padding: 8px;
+        margin: 2px;
+      }
+    }
+    
+    .ql-picker {
+      color: rgb(64 64 64); // neutral-700
+      
+      &.ql-expanded .ql-picker-label {
+        border-color: rgb(59 130 246); // blue-500
+      }
+      
+      .ql-picker-options {
+        background: white;
+        border: 1px solid rgb(229 229 229); // neutral-200
+        border-radius: 8px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        padding: 4px;
+        
+        .ql-picker-item {
+          padding: 8px 12px;
+          border-radius: 6px;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background: rgb(243 244 246); // neutral-100
+          }
+          
+          &.ql-selected {
+            background: rgb(59 130 246); // blue-500
+            color: white;
+          }
+        }
+      }
+    }
+  }
+  
+  :deep(.ql-container) {
+    border: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    
+    .ql-editor {
+      padding: 16px;
+      color: rgb(23 23 23); // neutral-900
+      font-size: 16px; // Prevent zoom on iOS
+      line-height: 1.6;
+      
+      &.ql-blank::before {
+        color: rgb(156 163 175); // neutral-400
+        font-style: normal;
+      }
+      
+      // Typography improvements
+      p {
+        margin-bottom: 12px;
+        
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+      
+      h1, h2, h3 {
+        margin-bottom: 16px;
+        margin-top: 24px;
+        
+        &:first-child {
+          margin-top: 0;
+        }
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: rgb(17 24 39); // neutral-800
+      }
+      
+      h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: rgb(31 41 55); // neutral-700
+      }
+      
+      h3 {
+        font-size: 1.125rem;
+        font-weight: 500;
+        color: rgb(55 65 81); // neutral-600
+      }
+      
+      blockquote {
+        border-left: 4px solid rgb(59 130 246); // blue-500
+        padding-left: 16px;
+        margin: 16px 0;
+        font-style: italic;
+        color: rgb(75 85 99); // neutral-500
+        background: rgb(249 250 251); // neutral-50
+        padding: 12px 16px;
+        border-radius: 0 8px 8px 0;
+      }
+      
+      ul, ol {
+        margin: 12px 0;
+        padding-left: 24px;
+        
+        li {
+          margin-bottom: 4px;
+        }
+      }
+      
+      a {
+        color: rgb(59 130 246); // blue-500
+        text-decoration: underline;
+        
+        &:hover {
+          color: rgb(37 99 235); // blue-600
+        }
+      }
+      
+      strong {
+        font-weight: 600;
+      }
+      
+      em {
+        font-style: italic;
+      }
+      
+      // Mobile specific adjustments
+      @media (max-width: 768px) {
+        padding: 12px;
+        
+        h1 {
+          font-size: 1.375rem;
+        }
+        
+        h2 {
+          font-size: 1.1875rem;
+        }
+        
+        h3 {
+          font-size: 1.0625rem;
+        }
+      }
+    }
+  }
+  
+  // Focus state
+  &:focus-within {
+    border-color: rgb(59 130 246); // blue-500
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  // Disabled state
+  &.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  
+  // Readonly state
+  &.readonly {
+    :deep(.ql-toolbar) {
+      display: none;
+    }
+    
+    border: none;
+    background: transparent;
+  }
+}
+
+// Editor stats
+.editor-stats {
+  padding: 8px 12px;
+  background: rgb(249 250 251); // neutral-50
+  border-top: 1px solid rgb(229 229 229); // neutral-200
+  border-radius: 0;
+  
+  .stats-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgb(107 114 128); // neutral-500
+    
+    .stat-item {
+      font-weight: 500;
+    }
+    
+    .stat-divider {
+      color: rgb(209 213 219); // neutral-300
+    }
+    
+    // Mobile adjustments
+    @media (max-width: 768px) {
+      gap: 6px;
+      font-size: 11px;
+    }
+  }
+}
+
+// Loading state
+.editor-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background: rgb(249 250 251); // neutral-50
+  border-radius: 12px;
+  border: 1px solid rgb(229 229 229); // neutral-200
+  
+  .loading-spinner {
+    animation: spin 1s linear infinite;
+    color: rgb(107 114 128); // neutral-500
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Error state
+.editor-error {
+  padding: 16px;
+  background: rgb(254 242 242); // red-50
+  border: 1px solid rgb(252 165 165); // red-300
+  border-radius: 12px;
+  color: rgb(185 28 28); // red-700
+  font-size: 14px;
+  text-align: center;
+}
+
+// Responsive adjustments
+@media (max-width: 640px) {
+  .rich-text-editor {
+    border-radius: 0;
+    
+    :deep(.ql-toolbar) {
+      padding: 4px 6px;
+      
+      .ql-formats {
+        margin-right: 4px;
+        
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+      
+      button {
+        min-width: 32px;
+        min-height: 32px;
+        padding: 6px;
+        margin: 1px;
+      }
+    }
+    
+    :deep(.ql-container) {
+      .ql-editor {
+        padding: 10px;
+      }
+    }
+  }
+  
+  .editor-stats {
+    padding: 6px 8px;
+  }
+} 

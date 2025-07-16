@@ -5,14 +5,12 @@ import { DatabaseService } from './database.service';
 import { ErrorHandlingService } from './error-handling.service';
 import { LoggingService } from './logging.service';
 import { User, UserStats, UserPreferences } from '../models/user.interface';
-import { Observable, map, switchMap, of, take, firstValueFrom, shareReplay } from 'rxjs';
+import { Observable, map, switchMap, of, take, firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  // Cache the user profile observable to prevent repeated Firebase queries
-  private userProfile$: Observable<User | null> | null = null;
 
   constructor(
     private storage: Storage,
@@ -26,77 +24,68 @@ export class UserService {
     this.authService.setUserService(this);
   }
 
-  // Get current user profile with caching and real-time updates
+  // Get current user profile with real-time updates (no caching)
   getCurrentUserProfile(): Observable<User | null> {
-    // Return cached observable if it exists
-    if (this.userProfile$) {
-      return this.userProfile$;
-    }
-
-    // Create and cache the user profile observable
-    this.userProfile$ = this.authService.user$.pipe(
+    return this.authService.user$.pipe(
       switchMap(authUser => {
         if (!authUser) {
           return of(null);
         }
         
-        // Use DatabaseService for real-time updates
+        // Use DatabaseService for real-time updates - no caching
         return this.db.getDocument<User>('users', authUser.uid).pipe(
           map(userData => {
             if (userData) {
               return userData as User;
-            } else {
-              // If no Firestore doc exists, return user data from auth
-              return {
-                id: authUser.uid,
-                email: authUser.email || '',
-                displayName: authUser.displayName || '',
-                photoURL: authUser.photoURL || '',
-                joinDate: new Date(),
-                currentDay: 1,
-                streakCount: 0,
-                // Initialize wellness goals and focus areas for fallback
-                wellnessGoals: [],
-                focusAreas: [],
-                commitmentLevel: 'moderate',
-                preferences: {
-                  dailyReminders: true,
-                  reminderTime: '09:00',
-                  weeklyReports: true,
-                  milestoneNotifications: true,
-                  darkMode: false,
-                  language: 'en',
-                  dataSharing: false,
-                  analytics: true,
-                  backupEnabled: true
-                },
-                stats: {
-                  totalTrackerEntries: 0,
-                  totalJournalEntries: 0,
-                  totalMeditationMinutes: 0,
-                  completedTrackers: 0,
-                  currentStreaks: 0,
-                  longestStreak: 0,
-                  weeklyActivityScore: 0,
-                  monthlyGoalsCompleted: 0
-                },
-                isOnboardingComplete: false,
-                createdAt: new Date(),
-                updatedAt: new Date()
-              } as User;
+                  } else {
+        // If no Firestore doc exists, return user data from auth
+        return {
+          id: authUser.uid,
+          email: authUser.email || '',
+          displayName: authUser.displayName || '',
+          photoURL: authUser.photoURL || '',
+          joinDate: new Date(),
+          currentDay: 1,
+          streakCount: 0,
+          // Initialize wellness goals and focus areas for fallback
+          wellnessGoals: [],
+          focusAreas: [],
+          commitmentLevel: 'moderate',
+          preferences: {
+            dailyReminders: true,
+            reminderTime: '09:00',
+            weeklyReports: true,
+            milestoneNotifications: true,
+            darkMode: false,
+            language: 'en',
+            timezone: 'UTC', // Default fallback
+            dataSharing: false,
+            analytics: true,
+            backupEnabled: true
+          },
+          stats: {
+            totalTrackerEntries: 0,
+            totalJournalEntries: 0,
+            totalMeditationMinutes: 0,
+            completedTrackers: 0,
+            currentStreaks: 0,
+            longestStreak: 0,
+            weeklyActivityScore: 0,
+            monthlyGoalsCompleted: 0
+          },
+          isOnboardingComplete: false,
+          status: 'active', // New users start with trial
+          subscriptionType: 'trial', // Everyone gets a trial period
+          trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
+          lastActiveAt: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        } as User;
             }
           })
         );
-      }),
-      shareReplay(1) // Cache the latest emission and share with multiple subscribers
+      })
     );
-
-    return this.userProfile$;
-  }
-
-  // Clear the cache when user data is updated
-  private clearUserProfileCache() {
-    this.userProfile$ = null;
   }
 
   // Create new user profile during registration/onboarding
@@ -111,6 +100,7 @@ export class UserService {
       milestoneNotifications: true,
       darkMode: false,
       language: 'en',
+      timezone: 'UTC', // Default fallback, should be overridden during onboarding
       dataSharing: false,
       analytics: true,
       backupEnabled: true
@@ -141,6 +131,11 @@ export class UserService {
       preferences: { ...defaultPreferences, ...userData.preferences },
       stats: { ...defaultStats, ...userData.stats },
       isOnboardingComplete: false,
+      // Subscription defaults
+      status: 'active', // New users start with trial
+      subscriptionType: 'trial', // Everyone gets a trial period
+      trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
+      lastActiveAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date(),
       ...userData
@@ -159,9 +154,6 @@ export class UserService {
       ...updates,
       updatedAt: new Date()
     }));
-
-    // Clear cache to force refresh of user profile data
-    this.clearUserProfileCache();
   }
 
   // Update user preferences
@@ -173,9 +165,6 @@ export class UserService {
       preferences: preferences as UserPreferences,
       updatedAt: new Date()
     }));
-
-    // Clear cache to force refresh of user profile data
-    this.clearUserProfileCache();
   }
 
   // Upload profile image
@@ -191,6 +180,36 @@ export class UserService {
     await this.updateUserProfile({ photoURL: downloadURL });
 
     return downloadURL;
+  }
+
+  // Download and store Google profile photo to Firebase Storage
+  async downloadAndStoreGooglePhoto(googlePhotoURL: string): Promise<string> {
+    try {
+      const authUser = this.authService.getCurrentUser();
+      if (!authUser) throw new Error('No authenticated user');
+
+      // Download the Google photo
+      const response = await fetch(googlePhotoURL.replace('s96-c', 's200-c')); // Get higher res
+      if (!response.ok) throw new Error('Failed to download Google photo');
+      
+      const blob = await response.blob();
+      
+      // Create a file from the blob
+      const file = new File([blob], 'profile-photo.jpg', { type: 'image/jpeg' });
+      
+      // Upload to Firebase Storage
+      const imageRef = ref(this.storage, `profile-images/${authUser.uid}/google-profile.jpg`);
+      const snapshot = await uploadBytes(imageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      console.log('✅ Successfully stored Google profile photo to Firebase Storage');
+      return downloadURL;
+      
+    } catch (error) {
+      console.error('❌ Failed to download and store Google photo:', error);
+      // Return the original URL as fallback
+      return googlePhotoURL;
+    }
   }
 
   // Calculate and update journey stats
@@ -230,9 +249,6 @@ export class UserService {
       stats: updatedStats,
       updatedAt: new Date()
     }));
-
-    // Clear cache to force refresh of user profile data
-    this.clearUserProfileCache();
   }
 
   // Increment specific stat counters using Firebase Function
@@ -247,8 +263,6 @@ export class UserService {
         value: incrementBy
       }));
 
-      // Clear cache to reflect changes
-      this.clearUserProfileCache();
     } catch (error) {
               this.errorHandler.handleError('incrementUserStat', error);
       throw new Error('Failed to update user statistics. Please try again or contact support.');
@@ -289,12 +303,33 @@ export class UserService {
   // Check if user has completed onboarding
   async hasCompletedOnboarding(): Promise<boolean> {
     const currentUser = await firstValueFrom(this.getCurrentUserProfile().pipe(take(1)));
+    
     if (!currentUser) return false;
 
     return currentUser.isOnboardingComplete;
   }
 
-  // Get user journey progress (cached, derived from user profile)
+  // Debug method to check current onboarding status (temporary)
+  async debugOnboardingStatus(): Promise<void> {
+    const user = await firstValueFrom(this.getCurrentUserProfile().pipe(take(1)));
+  }
+
+  // Temporary debug method to manually mark onboarding complete
+  async debugMarkOnboardingComplete(): Promise<void> {
+    await this.updateUserProfile({ 
+      isOnboardingComplete: true,
+      updatedAt: new Date()
+    });
+  }
+
+  // Debug method to test real-time connection
+  testRealTimeConnection(): void {
+    
+    this.getCurrentUserProfile().subscribe(user => {
+    });
+  }
+
+  // Get user journey progress (real-time, derived from user profile)
   getJourneyProgress(): Observable<{ currentDay: number; progress: number; milestone: string }> {
     return this.getCurrentUserProfile().pipe(
       map(user => {
@@ -310,8 +345,7 @@ export class UserService {
         else if (currentDay >= 7) milestone = 'First Week Complete';
 
         return { currentDay, progress, milestone };
-      }),
-      shareReplay(1) // Cache the result
+      })
     );
   }
 

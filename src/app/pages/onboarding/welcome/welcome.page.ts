@@ -97,6 +97,11 @@ export class WelcomePage implements OnInit {
           currentDay: 1,
           streakCount: 0,
           isOnboardingComplete: false, // NOT complete yet - will complete after onboarding
+          // Subscription defaults
+          status: 'active', // New users start with trial
+          subscriptionType: 'trial', // Everyone gets a trial period
+          trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
+          lastActiveAt: new Date(),
           preferences: {
             dailyReminders: true,
             reminderTime: '09:00',
@@ -104,6 +109,7 @@ export class WelcomePage implements OnInit {
             milestoneNotifications: true,
             darkMode: false,
             language: 'en',
+            timezone: 'UTC', // Default fallback
             dataSharing: false,
             analytics: true,
             backupEnabled: true
@@ -165,6 +171,11 @@ export class WelcomePage implements OnInit {
           currentDay: 1,
           streakCount: 0,
           isOnboardingComplete: true, // Skip - mark as complete immediately
+          // Subscription defaults
+          status: 'active', // New users start with trial
+          subscriptionType: 'trial', // Everyone gets a trial period
+          trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
+          lastActiveAt: new Date(),
           preferences: {
             dailyReminders: true,
             reminderTime: '09:00',
@@ -172,6 +183,7 @@ export class WelcomePage implements OnInit {
             milestoneNotifications: true,
             darkMode: false,
             language: 'en',
+            timezone: 'UTC', // Default fallback
             dataSharing: false,
             analytics: true,
             backupEnabled: true

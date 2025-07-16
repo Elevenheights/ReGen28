@@ -2,13 +2,17 @@
 <header class="bg-white border-b border-neutral-200 px-4 py-3">
   <div class="flex items-center justify-between">
     <div class="flex items-center space-x-3">
-      <img src="https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=42" alt="Profile" class="w-8 h-8 rounded-full">
+      <img [src]="profileImageUrl" 
+           [alt]="userDisplayName + ' profile'" 
+           class="w-8 h-8 rounded-full object-cover"
+           (error)="onImageError($event)"
+           (load)="onImageLoad($event)">
       <div>
         <h1 class="text-lg text-neutral-900">My Journal</h1>
         <p class="text-xs text-neutral-500">Your sacred space for reflection</p>
       </div>
     </div>
-    <button class="p-2">
+    <button class="p-2" (click)="onSearchEntries()">
       <i class="fa-solid fa-search text-neutral-600"></i>
     </button>
   </div>
@@ -19,58 +23,86 @@
   <main class="px-4 py-6 pb-24">
     <!-- Journal Stats -->
     <section class="mb-6">
-      <div class="bg-white rounded-2xl p-4 border border-neutral-100">
-        <div class="flex items-center justify-between mb-3">
-          <h2 class="text-base text-neutral-900">Your Reflection Journey</h2>
-          <i class="fa-solid fa-heart text-neutral-300"></i>
-        </div>
-        <div class="grid grid-cols-3 gap-4">
-          <div class="text-center">
-            <p class="text-xl text-neutral-900">23</p>
-            <p class="text-xs text-neutral-500">Total entries</p>
-          </div>
-          <div class="text-center">
-            <p class="text-xl text-neutral-900">7</p>
-            <p class="text-xs text-neutral-500">This week</p>
-          </div>
-          <div class="text-center">
-            <p class="text-xl text-neutral-900">15</p>
-            <p class="text-xs text-neutral-500">Day streak</p>
-          </div>
-        </div>
-      </div>
+      <app-journal-stats
+        [stats]="journalStats"
+        [isLoading]="isLoadingStats"
+        [showDetailedStats]="false">
+      </app-journal-stats>
     </section>
 
     <!-- New Entry Button -->
     <section class="mb-6">
-      <button class="w-full bg-neutral-900 text-white rounded-2xl p-4 flex items-center justify-center space-x-3">
+      <button class="w-full bg-neutral-900 text-white rounded-2xl p-4 flex items-center justify-center space-x-3"
+              (click)="onWriteNewEntry()">
         <i class="fa-solid fa-plus text-lg"></i>
         <span class="text-base">Write New Entry</span>
       </button>
     </section>
 
-    <!-- Quick Prompts -->
+    <!-- Daily Prompt -->
     <section class="mb-6">
-      <h2 class="text-base text-neutral-900 mb-3">Reflection Prompts</h2>
-      <div class="space-y-2">
-        <button class="w-full bg-white rounded-xl p-3 border border-neutral-100 text-left">
-          <div class="flex items-center space-x-3">
-            <i class="fa-solid fa-heart text-neutral-600"></i>
-            <span class="text-sm text-neutral-700">What am I grateful for today?</span>
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base text-neutral-900">Today's Prompt</h2>
+        <div class="flex items-center space-x-2">
+          <button type="button" class="p-2 bg-transparent border-none" (click)="onRefreshPrompts()" 
+                  [disabled]="isRefreshingPrompts"
+                  title="Refresh AI prompts">
+            <!-- Spinner while refreshing -->
+            <ion-spinner name="crescent" *ngIf="isRefreshingPrompts" class="w-5 h-5"></ion-spinner>
+
+            <!-- Refresh icon when idle -->
+            <ion-icon name="refresh-outline" *ngIf="!isRefreshingPrompts" color="medium" class="text-xl"></ion-icon>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Loading daily prompt -->
+      <div *ngIf="isLoadingDailyPrompt" class="w-full bg-neutral-200 rounded-xl h-16 animate-pulse"></div>
+      
+      <!-- Daily prompt loaded -->
+      <button *ngIf="!isLoadingDailyPrompt && dailyPrompt"
+              class="w-full bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 border border-purple-100 text-left"
+              (click)="onPromptSelected(dailyPrompt)">
+        <div class="flex items-center space-x-4">
+          <i class="fa-solid {{ getCategoryIcon(dailyPrompt.category) }} text-purple-600"></i>
+          <span class="text-sm text-neutral-700">{{ dailyPrompt.text }}</span>
+        </div>
+      </button>
+      
+      <!-- No daily prompt available -->
+      <div *ngIf="!isLoadingDailyPrompt && !dailyPrompt" class="text-center py-4">
+        <p class="text-sm text-neutral-500">No daily prompt available</p>
+      </div>
+    </section>
+
+    <!-- Reflection Prompts -->
+    <section class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-base text-neutral-900">Reflection Prompts</h2>
+      </div>
+      
+      <!-- Loading prompts -->
+      <div *ngIf="isLoadingPrompts" class="space-y-2">
+        <div class="w-full bg-neutral-200 rounded-xl h-12 animate-pulse"></div>
+        <div class="w-full bg-neutral-200 rounded-xl h-12 animate-pulse"></div>
+        <div class="w-full bg-neutral-200 rounded-xl h-12 animate-pulse"></div>
+      </div>
+      
+      <!-- Loaded prompts -->
+      <div *ngIf="!isLoadingPrompts && journalPrompts.length > 0" class="space-y-2">
+        <button *ngFor="let prompt of journalPrompts.slice(0, 3)" 
+                class="w-full bg-white rounded-xl p-3 border border-neutral-100 text-left hover:bg-neutral-50 transition-colors"
+                (click)="onPromptSelected(prompt)">
+          <div class="flex items-center">
+            <i class="fa-solid {{ getCategoryIcon(prompt.category) }} text-neutral-600 text-base mr-4"></i>
+            <span class="text-sm text-neutral-700">{{ prompt.text }}</span>
           </div>
         </button>
-        <button class="w-full bg-white rounded-xl p-3 border border-neutral-100 text-left">
-          <div class="flex items-center space-x-3">
-            <i class="fa-solid fa-leaf text-neutral-600"></i>
-            <span class="text-sm text-neutral-700">How did I nurture my soul today?</span>
-          </div>
-        </button>
-        <button class="w-full bg-white rounded-xl p-3 border border-neutral-100 text-left">
-          <div class="flex items-center space-x-3">
-            <i class="fa-solid fa-brain text-neutral-600"></i>
-            <span class="text-sm text-neutral-700">What emotions came up for me?</span>
-          </div>
-        </button>
+      </div>
+      
+      <!-- No prompts available -->
+      <div *ngIf="!isLoadingPrompts && journalPrompts.length === 0" class="text-center py-4">
+        <p class="text-sm text-neutral-500">No prompts available at the moment</p>
       </div>
     </section>
 
@@ -78,64 +110,44 @@
     <section class="mb-6">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-base text-neutral-900">Recent Entries</h2>
-        <button class="text-xs text-neutral-500">View all</button>
+        <button class="text-xs text-neutral-500" (click)="onViewAllEntries()">View all</button>
       </div>
-      <div class="space-y-3">
-        <div class="bg-white rounded-xl p-4 border border-neutral-100">
-          <div class="flex items-start justify-between mb-2">
-            <div class="flex items-center space-x-2">
-              <div class="w-6 h-6 bg-neutral-200 rounded-full flex items-center justify-center">
-                <i class="fa-solid fa-heart text-neutral-600 text-xs"></i>
-              </div>
-              <span class="text-sm text-neutral-900">Gratitude & Growth</span>
-            </div>
-            <span class="text-xs text-neutral-500">2 hours ago</span>
-          </div>
-          <p class="text-sm text-neutral-600 mb-2">Today I felt deeply connected to my purpose. The morning meditation brought clarity and...</p>
-          <div class="flex items-center space-x-4">
-            <span class="text-xs text-neutral-400">Mood: Peaceful</span>
-            <span class="text-xs text-neutral-400">Energy: 8/10</span>
-          </div>
+      
+      <!-- Loading entries -->
+      <div *ngIf="isLoadingEntries" class="space-y-3">
+        <div class="bg-neutral-200 rounded-xl h-20 animate-pulse"></div>
+        <div class="bg-neutral-200 rounded-xl h-20 animate-pulse"></div>
+        <div class="bg-neutral-200 rounded-xl h-20 animate-pulse"></div>
+      </div>
+      
+      <!-- Loaded entries -->
+      <div *ngIf="!isLoadingEntries && recentEntries.length > 0" class="space-y-3">
+        <app-journal-entry-card 
+          *ngFor="let entry of recentEntries"
+          [entry]="entry"
+          [maxContentLength]="120"
+          (entryClick)="onEntryClick($event)"
+          (editClick)="onEntryEdit($event)"
+          (deleteClick)="onEntryDelete($event)">
+        </app-journal-entry-card>
+      </div>
+      
+      <!-- No entries -->
+      <div *ngIf="!isLoadingEntries && recentEntries.length === 0" class="text-center py-8">
+        <div class="mb-4">
+          <i class="fa-solid fa-book-open text-neutral-300 text-4xl"></i>
         </div>
-        
-        <div class="bg-white rounded-xl p-4 border border-neutral-100">
-          <div class="flex items-start justify-between mb-2">
-            <div class="flex items-center space-x-2">
-              <div class="w-6 h-6 bg-neutral-200 rounded-full flex items-center justify-center">
-                <i class="fa-solid fa-leaf text-neutral-600 text-xs"></i>
-              </div>
-              <span class="text-sm text-neutral-900">Mindful Moment</span>
-            </div>
-            <span class="text-xs text-neutral-500">Yesterday</span>
-          </div>
-          <p class="text-sm text-neutral-600 mb-2">Spent time in nature today. The trees reminded me to stay grounded and present...</p>
-          <div class="flex items-center space-x-4">
-            <span class="text-xs text-neutral-400">Location: Park</span>
-            <span class="text-xs text-neutral-400">Duration: 30 min</span>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-xl p-4 border border-neutral-100">
-          <div class="flex items-start justify-between mb-2">
-            <div class="flex items-center space-x-2">
-              <div class="w-6 h-6 bg-neutral-200 rounded-full flex items-center justify-center">
-                <i class="fa-solid fa-brain text-neutral-600 text-xs"></i>
-              </div>
-              <span class="text-sm text-neutral-900">Emotional Check-in</span>
-            </div>
-            <span class="text-xs text-neutral-500">2 days ago</span>
-          </div>
-          <p class="text-sm text-neutral-600 mb-2">Processing some anxiety today. Used breathing techniques and it helped me find calm...</p>
-          <div class="flex items-center space-x-4">
-            <span class="text-xs text-neutral-400">Technique: Breathwork</span>
-            <span class="text-xs text-neutral-400">Result: Calmer</span>
-          </div>
-        </div>
+        <h3 class="text-lg text-neutral-900 mb-2">Start Your Journey</h3>
+        <p class="text-sm text-neutral-500 mb-4">Write your first journal entry to begin tracking your thoughts and emotions.</p>
+        <button class="bg-neutral-900 text-white px-6 py-2 rounded-xl text-sm"
+                (click)="onWriteNewEntry()">
+          Write First Entry
+        </button>
       </div>
     </section>
 
     <!-- Mood Tracker -->
-    <section>
+    <section *ngIf="!isLoadingStats && journalStats && journalStats.totalEntries > 0">
       <h2 class="text-base text-neutral-900 mb-3">This Week's Energy</h2>
       <div class="bg-white rounded-2xl p-4 border border-neutral-100">
         <div class="flex items-center justify-between mb-3">
@@ -148,15 +160,23 @@
           <span class="text-xs text-neutral-500">Sun</span>
         </div>
         <div class="flex items-center justify-between">
-          <i class="fa-solid fa-face-smile text-neutral-800 text-lg"></i>
-          <i class="fa-solid fa-face-smile text-neutral-800 text-lg"></i>
+          <!-- For now, showing placeholder emojis - will be replaced with real mood tracker component -->
+          <i class="fa-solid fa-face-smile text-neutral-400 text-lg"></i>
+          <i class="fa-solid fa-face-smile text-neutral-400 text-lg"></i>
           <i class="fa-solid fa-face-meh text-neutral-400 text-lg"></i>
-          <i class="fa-solid fa-face-smile text-neutral-800 text-lg"></i>
-          <i class="fa-solid fa-face-grin text-neutral-800 text-lg"></i>
-          <i class="fa-solid fa-face-smile text-neutral-800 text-lg"></i>
+          <i class="fa-solid fa-face-smile text-neutral-400 text-lg"></i>
+          <i class="fa-solid fa-face-grin text-neutral-400 text-lg"></i>
+          <i class="fa-solid fa-face-smile text-neutral-400 text-lg"></i>
           <i class="fa-regular fa-face-smile text-neutral-300 text-lg"></i>
+        </div>
+        <div class="mt-3 text-center">
+          <p class="text-xs text-neutral-500">
+            Average mood: {{ journalStats.averageMood ? (journalStats.averageMood | number:'1.1-1') : 'N/A' }}/10
+          </p>
         </div>
       </div>
     </section>
   </main>
+
+
 </ion-content>

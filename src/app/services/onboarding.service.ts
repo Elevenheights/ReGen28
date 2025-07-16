@@ -6,7 +6,7 @@ import { TrackerService } from './tracker.service';
 import { AuthService } from './auth.service';
 import { DatabaseService } from './database.service';
 import { AIRecommendationsService } from './ai-recommendations.service';
-import { TrackerCategory } from '../models/tracker.interface';
+import { TrackerCategory, TrackerFrequency } from '../models/tracker.interface';
 
 export interface OnboardingData {
   step: number;
@@ -32,7 +32,7 @@ export interface OnboardingData {
     trackerId: string;
     enabled: boolean;
     customTarget?: number;
-    frequency?: string;
+    frequency?: TrackerFrequency; // Updated to use proper enum type
     durationDays?: number; // Duration for tracker challenge (default 28 days)
   }[];
   isComplete: boolean;
@@ -282,7 +282,10 @@ export class OnboardingService {
     }
 
     try {
+      console.log('🎯 OnboardingService: Starting onboarding completion...');
+      
       // Call Firebase Function to handle complete onboarding process
+      console.log('🎯 OnboardingService: Calling Firebase Function...');
       await firstValueFrom(this.db.callFunction('completeUserOnboarding', {
         profileData: data.profileData,
         wellnessGoals: data.wellnessGoals,
@@ -300,10 +303,14 @@ export class OnboardingService {
           backupEnabled: true
         }
       }));
+      
+      console.log('🎯 OnboardingService: Firebase Function completed successfully');
+      console.log('🎯 OnboardingService: Real-time database listeners will automatically receive the updated user data');
 
       // Mark onboarding as complete locally
       this.updateData({ isComplete: true });
 
+      console.log('🎯 OnboardingService: Navigating to dashboard...');
       // Navigate to main app
       this.router.navigate(['/tabs/dashboard']);
       
@@ -337,7 +344,7 @@ export class OnboardingService {
     if (!authUser) throw new Error('No authenticated user');
 
     try {
-      // Create minimal user profile
+      // Create minimal user profile with proper completion flag
       await this.userService.updateUserProfile({
         displayName: authUser.displayName || 'User',
         // Set empty arrays for skipped onboarding
@@ -345,6 +352,11 @@ export class OnboardingService {
         focusAreas: [],
         commitmentLevel: 'moderate',
         isOnboardingComplete: true,
+        // Subscription defaults
+        status: 'active', // New users start with trial
+        subscriptionType: 'trial', // Everyone gets a trial period
+        trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
+        lastActiveAt: new Date(),
         preferences: {
           dailyReminders: true,
           reminderTime: '09:00',
@@ -352,6 +364,7 @@ export class OnboardingService {
           milestoneNotifications: true,
           darkMode: false,
           language: 'en',
+          timezone: 'UTC', // Default fallback
           dataSharing: false,
           analytics: true,
           backupEnabled: true

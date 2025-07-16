@@ -16,10 +16,14 @@ export class OnboardingGuard implements CanActivate {
   ) {}
 
   canActivate(): Observable<boolean> {
+    console.log('🛡️ OnboardingGuard: Checking onboarding status...');
+    
     return this.authService.isAuthenticated$.pipe(
       switchMap(isAuthenticated => {
+        console.log('🛡️ OnboardingGuard: Auth status:', isAuthenticated);
+        
         if (!isAuthenticated) {
-          // If not authenticated, redirect to login
+          console.log('🛡️ OnboardingGuard: Not authenticated, redirecting to login');
           this.router.navigate(['/login']);
           return of(false);
         }
@@ -27,18 +31,26 @@ export class OnboardingGuard implements CanActivate {
         // Check if user has completed onboarding
         return this.userService.getCurrentUserProfile().pipe(
           map(userProfile => {
+            console.log('🛡️ OnboardingGuard: User profile:', {
+              exists: !!userProfile,
+              isOnboardingComplete: userProfile?.isOnboardingComplete,
+              email: userProfile?.email
+            });
+            
             if (!userProfile) {
-              // No user profile exists, redirect to onboarding
+              console.log('🛡️ OnboardingGuard: No user profile, redirecting to onboarding');
               this.router.navigate(['/onboarding']);
               return false;
             }
 
             // Check if onboarding is complete
             if (!userProfile.isOnboardingComplete) {
+              console.log('🛡️ OnboardingGuard: Onboarding incomplete, redirecting to onboarding');
               this.router.navigate(['/onboarding']);
               return false;
             }
 
+            console.log('🛡️ OnboardingGuard: Onboarding complete, allowing access to main app');
             return true;
           })
         );

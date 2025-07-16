@@ -1,0 +1,119 @@
+// TrackerLogModal Component Styles
+
+// Modal customization
+ion-modal {
+  --backdrop-opacity: 0.6;
+  
+  .modal-wrapper {
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+// Range customization
+ion-range {
+  --bar-background: #e5e7eb;
+  --bar-background-active: rgb(59, 130, 246);
+  --bar-height: 8px;
+  --bar-border-radius: 4px;
+  --knob-background: rgb(59, 130, 246);
+  --knob-size: 24px;
+  --pin-background: rgb(59, 130, 246);
+  --pin-color: white;
+  
+  &.in-item {
+    --pin-start: 12px;
+  }
+}
+
+// Textarea customization
+ion-textarea {
+  --background: transparent;
+  --color: #374151;
+  --placeholder-color: #9ca3af;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  
+  .native-textarea {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+}
+
+// Custom animations
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+// Button hover effects
+.hover\:shadow-lg:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+// Responsive design
+@media (max-width: 640px) {
+  .px-6 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+    margin-left: 0.75rem;
+  }
+}
+
+// Error state animations
+.error-shake {
+  animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+
+// Custom scrollbar
+.overflow-y-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f9fafb;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f9fafb;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+    
+    &:hover {
+      background: #9ca3af;
+    }
+  }
+} 

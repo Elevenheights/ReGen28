@@ -11,7 +11,7 @@ import * as logger from "firebase-functions/logger";
 import {initializeApp} from "firebase-admin/app";
 import {getFirestore} from "firebase-admin/firestore";
 import {OpenAIService} from "./openai.service";
-import {completeUserOnboarding, updateUserStats, cleanupDuplicateTrackers, cleanupOldSuggestions, getTrackerSpecificSuggestions, onTrackerEntryCreated, checkExpiredTrackers, queueDailyTrackerSuggestions, processSuggestionJobs, onSuggestionJobCreated, updateUserSubscriptionStatus, checkExpiredTrials} from './user-management';
+import {completeUserOnboarding, updateUserStats, cleanupDuplicateTrackers, cleanupOldSuggestions, getTrackerSpecificSuggestions, onTrackerEntryCreated, checkExpiredTrackers, queueDailyTrackerSuggestions, processSuggestionJobs, onSuggestionJobCreated, updateUserSubscriptionStatus, checkExpiredTrials, getDailyJournalPrompt, getReflectionPrompts, queueDailyJournalPrompts, processJournalPromptJobs} from './user-management';
 
 // Initialize Firebase Admin (main entry point)
 initializeApp();
@@ -30,7 +30,11 @@ export {
   processSuggestionJobs,
   onSuggestionJobCreated,
   updateUserSubscriptionStatus,
-  checkExpiredTrials
+  checkExpiredTrials,
+  getDailyJournalPrompt,
+  getReflectionPrompts,
+  queueDailyJournalPrompts,
+  processJournalPromptJobs
 };
 
 // Define the OpenAI API key secret
@@ -39,7 +43,7 @@ const openaiApiKey = defineSecret("OPENAI_API_KEY");
 // Set global options for cost control
 setGlobalOptions({maxInstances: 10});
 
-// Available trackers data
+// Available activities data
 const AVAILABLE_TRACKERS = [
   // MIND - Mental wellness and cognitive development
   {

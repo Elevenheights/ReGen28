@@ -15,6 +15,7 @@ import {
 
 import { OnboardingService } from '../../../services/onboarding.service';
 import { TrackerService } from '../../../services/tracker.service';
+import { TrackerFrequency } from '../../../models/tracker.interface';
 
 @Component({
   selector: 'app-trackers',
@@ -34,46 +35,46 @@ export class TrackersPage implements OnInit {
   
   availableTrackers = [
     // MIND - Mental wellness and cognitive development
-    { id: 'meditation', name: 'Meditation', category: 'MIND', icon: '🧘', target: 10, unit: 'minutes', frequency: 'daily' },
-    { id: 'reading', name: 'Reading', category: 'MIND', icon: '📚', target: 20, unit: 'minutes', frequency: 'daily' },
-    { id: 'journaling', name: 'Journaling', category: 'MIND', icon: '📝', target: 1, unit: 'entry', frequency: 'daily' },
-    { id: 'learning', name: 'Learning/Study', category: 'MIND', icon: '🎓', target: 2, unit: 'hours', frequency: 'weekly' },
-    { id: 'creative-time', name: 'Creative Activity', category: 'MIND', icon: '🎨', target: 20, unit: 'minutes', frequency: 'daily' },
-    { id: 'mindfulness', name: 'Mindful Breathing', category: 'MIND', icon: '🌬️', target: 5, unit: 'minutes', frequency: 'daily' },
-    { id: 'focus-session', name: 'Deep Focus Work', category: 'MIND', icon: '🎯', target: 25, unit: 'minutes', frequency: 'daily' },
+    { id: 'meditation', name: 'Meditation', category: 'MIND', icon: '🧘', target: 10, unit: 'minutes', frequency: TrackerFrequency.DAILY },
+    { id: 'reading', name: 'Reading', category: 'MIND', icon: '📚', target: 20, unit: 'minutes', frequency: TrackerFrequency.DAILY },
+    { id: 'journaling', name: 'Journaling', category: 'MIND', icon: '📝', target: 1, unit: 'entry', frequency: TrackerFrequency.DAILY },
+    { id: 'learning', name: 'Learning/Study', category: 'MIND', icon: '🎓', target: 2, unit: 'hours', frequency: TrackerFrequency.WEEKLY },
+    { id: 'creative-time', name: 'Creative Activity', category: 'MIND', icon: '🎨', target: 20, unit: 'minutes', frequency: TrackerFrequency.DAILY },
+    { id: 'mindfulness', name: 'Mindful Breathing', category: 'MIND', icon: '🌬️', target: 5, unit: 'minutes', frequency: TrackerFrequency.DAILY },
+    { id: 'focus-session', name: 'Deep Focus Work', category: 'MIND', icon: '🎯', target: 25, unit: 'minutes', frequency: TrackerFrequency.DAILY },
     
     // BODY - Physical health and fitness
-    { id: 'exercise', name: 'Exercise', category: 'BODY', icon: '💪', target: 4, unit: 'sessions', frequency: 'weekly' },
-    { id: 'water-intake', name: 'Water Intake', category: 'BODY', icon: '💧', target: 8, unit: 'glasses', frequency: 'daily' },
-    { id: 'sleep', name: 'Sleep Quality', category: 'BODY', icon: '😴', target: 8, unit: 'hours', frequency: 'daily' },
-    { id: 'stretching', name: 'Stretching', category: 'BODY', icon: '🤸', target: 15, unit: 'minutes', frequency: 'daily' },
-    { id: 'steps', name: 'Daily Steps', category: 'BODY', icon: '👟', target: 10000, unit: 'steps', frequency: 'daily' },
-    { id: 'yoga', name: 'Yoga Practice', category: 'BODY', icon: '🧘‍♀️', target: 3, unit: 'sessions', frequency: 'weekly' },
-    { id: 'healthy-meals', name: 'Healthy Meals', category: 'BODY', icon: '🥗', target: 5, unit: 'meals', frequency: 'weekly' },
-    { id: 'posture-check', name: 'Posture Check', category: 'BODY', icon: '🏃‍♂️', target: 5, unit: 'checks', frequency: 'daily' },
-    { id: 'outdoor-time', name: 'Time Outdoors', category: 'BODY', icon: '🌳', target: 30, unit: 'minutes', frequency: 'daily' },
+    { id: 'exercise', name: 'Exercise', category: 'BODY', icon: '💪', target: 4, unit: 'sessions', frequency: TrackerFrequency.WEEKLY },
+    { id: 'water-intake', name: 'Water Intake', category: 'BODY', icon: '💧', target: 8, unit: 'glasses', frequency: TrackerFrequency.DAILY },
+    { id: 'sleep', name: 'Sleep Quality', category: 'BODY', icon: '😴', target: 8, unit: 'hours', frequency: TrackerFrequency.DAILY },
+    { id: 'stretching', name: 'Stretching', category: 'BODY', icon: '🤸', target: 15, unit: 'minutes', frequency: TrackerFrequency.DAILY },
+    { id: 'steps', name: 'Daily Steps', category: 'BODY', icon: '👟', target: 10000, unit: 'steps', frequency: TrackerFrequency.DAILY },
+    { id: 'yoga', name: 'Yoga Practice', category: 'BODY', icon: '🧘‍♀️', target: 3, unit: 'sessions', frequency: TrackerFrequency.WEEKLY },
+    { id: 'healthy-meals', name: 'Healthy Meals', category: 'BODY', icon: '🥗', target: 5, unit: 'meals', frequency: TrackerFrequency.WEEKLY },
+    { id: 'posture-check', name: 'Posture Check', category: 'BODY', icon: '🏃‍♂️', target: 5, unit: 'checks', frequency: TrackerFrequency.DAILY },
+    { id: 'outdoor-time', name: 'Time Outdoors', category: 'BODY', icon: '🌳', target: 30, unit: 'minutes', frequency: TrackerFrequency.DAILY },
     
     // SOUL - Emotional and spiritual wellness
-    { id: 'gratitude', name: 'Gratitude Practice', category: 'SOUL', icon: '🙏', target: 1, unit: 'entry', frequency: 'daily' },
-    { id: 'mood', name: 'Daily Mood', category: 'SOUL', icon: '😊', target: 1, unit: 'check-in', frequency: 'daily' },
-    { id: 'social-connection', name: 'Social Connection', category: 'SOUL', icon: '👥', target: 3, unit: 'interactions', frequency: 'weekly' },
-    { id: 'acts-of-kindness', name: 'Acts of Kindness', category: 'SOUL', icon: '💝', target: 2, unit: 'acts', frequency: 'weekly' },
-    { id: 'prayer-reflection', name: 'Prayer/Reflection', category: 'SOUL', icon: '🕊️', target: 10, unit: 'minutes', frequency: 'daily' },
-    { id: 'nature-connection', name: 'Nature Connection', category: 'SOUL', icon: '🌿', target: 1, unit: 'hour', frequency: 'weekly' },
-    { id: 'digital-detox', name: 'Digital Detox', category: 'SOUL', icon: '📵', target: 1, unit: 'hour', frequency: 'daily' },
-    { id: 'affirmations', name: 'Positive Affirmations', category: 'SOUL', icon: '💭', target: 5, unit: 'affirmations', frequency: 'daily' },
+    { id: 'gratitude', name: 'Gratitude Practice', category: 'SOUL', icon: '🙏', target: 1, unit: 'entry', frequency: TrackerFrequency.DAILY },
+    { id: 'mood', name: 'Daily Mood', category: 'SOUL', icon: '😊', target: 1, unit: 'check-in', frequency: TrackerFrequency.DAILY },
+    { id: 'social-connection', name: 'Social Connection', category: 'SOUL', icon: '👥', target: 3, unit: 'interactions', frequency: TrackerFrequency.WEEKLY },
+    { id: 'acts-of-kindness', name: 'Acts of Kindness', category: 'SOUL', icon: '💝', target: 2, unit: 'acts', frequency: TrackerFrequency.WEEKLY },
+    { id: 'prayer-reflection', name: 'Prayer/Reflection', category: 'SOUL', icon: '🕊️', target: 10, unit: 'minutes', frequency: TrackerFrequency.DAILY },
+    { id: 'nature-connection', name: 'Nature Connection', category: 'SOUL', icon: '🌿', target: 1, unit: 'hour', frequency: TrackerFrequency.WEEKLY },
+    { id: 'digital-detox', name: 'Digital Detox', category: 'SOUL', icon: '📵', target: 1, unit: 'hour', frequency: TrackerFrequency.DAILY },
+    { id: 'affirmations', name: 'Positive Affirmations', category: 'SOUL', icon: '💭', target: 5, unit: 'affirmations', frequency: TrackerFrequency.DAILY },
     
     // BEAUTY - Self-care and personal grooming
-    { id: 'skincare', name: 'Skincare Routine', category: 'BEAUTY', icon: '✨', target: 1, unit: 'routine', frequency: 'daily' },
-    { id: 'self-care', name: 'Self-Care Time', category: 'BEAUTY', icon: '🛁', target: 2, unit: 'hours', frequency: 'weekly' },
-    { id: 'hair-care', name: 'Hair Care', category: 'BEAUTY', icon: '💇‍♀️', target: 1, unit: 'routine', frequency: 'weekly' },
-    { id: 'nail-care', name: 'Nail Care', category: 'BEAUTY', icon: '💅', target: 1, unit: 'session', frequency: 'weekly' },
-    { id: 'outfit-planning', name: 'Outfit Planning', category: 'BEAUTY', icon: '👗', target: 7, unit: 'outfits', frequency: 'weekly' },
-    { id: 'mirror-work', name: 'Mirror Affirmations', category: 'BEAUTY', icon: '🪞', target: 5, unit: 'minutes', frequency: 'daily' },
+    { id: 'skincare', name: 'Skincare Routine', category: 'BEAUTY', icon: '✨', target: 1, unit: 'routine', frequency: TrackerFrequency.DAILY },
+    { id: 'self-care', name: 'Self-Care Time', category: 'BEAUTY', icon: '🛁', target: 2, unit: 'hours', frequency: TrackerFrequency.WEEKLY },
+    { id: 'hair-care', name: 'Hair Care', category: 'BEAUTY', icon: '💇‍♀️', target: 1, unit: 'routine', frequency: TrackerFrequency.WEEKLY },
+    { id: 'nail-care', name: 'Nail Care', category: 'BEAUTY', icon: '💅', target: 1, unit: 'session', frequency: TrackerFrequency.WEEKLY },
+    { id: 'outfit-planning', name: 'Outfit Planning', category: 'BEAUTY', icon: '👗', target: 7, unit: 'outfits', frequency: TrackerFrequency.WEEKLY },
+    { id: 'mirror-work', name: 'Mirror Affirmations', category: 'BEAUTY', icon: '🪞', target: 5, unit: 'minutes', frequency: TrackerFrequency.DAILY },
     
     // LIFESTYLE - Habits and life management
-    { id: 'budget-tracking', name: 'Budget Tracking', category: 'LIFESTYLE', icon: '💰', target: 7, unit: 'days on budget', frequency: 'weekly' },
-    { id: 'spending-check', name: 'Spending Check-in', category: 'LIFESTYLE', icon: '🧾', target: 1, unit: 'review', frequency: 'daily' }
+    { id: 'budget-tracking', name: 'Budget Tracking', category: 'LIFESTYLE', icon: '💰', target: 7, unit: 'days on budget', frequency: TrackerFrequency.WEEKLY },
+    { id: 'spending-check', name: 'Spending Check-in', category: 'LIFESTYLE', icon: '🧾', target: 1, unit: 'review', frequency: TrackerFrequency.DAILY }
   ];
 
   constructor(
@@ -270,35 +271,35 @@ export class TrackersPage implements OnInit {
     const trackerIndex = this.selectedTrackers.findIndex(t => t.trackerId === trackerId);
     if (trackerIndex > -1) {
       const tracker = this.availableTrackers.find(t => t.id === trackerId);
-      const increment = this.getTargetIncrement(tracker?.frequency || 'daily');
+      const increment = this.getTargetIncrement(tracker?.frequency || TrackerFrequency.DAILY);
       const newTarget = Math.max(increment, this.selectedTrackers[trackerIndex].customTarget + (change * increment));
       this.selectedTrackers[trackerIndex].customTarget = newTarget;
     }
   }
 
-  getFrequencyLabel(frequency: string): string {
+  getFrequencyLabel(frequency: TrackerFrequency): string {
     switch (frequency) {
-      case 'daily': return 'Daily';
-      case 'weekly': return 'Weekly';
-      case 'monthly': return 'Monthly';
+      case TrackerFrequency.DAILY: return 'Daily';
+      case TrackerFrequency.WEEKLY: return 'Weekly';
+      case TrackerFrequency.MONTHLY: return 'Monthly';
       default: return 'Daily';
     }
   }
 
-  getFrequencyText(frequency: string): string {
+  getFrequencyText(frequency: TrackerFrequency): string {
     switch (frequency) {
-      case 'daily': return 'per day';
-      case 'weekly': return 'per week';
-      case 'monthly': return 'per month';
+      case TrackerFrequency.DAILY: return 'per day';
+      case TrackerFrequency.WEEKLY: return 'per week';
+      case TrackerFrequency.MONTHLY: return 'per month';
       default: return 'per day';
     }
   }
 
-  getTargetIncrement(frequency: string): number {
+  getTargetIncrement(frequency: TrackerFrequency): number {
     switch (frequency) {
-      case 'daily': return 1;
-      case 'weekly': return 1;
-      case 'monthly': return 1;
+      case TrackerFrequency.DAILY: return 1;
+      case TrackerFrequency.WEEKLY: return 1;
+      case TrackerFrequency.MONTHLY: return 1;
       default: return 1;
     }
   }

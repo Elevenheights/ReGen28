@@ -12,6 +12,9 @@ import {
   chevronBack, 
   chevronForward 
 } from 'ionicons/icons';
+import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
+import { take, firstValueFrom } from 'rxjs';
 
 interface FeatureSlide {
   title: string;
@@ -79,7 +82,11 @@ export class IntroPage implements OnInit {
     }
   ];
 
-  constructor(private router: Router) {
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private userService: UserService
+  ) {
     // Add icons to the registry
     addIcons({
       rocket, 
@@ -88,7 +95,9 @@ export class IntroPage implements OnInit {
     });
   }
 
-  ngOnInit() {}
+  async ngOnInit() {
+    // Global navigation logic in AppComponent will handle authentication/onboarding redirects
+  }
 
   nextSlide() {
     if (this.currentSlide < this.featureSlides.length - 1) {

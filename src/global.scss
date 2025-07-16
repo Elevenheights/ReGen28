@@ -23,6 +23,9 @@
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
 
+/* Quill Editor CSS */
+@import "quill/dist/quill.snow.css";
+
 /* Optional CSS utils that can be commented out */
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/float-elements.css";
@@ -42,6 +45,27 @@
 
 ::-webkit-scrollbar {
 	display: none;
+}
+
+/* Scrollbar hide utility class for horizontal scrolling */
+.scrollbar-hide {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Horizontal card spacing */
+.first-card {
+  margin-left: 1rem; /* Add left margin to first card */
+}
+
+.last-card {
+  margin-right: 1rem; /* Add right margin to last card */
 }
 
 html, body {
@@ -165,6 +189,105 @@ html, body {
 	--ion-color-light-tint: var(--color-base-50);
 }
 
+/* Regen28 Design System - "Sacred Meets Structured" */
+
+/* Rooted Radiance Color Palette */
+:root {
+  /* Base (Foundational / Backgrounds) */
+  --color-alabaster: #FAF8F5;
+  --color-oatmilk: #F5EFE6;
+  --color-stone-mist: #E7E5DF;
+  
+  /* Primary (Mind-Body-Soul Anchors) */
+  --color-eucalyptus: #A8C3A0;
+  --color-lavender-smoke: #D6CDEA;
+  --color-sienna-clay: #DFAF84;
+  --color-dusty-rose: #D8A39D;
+  
+  /* Accent (Focus / Action) */
+  --color-amber-gold: #FFC26F;
+  --color-midnight-plum: #4F3B57;
+  --color-ocean-ink: #3A506B;
+  
+  /* Text Colors */
+  --color-dark-mocha: #3B2F2F;
+}
+
+/* Apply base colors to body and main backgrounds */
+body {
+  background-color: var(--color-alabaster) !important;
+  color: var(--color-dark-mocha) !important;
+}
+
+/* Update neutral backgrounds to use warm palette */
+.bg-neutral-50 {
+  background-color: var(--color-alabaster) !important;
+}
+
+.bg-neutral-100 {
+  background-color: var(--color-oatmilk) !important;
+}
+
+.bg-neutral-200 {
+  background-color: var(--color-stone-mist) !important;
+}
+
+/* Sacred text colors */
+.text-neutral-900 {
+  color: var(--color-midnight-plum) !important;
+}
+
+.text-neutral-700 {
+  color: var(--color-dark-mocha) !important;
+}
+
+/* Spiritual accent colors */
+.text-amber-600 {
+  color: var(--color-amber-gold) !important;
+}
+
+.text-dusty-rose {
+  color: var(--color-dusty-rose) !important;
+}
+
+.text-eucalyptus {
+  color: var(--color-eucalyptus) !important;
+}
+
+.text-sienna-clay {
+  color: var(--color-sienna-clay) !important;
+}
+
+.text-ocean-ink {
+  color: var(--color-ocean-ink) !important;
+}
+
+.text-midnight-plum {
+  color: var(--color-midnight-plum) !important;
+}
+
+/* Background color utilities for the new palette */
+.from-lavender-100 {
+  --tw-gradient-from: var(--color-lavender-smoke) !important;
+}
+
+.to-purple-100 {
+  --tw-gradient-to: var(--color-lavender-smoke) !important;
+}
+
+.text-purple-600 {
+  color: var(--color-midnight-plum) !important;
+}
+
+.text-purple-700 {
+  color: var(--color-midnight-plum) !important;
+}
+
+/* Spiritual gradient backgrounds for cards */
+.bg-gradient-spiritual {
+  background: linear-gradient(135deg, var(--color-lavender-smoke), var(--color-eucalyptus)) !important;
+}
+
 /* Font Styles */
 body {
 	font-family: 'Inter', sans-serif !important;
@@ -195,10 +318,19 @@ header p {
 	line-height: 1.2 !important;
 }
 
-header img {
+/* Header image sizing - only for actual header elements */
+ion-header img, 
+.header img,
+header .w-8 img {
 	width: 32px !important;
 	height: 32px !important;
 	flex-shrink: 0 !important;
+}
+
+/* Exception for dashboard profile images which should be larger */
+.bg-gradient-to-br img[alt*="profile"] {
+	width: 56px !important; /* w-14 */
+	height: 56px !important; /* h-14 */
 }
 
 /* Section and Component Spacing - Match sample exactly */
@@ -320,41 +452,60 @@ ion-content {
 	--background: var(--color-neutral-50);
 }
 
-/* Tab Bar Styling - Match sample exactly */
+/* Tab Bar Styling - Clean design matching dashboard methodology */
 ion-tab-bar {
 	--background: #ffffff !important;
-	--border: 1px solid #e5e7eb !important;
-	border-top: 1px solid #e5e7eb !important;
+	--border: none !important;
+	border-top: 1px solid #f3f4f6 !important; /* subtle border */
 	background: #ffffff !important;
-	padding: 8px 0 !important; /* py-2 = 8px top/bottom */
+	padding: 16px 20px 20px 20px !important;
+	border-top-left-radius: 24px !important; /* rounded-3xl top corners */
+	border-top-right-radius: 24px !important;
+	box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06) !important; /* shadow-md upward */
 }
 
 ion-tab-button {
-	--color: #9ca3af !important;
-	--color-selected: #111827 !important;
-	padding: 8px 16px !important; /* py-2 px-4 */
+	--color: #9ca3af !important; /* text-neutral-400 */
+	--color-selected: #111827 !important; /* text-neutral-900 */
+	padding: 8px 12px !important;
 	flex-direction: column !important;
 	justify-content: center !important;
 	align-items: center !important;
+	border-radius: 16px !important; /* rounded-2xl */
+	transition: all 0.2s ease !important;
+	margin: 0 4px !important;
 }
 
+/* Active tab styling - simple and clean */
 ion-tab-button.tab-selected {
-	color: #111827 !important;
+	color: #111827 !important; /* text-neutral-900 */
+	background: #f3f4f6 !important; /* bg-neutral-100 */
 }
 
+ion-tab-button.tab-selected i {
+	color: #10b981 !important; /* text-emerald-600 */
+}
+
+ion-tab-button.tab-selected ion-label {
+	color: #111827 !important; /* text-neutral-900 */
+	font-weight: 600 !important; /* font-semibold */
+}
+
+/* Inactive tab styling */
 ion-tab-button:not(.tab-selected) {
-	color: #9ca3af !important;
+	color: #9ca3af !important; /* text-neutral-400 */
 }
 
 ion-tab-button i {
-	font-size: 18px !important; /* text-lg */
-	margin-bottom: 4px !important; /* mb-1 */
+	font-size: 20px !important; /* text-xl */
+	margin-bottom: 4px !important;
 	color: inherit !important;
+	transition: color 0.2s ease !important;
 }
 
 ion-tab-button ion-label {
 	font-size: 12px !important; /* text-xs */
-	font-weight: 400 !important;
+	font-weight: 500 !important; /* font-medium */
 	margin: 0 !important;
 	text-transform: none !important;
 	color: inherit !important;
@@ -403,4 +554,247 @@ ion-item {
 	--inner-border-width: 0;
 	--padding-start: 0;
 	--padding-end: 0;
+}
+
+/* Toast Styling */
+.toast-custom {
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --max-width: 90%;
+  font-family: 'Inter', sans-serif;
+}
+
+.toast-loading {
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --max-width: 90%;
+  font-family: 'Inter', sans-serif;
+}
+
+.toast-with-action {
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --max-width: 95%;
+  font-family: 'Inter', sans-serif;
+}
+
+ion-toast {
+  --color: white;
+  font-weight: 500;
+}
+
+ion-toast.toast-position-bottom {
+  --start: 16px;
+  --end: 16px;
+  --bottom: 20px;
+}
+
+ion-toast.toast-position-top {
+  --start: 16px;
+  --end: 16px;
+  --top: 20px;
+}
+
+/* Mobile App Enhancements */
+ion-content {
+  --background: #f9fafb;
+}
+
+/* Native-like tap feedback */
+.active\:scale-95:active {
+  transform: scale(0.95);
+}
+
+.active\:scale-\[0\.98\]:active {
+  transform: scale(0.98);
+}
+
+/* Smooth transitions for interactive elements */
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* iOS-style backdrop blur effects */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Enhanced shadows for depth */
+.shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Prevent text selection for app-like feel */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Smooth scrolling */
+ion-content {
+  scroll-behavior: smooth;
+}
+
+/* Remove tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Line clamp utilities */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+/* Ensure proper safe area handling */
+ion-header {
+  padding-top: env(safe-area-inset-top);
+}
+
+ion-content {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Sacred Typography - Serif for elegance, Sans-serif for clarity */
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+/* Apply serif to main headers for elegance */
+h1, h2, .header-serif {
+  font-family: 'Crimson Text', serif !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.025em !important;
+}
+
+/* Keep body text clean with Inter */
+body, p, span, button, ion-label {
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* Softer font weights throughout */
+.font-semibold {
+  font-weight: 500 !important; /* Lighter than default semibold */
+}
+
+.font-medium {
+  font-weight: 400 !important; /* Lighter medium weight */
+}
+
+/* Spiritual section header styling */
+h2 {
+  color: var(--color-midnight-plum) !important;
+  margin-bottom: 1rem !important;
+}
+
+/* Additional utility classes for Activities page */
+.bg-eucalyptus-100 {
+  background-color: rgba(168, 195, 160, 0.2) !important;
+}
+
+.bg-eucalyptus-500 {
+  background-color: var(--color-eucalyptus) !important;
+}
+
+.text-eucalyptus-600 {
+  color: #7FA275 !important;
+}
+
+.from-eucalyptus-100 {
+  --tw-gradient-from: rgba(168, 195, 160, 0.2) !important;
+}
+
+.to-eucalyptus-100 {
+  --tw-gradient-to: rgba(168, 195, 160, 0.2) !important;
+}
+
+.from-eucalyptus-500 {
+  --tw-gradient-from: var(--color-eucalyptus) !important;
+}
+
+.bg-lavender-50 {
+  background-color: rgba(214, 205, 234, 0.2) !important;
+}
+
+.bg-lavender-200 {
+  background-color: rgba(214, 205, 234, 0.5) !important;
+}
+
+.from-lavender-50 {
+  --tw-gradient-from: rgba(214, 205, 234, 0.2) !important;
+}
+
+.to-lavender-50 {
+  --tw-gradient-to: rgba(214, 205, 234, 0.2) !important;
+}
+
+.from-lavender-200 {
+  --tw-gradient-from: rgba(214, 205, 234, 0.5) !important;
+}
+
+.bg-dusty-rose-50 {
+  background-color: rgba(216, 163, 157, 0.2) !important;
+}
+
+.bg-dusty-rose-100 {
+  background-color: rgba(216, 163, 157, 0.3) !important;
+}
+
+.bg-dusty-rose-200 {
+  background-color: rgba(216, 163, 157, 0.5) !important;
+}
+
+.from-dusty-rose-50 {
+  --tw-gradient-from: rgba(216, 163, 157, 0.2) !important;
+}
+
+.to-dusty-rose-50 {
+  --tw-gradient-to: rgba(216, 163, 157, 0.2) !important;
+}
+
+.to-dusty-rose-100 {
+  --tw-gradient-to: rgba(216, 163, 157, 0.3) !important;
+}
+
+.to-dusty-rose-200 {
+  --tw-gradient-to: rgba(216, 163, 157, 0.5) !important;
+}
+
+.from-dusty-rose-200 {
+  --tw-gradient-from: rgba(216, 163, 157, 0.5) !important;
+}
+
+.from-midnight-plum {
+  --tw-gradient-from: var(--color-midnight-plum) !important;
+}
+
+.to-dusty-rose {
+  --tw-gradient-to: var(--color-dusty-rose) !important;
+}
+
+.bg-midnight-plum\/10 {
+  background-color: rgba(79, 59, 87, 0.1) !important;
 }

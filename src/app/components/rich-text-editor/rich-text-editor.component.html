@@ -1,0 +1,24 @@
+<div class="rich-text-editor-container">
+  <quill-editor
+    [modules]="quillConfig.modules"
+    [placeholder]="placeholder"
+    [readOnly]="readonly || isDisabled"
+    [theme]="theme"
+    [formats]="quillConfig.formats"
+    [styles]="editorStyles"
+    (onContentChanged)="onContentChanged($event)"
+    (onFocus)="onEditorFocus()"
+    (onBlur)="onEditorBlur()"
+    (onEditorCreated)="onEditorCreated($event)"
+    class="rich-text-editor">
+  </quill-editor>
+  
+  <!-- Mobile-friendly stats -->
+  <div class="editor-stats" *ngIf="!readonly">
+    <div class="stats-container">
+      <span class="stat-item">{{ getWordCount() }} words</span>
+      <span class="stat-divider">•</span>
+      <span class="stat-item">{{ getCharacterCount() }} characters</span>
+    </div>
+  </div>
+</div> 

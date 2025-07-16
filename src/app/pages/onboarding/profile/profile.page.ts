@@ -96,6 +96,10 @@ export class ProfilePage implements OnInit {
     
     this.currentUser = this.authService.getCurrentUser();
     
+    // Auto-detect user's timezone
+    const detectedTimezone = this.detectUserTimezone();
+    console.log('🌍 Auto-detected timezone:', detectedTimezone);
+    
     // Pre-populate with existing data
     const onboardingData = this.onboardingService.getCurrentData();
     
@@ -222,6 +226,31 @@ export class ProfilePage implements OnInit {
     this.onboardingService.previousStep();
   }
 
+  /**
+   * Detect user's timezone using browser APIs
+   */
+  private detectUserTimezone(): string {
+    try {
+      // Use Intl API to get the user's timezone
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      console.log('🌍 Detected timezone via Intl API:', timezone);
+      return timezone;
+    } catch (error) {
+      console.warn('⚠️ Failed to detect timezone via Intl API, falling back to UTC offset', error);
+      
+      // Fallback: Calculate timezone from UTC offset
+      const now = new Date();
+      const offsetMinutes = now.getTimezoneOffset();
+      const offsetHours = Math.abs(offsetMinutes / 60);
+      const sign = offsetMinutes > 0 ? '-' : '+';
+      
+      // This is a rough approximation - Intl API is much better
+      const fallbackTimezone = `UTC${sign}${offsetHours.toString().padStart(2, '0')}:00`;
+      console.log('🌍 Fallback timezone from offset:', fallbackTimezone);
+      return fallbackTimezone;
+    }
+  }
+
   onContinue() {
     if (this.profileForm.valid) {
       const formData = this.profileForm.value;
@@ -231,6 +260,9 @@ export class ProfilePage implements OnInit {
         ? formData.customTime 
         : formData.reminderTime;
       
+      // Auto-detect timezone
+      const detectedTimezone = this.detectUserTimezone();
+      
       const profileData = {
         displayName: formData.displayName,
         gender: formData.gender,
@@ -239,7 +271,8 @@ export class ProfilePage implements OnInit {
         photoUrl: this.selectedPhotoUrl || this.currentUser?.photoURL, // Include selected photo or existing photo
         preferences: {
           notifications: formData.notifications,
-          darkMode: false // Default for now
+          darkMode: false, // Default for now
+          timezone: detectedTimezone // Auto-detected timezone
         }
       };
       

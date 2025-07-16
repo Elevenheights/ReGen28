@@ -13,14 +13,17 @@ import {
   orderBy, 
   limit,
   getDocs,
+  getDoc,
   writeBatch,
   serverTimestamp,
   Timestamp,
   DocumentReference,
-  QueryConstraint
+  QueryConstraint,
+  increment
 } from '@angular/fire/firestore';
 import { Functions, httpsCallable } from '@angular/fire/functions';
 import { Observable, from, map, catchError, of } from 'rxjs';
+import { Auth } from '@angular/fire/auth';
 
 export interface DatabaseConfig {
   collection: string;
@@ -34,6 +37,40 @@ export interface QueryOptions {
   limit?: number;
 }
 
+export interface TrackerSpecificSuggestionsResponse {
+  userId: string;
+  trackerId: string;
+  date: string;
+  dateKey: string;
+  todayAction: {
+    text: string;
+    icon: string;
+    reason: string;
+  };
+  suggestions: Array<{
+    text: string;
+    type: string;
+    icon: string;
+    dataPoint: string;
+  }>;
+  motivationalQuote: {
+    text: string;
+    author: string;
+    context: string;
+  };
+  generatedAt: any;
+  source: string;
+  model: string;
+  trackerInfo: {
+    name: string;
+    target: number;
+    unit: string;
+    frequency: string;
+    category: string;
+  };
+  analytics: any;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -41,7 +78,8 @@ export class DatabaseService {
   
   constructor(
     private firestore: Firestore,
-    private functions: Functions
+    private functions: Functions,
+    private auth: Auth
   ) {}
 
   // ===============================
@@ -53,7 +91,14 @@ export class DatabaseService {
    */
   getDocument<T>(collectionName: string, id: string): Observable<T | null> {
     const docRef = doc(this.firestore, collectionName, id);
-    return docData(docRef, { idField: 'id' }) as Observable<T>;
+    
+    return docData(docRef, { idField: 'id' }).pipe(
+      map(data => data as T | null),
+      catchError(error => {
+        console.error(`🔥 DatabaseService: Error in real-time listener for ${collectionName}/${id}:`, error);
+        return of(null);
+      })
+    );
   }
 
   /**
@@ -234,6 +279,66 @@ export class DatabaseService {
     );
   }
 
+  /**
+   * Get tracker-specific AI suggestions
+   */
+  getTrackerSpecificSuggestions(trackerId: string, forceRefresh: boolean = false): Observable<TrackerSpecificSuggestionsResponse> {
+    // Debug: Check if user is authenticated
+    const user = this.auth.currentUser;
+    console.log('🔐 Firebase Auth State:', {
+      isAuthenticated: !!user,
+      userEmail: user?.email,
+      uid: user?.uid,
+      emailVerified: user?.emailVerified
+    });
+    
+    if (!user) {
+      console.error('❌ User not authenticated when calling getTrackerSpecificSuggestions');
+      throw new Error('User must be authenticated to get tracker suggestions');
+    }
+    
+    return this.callFunction<{ trackerId: string; forceRefresh?: boolean }, TrackerSpecificSuggestionsResponse>(
+      'getTrackerSpecificSuggestions',
+      { trackerId, forceRefresh }
+    );
+  }
+
+  /**
+   * Check if suggestions document exists and get its timestamp
+   * Returns only the timestamp to minimize data transfer
+   */
+  checkSuggestionTimestamp(trackerId: string): Observable<{ generatedAt: any } | null> {
+    return new Observable(observer => {
+      const user = this.auth.currentUser;
+      if (!user) {
+        observer.next(null);
+        observer.complete();
+        return;
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      const docId = `${user.uid}_${trackerId}_${today}`;
+      const docRef = doc(this.firestore, 'tracker-specific-suggestions', docId);
+      
+      from(getDoc(docRef)).subscribe({
+        next: (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            observer.next({ generatedAt: data['generatedAt'] });
+          } else {
+            observer.next(null);
+          }
+          observer.complete();
+        },
+        error: (error) => {
+          console.error('Error checking suggestion timestamp:', error);
+          observer.next(null);
+          observer.complete();
+        }
+      });
+    });
+  }
+
   // ===============================
   // SPECIALIZED METHODS
   // ===============================
@@ -296,5 +401,12 @@ export class DatabaseService {
     return this.queryDocuments(collectionName, options).pipe(
       map(docs => docs.length)
     );
+  }
+
+  /**
+   * Create Firestore increment for atomic counter updates
+   */
+  increment(value: number = 1) {
+    return increment(value);
   }
 } 

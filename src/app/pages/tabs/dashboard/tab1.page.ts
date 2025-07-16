@@ -1,4 +1,6 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { 
   IonHeader, 
   IonToolbar, 
@@ -11,26 +13,35 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  IonToast
+  IonRefresher,
+  IonRefresherContent,
+  IonSpinner
 } from '@ionic/angular/standalone';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { Subject, takeUntil, combineLatest, map, catchError, of, firstValueFrom } from 'rxjs';
 
 // Services
 import { AuthService } from '../../../services/auth.service';
-import { UserService } from '../../../services/user.service';
+import { DatabaseService, TrackerSpecificSuggestionsResponse } from '../../../services/database.service';
 import { TrackerService } from '../../../services/tracker.service';
+import { UserService } from '../../../services/user.service';
 import { JournalService } from '../../../services/journal.service';
 import { ActivityService } from '../../../services/activity.service';
-import { DatabaseService } from '../../../services/database.service';
 import { ErrorHandlingService, UIErrorState } from '../../../services/error-handling.service';
 import { LoggingService } from '../../../services/logging.service';
+import { TrackerSuggestionsService, TrackerSuggestionsState } from '../../../services/tracker-suggestions.service';
+import { AIRecommendationsService } from '../../../services/ai-recommendations.service';
+import { ToastService } from '../../../services/toast.service';
 
 // Models
 import { User } from '../../../models/user.interface';
-import { Tracker } from '../../../models/tracker.interface';
 import { Activity } from '../../../models/activity.interface';
+import { Tracker } from '../../../models/tracker.interface';
+
+// Components
+import { ProfileImageComponent } from '../../../components/profile-image';
+
+// RxJS
+import { Subject, combineLatest, of, firstValueFrom, switchMap } from 'rxjs';
+import { takeUntil, map, catchError } from 'rxjs/operators';
 
 interface DashboardData {
   user: User | null;
@@ -38,9 +49,38 @@ interface DashboardData {
   wellnessScore: number;
   trackerStats: { totalSessions: number; weeklyCount: number; streak: number };
   journalStats: { totalEntries: number; weeklyCount: number; streak: number };
+  weeklyMoodData: {
+    dailyMoods: (number | null)[];
+    averageMood: number;
+    trend: 'improving' | 'declining' | 'stable';
+    entryCount: number;
+  };
   recentActivities: Activity[];
-  todaysSuggestions: DailySuggestion[];
-  suggestionsState: UIErrorState;
+  activeTrackers: any[];
+  expandedSuggestions: { [trackerId: string]: boolean };
+  analytics: {
+    wellnessScore: number;
+    moodData: {
+      average: number;
+    };
+    consistencyRate: number;
+    currentStreak: number;
+    categoryPerformance: {
+      mind: number;
+      body: number;
+      soul: number;
+      beauty: number;
+    };
+    // Insights data
+    peakPerformanceHour: number;
+    peakPerformanceBoost: number;
+    moodBoostAmount: number;
+    topCategoryConsistency: number;
+    wellnessScoreChange: number;
+  };
+  // Legacy properties for compatibility during transition
+  trackerSuggestions?: any;
+  suggestionsState?: any;
 }
 
 interface DailyIntention {
@@ -50,20 +90,7 @@ interface DailyIntention {
   createdAt: Date;
 }
 
-interface DailySuggestion {
-  text: string;
-  type: string;
-  icon: string;
-}
-
-interface DailySuggestionsResponse {
-  userId: string;
-  date: string;
-  suggestions: DailySuggestion[];
-  generatedAt: any;
-  source: string;
-  model: string;
-}
+// Removed old daily suggestion interfaces - now using TrackerSpecificSuggestionsResponse
 
 @Component({
   selector: 'app-tab1',
@@ -83,7 +110,10 @@ interface DailySuggestionsResponse {
     IonGrid,
     IonRow,
     IonCol,
-    IonToast
+    IonRefresher,
+    IonRefresherContent,
+    IonSpinner,
+    ProfileImageComponent
   ],
 })
 export class Tab1Page implements OnInit, OnDestroy {
@@ -96,22 +126,52 @@ export class Tab1Page implements OnInit, OnDestroy {
     wellnessScore: 0,
     trackerStats: { totalSessions: 0, weeklyCount: 0, streak: 0 },
     journalStats: { totalEntries: 0, weeklyCount: 0, streak: 0 },
+    weeklyMoodData: {
+      dailyMoods: [],
+      averageMood: 0,
+      trend: 'stable',
+      entryCount: 0
+    },
     recentActivities: [],
-    todaysSuggestions: [],
-    suggestionsState: {
-      hasError: false,
-      errorMessage: '',
-      isRetryable: false,
-      suggestions: [],
-      showEmptyState: false,
-      emptyStateMessage: ''
-    }
+    activeTrackers: [],
+    expandedSuggestions: {},
+    analytics: {
+      wellnessScore: 0,
+      moodData: {
+        average: 0
+      },
+      consistencyRate: 0,
+      currentStreak: 0,
+      categoryPerformance: {
+        mind: 0,
+        body: 0,
+        soul: 0,
+        beauty: 0
+      },
+      // Insights data
+      peakPerformanceHour: 9,
+      peakPerformanceBoost: 25,
+      moodBoostAmount: 1.2,
+      topCategoryConsistency: 85,
+      wellnessScoreChange: 5
+    },
+    trackerSuggestions: null,
+    suggestionsState: { hasError: false, showEmptyState: false, errorMessage: '', isRetryable: false, emptyStateMessage: '' }
   };
 
-  // UI state
+  // Separate state for suggestions
+  suggestionsState: TrackerSuggestionsState = {};
+
+  // Loading and error states
   isLoading = true;
-  showToast = false;
-  toastMessage = '';
+  hasGeneralError = false;
+  generalErrorMessage = '';
+  
+  // Coaching state
+  isExpanded = false;
+  
+  // Global reading mode for Today's Actions
+  isReadingMode = false;
   
   // Collapsed state for wellness journey section
   isWellnessJourneyCollapsed = true;
@@ -122,6 +182,143 @@ export class Tab1Page implements OnInit, OnDestroy {
   // Cached user display name
   userDisplayName = 'User';
 
+  // Developer mode properties
+  isDeveloperMode = true; // Set to true for development
+  isRegeneratingCoaching = false;
+
+  // Computed properties for suggestions
+  get isLoadingSuggestions(): boolean {
+    return Object.values(this.suggestionsState).some(state => state.isLoading);
+  }
+
+  get hasAnySuggestions(): boolean {
+    return Object.values(this.suggestionsState).some(state => state.suggestions !== null);
+  }
+
+  get showEmptyState(): boolean {
+    const hasTrackers = this.dashboardData.activeTrackers.length > 0;
+    const allLoaded = Object.values(this.suggestionsState).every(state => !state.isLoading);
+    const noSuggestions = !this.hasAnySuggestions;
+    const noErrors = !this.hasGeneralError;
+    
+    // If no trackers, show empty state
+    if (!hasTrackers) {
+      return true;
+    }
+    
+    // If we have trackers but all loaded and no suggestions and no errors
+    return hasTrackers && allLoaded && noSuggestions && noErrors;
+  }
+
+  get emptyStateMessage(): string {
+    const hasTrackers = this.dashboardData.activeTrackers.length > 0;
+    if (!hasTrackers) {
+      return 'Create your first tracker to see personalized suggestions!';
+    }
+    return 'No suggestions available today. Check back later!';
+  }
+
+  /**
+   * Get all trackers that have suggestions or are loading
+   */
+  getTrackersWithSuggestions(): any[] {
+    return this.dashboardData.activeTrackers.filter(tracker => {
+      const state = this.suggestionsState[tracker.id];
+      return state && (state.suggestions || state.isLoading || state.error);
+    });
+  }
+
+  /**
+   * Get suggestions for a specific tracker
+   */
+  getTrackerSuggestions(trackerId: string): TrackerSpecificSuggestionsResponse | null {
+    const trackerState = this.suggestionsState[trackerId];
+    return trackerState?.suggestions || null;
+  }
+
+  /**
+   * Check if a tracker is currently loading
+   */
+  isTrackerLoading(trackerId: string): boolean {
+    const trackerState = this.suggestionsState[trackerId];
+    return trackerState?.isLoading || false;
+  }
+
+  /**
+   * Get error message for a specific tracker
+   */
+  getTrackerError(trackerId: string): string | null {
+    const trackerState = this.suggestionsState[trackerId];
+    return trackerState?.error || null;
+  }
+
+  /**
+   * Check if a tracker's suggestions are expanded
+   */
+  isTrackerExpanded(trackerId: string): boolean {
+    // Default to true for debugging - change back to false later
+    return this.dashboardData.expandedSuggestions[trackerId] !== false;
+  }
+
+  toggleTrackerExpansion(trackerId: string): void {
+    this.dashboardData.expandedSuggestions[trackerId] = !this.dashboardData.expandedSuggestions[trackerId];
+  }
+
+  toggleActionExpansion(trackerId: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    
+    // Toggle global reading mode instead of individual cards
+    this.isReadingMode = !this.isReadingMode;
+    console.log(`Toggling reading mode to: ${this.isReadingMode}`);
+  }
+
+  isActionExpanded(trackerId: string): boolean {
+    // All cards are expanded when in reading mode
+    return this.isReadingMode;
+  }
+
+  /**
+   * Retry loading suggestions for a specific tracker
+   */
+  async retryTrackerSuggestions(trackerId: string): Promise<void> {
+    try {
+      await this.trackerSuggestions.loadSuggestionsForTracker(trackerId, true); // force refresh
+    } catch (error) {
+      this.logging.error('Failed to retry suggestions for tracker', { trackerId, error });
+    }
+  }
+
+  /**
+   * Load suggestions for active trackers using the new TrackerSuggestionsService
+   */
+  private async loadSuggestionsForActiveTrackers(): Promise<void> {
+    // Subscribe to suggestions state changes
+    this.trackerSuggestions.suggestionsState$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(state => {
+        this.suggestionsState = state;
+      });
+
+    // Get active tracker IDs
+    const activeTrackerIds = this.dashboardData.activeTrackers.map(tracker => tracker.id);
+    
+    if (activeTrackerIds.length === 0) {
+      this.logging.debug('No active trackers found for suggestions');
+      return;
+    }
+
+    // Load suggestions for all active trackers
+    try {
+      await this.trackerSuggestions.loadSuggestionsForTrackers(activeTrackerIds);
+      this.logging.debug('Successfully loaded suggestions for active trackers', { trackerIds: activeTrackerIds });
+    } catch (error) {
+      this.logging.error('Failed to load suggestions for active trackers', { error, trackerIds: activeTrackerIds });
+    }
+  }
+
   constructor(
     private authService: AuthService,
     private userService: UserService,
@@ -131,7 +328,9 @@ export class Tab1Page implements OnInit, OnDestroy {
     private db: DatabaseService,
     private errorHandling: ErrorHandlingService,
     private logging: LoggingService,
-    public router: Router
+    private trackerSuggestions: TrackerSuggestionsService,
+    public router: Router,
+    private toastService: ToastService
   ) {}
 
   ngOnInit() {
@@ -173,14 +372,62 @@ export class Tab1Page implements OnInit, OnDestroy {
       })
     );
 
+    const weeklyMoodData$ = this.journalService.getMoodAnalytics(7).pipe(
+      switchMap((analytics: { averageMood: number; moodTrend: 'improving' | 'declining' | 'stable'; moodDistribution: { [key: number]: number } }) => {
+        // Get journal entries for the past 7 days to calculate daily moods
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(endDate.getDate() - 6); // 7 days including today
+        
+        return this.journalService.getJournalEntriesByDateRange(startDate, endDate).pipe(
+          map(entries => {
+            // Create array for 7 days (Monday to Sunday)
+            const dailyMoods = new Array(7).fill(null);
+            
+            // Group entries by date and calculate average mood for each day
+            entries.forEach(entry => {
+              const entryDate = new Date(entry.date);
+              const dayIndex = (entryDate.getDay() + 6) % 7; // Convert to Monday=0, Sunday=6
+              
+              if (entry.mood && entry.mood > 0) {
+                if (dailyMoods[dayIndex] === null) {
+                  dailyMoods[dayIndex] = entry.mood;
+                } else {
+                  // Average if multiple entries per day
+                  dailyMoods[dayIndex] = (dailyMoods[dayIndex] + entry.mood) / 2;
+                }
+              }
+            });
+            
+            return {
+              dailyMoods,
+              averageMood: analytics.averageMood,
+              trend: analytics.moodTrend,
+              entryCount: entries.length
+            };
+          })
+        );
+      }),
+      catchError((error) => {
+        this.logging.error('Could not load weekly mood data', { error });
+        return of({
+          dailyMoods: [],
+          averageMood: 0,
+          trend: 'stable' as const,
+          entryCount: 0
+        });
+      })
+    );
+
     // Combine the observable data streams with proper error handling
     const dashboardData$ = combineLatest([
       userProfile$,
       journeyProgress$,
       trackerData$,
-      recentActivities$
+      recentActivities$,
+      weeklyMoodData$
     ]).pipe(
-      map(([user, journeyProgress, trackerData, activities]) => {
+      map(([user, journeyProgress, trackerData, activities, weeklyMoodData]) => {
         const result = {
           user,
           journeyProgress,
@@ -195,8 +442,31 @@ export class Tab1Page implements OnInit, OnDestroy {
             weeklyCount: 0, // Will be updated separately
             streak: 0 // Will be updated separately
           },
+          weeklyMoodData,
           recentActivities: activities || [],
-          todaysSuggestions: [],
+          activeTrackers: trackerData?.activeTrackers || [],
+          expandedSuggestions: {},
+          analytics: {
+            wellnessScore: user?.stats?.weeklyActivityScore || 0,
+            moodData: {
+              average: weeklyMoodData.averageMood || 0
+            },
+            consistencyRate: Math.round((user?.stats?.totalTrackerEntries || 0) / Math.max(user?.currentDay || 1, 1) * 100),
+            currentStreak: user?.stats?.currentStreaks || 0,
+            categoryPerformance: {
+              mind: 75, // TODO: Calculate from actual tracker data
+              body: 80, // TODO: Calculate from actual tracker data
+              soul: 70, // TODO: Calculate from actual tracker data
+              beauty: 85 // TODO: Calculate from actual tracker data
+            },
+            // Insights data
+            peakPerformanceHour: 9,
+            peakPerformanceBoost: 25,
+            moodBoostAmount: 1.2,
+            topCategoryConsistency: 85,
+            wellnessScoreChange: 5
+          },
+          trackerSuggestions: null,
           suggestionsState: this.errorHandling.createSuccessState()
         };
 
@@ -211,8 +481,36 @@ export class Tab1Page implements OnInit, OnDestroy {
           wellnessScore: 0,
           trackerStats: { totalSessions: 0, weeklyCount: 0, streak: 0 },
           journalStats: { totalEntries: 0, weeklyCount: 0, streak: 0 },
+          weeklyMoodData: {
+            dailyMoods: [],
+            averageMood: 0,
+            trend: 'stable' as const,
+            entryCount: 0
+          },
           recentActivities: [],
-          todaysSuggestions: [],
+          activeTrackers: [],
+          expandedSuggestions: {},
+          analytics: {
+            wellnessScore: 0,
+            moodData: {
+              average: 0
+            },
+            consistencyRate: 0,
+            currentStreak: 0,
+            categoryPerformance: {
+              mind: 0,
+              body: 0,
+              soul: 0,
+              beauty: 0
+            },
+            // Insights data
+            peakPerformanceHour: 9,
+            peakPerformanceBoost: 0,
+            moodBoostAmount: 0,
+            topCategoryConsistency: 0,
+            wellnessScoreChange: 0
+          },
+          trackerSuggestions: null,
           suggestionsState: this.errorHandling.createUIErrorState(
             this.errorHandling.createAppError(error, 'loadDashboardData'),
             'Unable to load dashboard data'
@@ -231,15 +529,13 @@ export class Tab1Page implements OnInit, OnDestroy {
           this.updateProfileImageUrl();
           this.isLoading = false;
           
-          // Load daily suggestions asynchronously if no error
-          if (!this.dashboardData.suggestionsState.hasError) {
-            this.loadDailySuggestions();
-          }
+          // Load tracker-specific suggestions using the new service
+          this.loadSuggestionsForActiveTrackers();
         },
         error: (error) => {
           this.logging.error('Error loading dashboard data', { error });
           this.isLoading = false;
-          this.showToastMessage('Unable to load dashboard. Please check your connection and try again.');
+          this.toastService.showError('Unable to load dashboard. Please check your connection and try again.');
         }
       });
   }
@@ -249,21 +545,24 @@ export class Tab1Page implements OnInit, OnDestroy {
     // Update cached display name
     this.userDisplayName = this.getUserDisplayName();
     
-    // Try to get photo from current auth user first (better access than stored URLs)
-    const currentAuthUser = this.authService.getCurrentUser();
-    const authPhotoURL = currentAuthUser?.photoURL;
+    // Use stored photo URL (which is now our Firebase Storage URL)
     const storedPhotoURL = this.dashboardData.user?.photoURL;
     
-    // Prefer the live auth photo over stored URL
-    const photoURL = authPhotoURL || storedPhotoURL;
+    console.log('🖼️ Profile photo debug:', { 
+      storedPhotoURL, 
+      userDisplayName: this.userDisplayName,
+      dashboardUser: this.dashboardData.user
+    });
     
-    if (!photoURL) {
+    if (!storedPhotoURL) {
       this.profileImageUrl = `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${this.userDisplayName}`;
+      console.log('🔄 Using fallback avatar:', this.profileImageUrl);
       return;
     }
 
-    // Use the photo URL directly - let browser handle loading/errors
-    this.profileImageUrl = photoURL;
+    // Use our stored photo URL directly
+    this.profileImageUrl = storedPhotoURL;
+    console.log('✅ Using stored photo:', this.profileImageUrl);
   }
 
   // Get user's greeting based on time of day
@@ -322,100 +621,157 @@ export class Tab1Page implements OnInit, OnDestroy {
     return new Date(date).toLocaleDateString();
   }
 
-  // Load daily suggestions with graceful error handling
-  private async loadDailySuggestions(): Promise<void> {
+  // Load tracker-specific suggestions for most active tracker
+  private async loadTrackerSpecificSuggestions(): Promise<void> {
     this.dashboardData.suggestionsState = {
       hasError: false,
       errorMessage: '',
       isRetryable: false,
       suggestions: [],
       showEmptyState: false,
-      emptyStateMessage: 'Loading suggestions...'
+      emptyStateMessage: 'Loading personalized suggestions...'
     };
 
     try {
-      // Check client-side cache first (localStorage)
-      const cachedSuggestions = this.getCachedSuggestions();
+      // Get user's most active tracker
+      const mostActiveTracker = await this.getMostActiveTracker();
+      if (!mostActiveTracker) {
+        this.dashboardData.suggestionsState = this.errorHandling.createEmptyState('Create a tracker to see personalized suggestions');
+        return;
+      }
+
+      // Check client-side cache first
+      const cachedSuggestions = this.getCachedTrackerSuggestions(mostActiveTracker.id);
       if (cachedSuggestions) {
-        this.logging.debug('Using cached suggestions from localStorage');
-        this.dashboardData.todaysSuggestions = cachedSuggestions.suggestions;
+        this.logging.debug('Using cached tracker suggestions from localStorage');
+        this.dashboardData.trackerSuggestions = cachedSuggestions;
         this.dashboardData.suggestionsState = this.errorHandling.createSuccessState();
         return;
       }
 
       // No cache found, call Firebase Function
-      this.logging.debug('No cached suggestions found, calling Firebase Function');
-      const result = await firstValueFrom(this.db.callFunction<{}, DailySuggestionsResponse>('getDailySuggestions', {}));
+      this.logging.debug('No cached tracker suggestions found, calling Firebase Function');
+      const result = await firstValueFrom(this.db.getTrackerSpecificSuggestions(mostActiveTracker.id));
       
-      if (result && result.suggestions) {
-        this.dashboardData.todaysSuggestions = result.suggestions;
+      if (result && result.todayAction && result.suggestions && result.motivationalQuote) {
+        this.dashboardData.trackerSuggestions = result;
         this.dashboardData.suggestionsState = this.errorHandling.createSuccessState();
         
-        // Cache the result locally for faster subsequent loads
-        this.cacheSuggestions(result);
+        // Cache the result locally
+        this.cacheTrackerSuggestions(mostActiveTracker.id, result);
       } else {
         // No suggestions returned - empty state
-        this.dashboardData.suggestionsState = this.errorHandling.createEmptyState('No suggestions available today');
+        this.dashboardData.suggestionsState = this.errorHandling.createEmptyState('No suggestions available for your tracker');
       }
     } catch (error) {
-      this.logging.error('Error loading daily suggestions', { error });
-      const appError = this.errorHandling.createAppError(error, 'loadDailySuggestions');
+      this.logging.error('Error loading tracker-specific suggestions', { error });
+      const appError = this.errorHandling.createAppError(error, 'loadTrackerSpecificSuggestions');
       this.dashboardData.suggestionsState = this.errorHandling.createUIErrorState(
         appError,
-        'Daily suggestions unavailable'
+        'Personalized suggestions unavailable'
       );
       
       // Clear suggestions on error
-      this.dashboardData.todaysSuggestions = [];
+      this.dashboardData.trackerSuggestions = null;
     }
   }
 
-  // Retry loading suggestions
-  async retrySuggestions(): Promise<void> {
-    await this.loadDailySuggestions();
+  // Get user's most active tracker
+  private async getMostActiveTracker(): Promise<Tracker | null> {
+    try {
+      const trackers = await firstValueFrom(this.trackerService.getUserTrackers().pipe(
+        map(trackerList => trackerList.filter(t => t.isActive))
+      ));
+      if (!trackers || trackers.length === 0) {
+        return null;
+      }
+
+      // Sort by entryCount or recent activity, return the most active
+      return trackers.sort((a: Tracker, b: Tracker) => (b.entryCount || 0) - (a.entryCount || 0))[0];
+    } catch (error) {
+      this.logging.error('Error getting most active tracker', { error });
+      return null;
+    }
   }
 
-  // Client-side caching helpers
-  private getCachedSuggestions(): { suggestions: DailySuggestion[]; date: string } | null {
+  private cleanupOldTrackerSuggestionsCache(trackerId: string): void {
     try {
       const today = this.getTodayKey();
-      const cacheKey = `daily_suggestions_${today}`;
+      const keysToRemove: string[] = [];
+      
+      // Check localStorage for old tracker suggestion cache entries
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith(`tracker_suggestions_${trackerId}_`)) {
+          const dateFromKey = key.replace(`tracker_suggestions_${trackerId}_`, '');
+          
+          // Remove if not today's cache
+          if (dateFromKey !== today) {
+            keysToRemove.push(key);
+          }
+        }
+      }
+      
+      // Remove old entries
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+      });
+      
+      if (keysToRemove.length > 0) {
+        this.logging.debug('Cleaned up old tracker suggestion cache entries', { trackerId, count: keysToRemove.length });
+      }
+    } catch (error) {
+      this.logging.error('Error cleaning up old tracker suggestion cache', { trackerId, error });
+    }
+  }
+
+  // Retry loading suggestions for all active trackers
+  async retrySuggestions(): Promise<void> {
+    const activeTrackerIds = this.dashboardData.activeTrackers.map(tracker => tracker.id);
+    if (activeTrackerIds.length > 0) {
+      await this.trackerSuggestions.loadSuggestionsForTrackers(activeTrackerIds);
+    }
+  }
+
+  // Client-side caching helpers for tracker suggestions
+  private getCachedTrackerSuggestions(trackerId: string): TrackerSpecificSuggestionsResponse | null {
+    try {
+      const today = this.getTodayKey();
+      const cacheKey = `tracker_suggestions_${trackerId}_${today}`;
       const cached = localStorage.getItem(cacheKey);
       
       if (cached) {
         const parsedCache = JSON.parse(cached);
         
         // Validate cache structure and date
-        if (parsedCache.date === today && parsedCache.suggestions && Array.isArray(parsedCache.suggestions)) {
+        if (parsedCache.date === today && parsedCache.todayAction && parsedCache.suggestions && parsedCache.motivationalQuote) {
           return parsedCache;
         }
       }
       
       // Clean up old cache entries
-      this.cleanupOldSuggestionsCache();
+      this.cleanupOldTrackerSuggestionsCache(trackerId);
       return null;
     } catch (error) {
-      this.logging.error('Error reading suggestions cache', { error });
+      this.logging.error('Error reading tracker suggestions cache', { trackerId, error });
       return null;
     }
   }
 
-  private cacheSuggestions(data: DailySuggestionsResponse): void {
+  private cacheTrackerSuggestions(trackerId: string, data: TrackerSpecificSuggestionsResponse): void {
     try {
       const today = this.getTodayKey();
-      const cacheKey = `daily_suggestions_${today}`;
+      const cacheKey = `tracker_suggestions_${trackerId}_${today}`;
       
       const cacheData = {
-        date: today,
-        suggestions: data.suggestions,
-        cachedAt: new Date().toISOString(),
-        source: data.source || 'firebase'
+        ...data,
+        cachedAt: new Date().toISOString()
       };
       
       localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-      this.logging.debug('Cached suggestions locally for date', { today });
+      this.logging.debug('Cached tracker suggestions locally', { trackerId, today });
     } catch (error) {
-      this.logging.error('Error caching suggestions', { error });
+      this.logging.error('Error caching tracker suggestions', { trackerId, error });
     }
   }
 
@@ -465,7 +821,7 @@ export class Tab1Page implements OnInit, OnDestroy {
       // Could also implement a quick mood logging modal here
     } catch (error) {
       this.logging.error('Error navigating to mood tracker', { error });
-      this.showToastMessage('Error opening mood tracker');
+      this.toastService.showError('Error opening mood tracker');
     }
   }
 
@@ -473,9 +829,29 @@ export class Tab1Page implements OnInit, OnDestroy {
     try {
       // Navigate to breathing exercise or meditation
       // For now, just show a message
-      this.showToastMessage('Breathing exercise coming soon! 🧘‍♀️');
+      this.toastService.showInfo('Breathing exercise coming soon! 🧘‍♀️');
     } catch (error) {
       this.logging.error('Error opening breathing exercise', { error });
+    }
+  }
+
+  async addNewTracker() {
+    try {
+      // Navigate to add tracker page
+      this.router.navigate(['/add-tracker']);
+    } catch (error) {
+      this.logging.error('Error navigating to add tracker', { error });
+      this.toastService.showError('Error opening tracker creation');
+    }
+  }
+
+  async openJournalEntry() {
+    try {
+      // Navigate to journal entry page
+      this.router.navigate(['/journal-entry']);
+    } catch (error) {
+      this.logging.error('Error navigating to journal entry', { error });
+      this.toastService.showError('Error opening journal entry');
     }
   }
 
@@ -485,26 +861,18 @@ export class Tab1Page implements OnInit, OnDestroy {
     this.router.navigate(['/activity-history']);
   }
 
-  // Utility methods
-  private showToastMessage(message: string) {
-    this.toastMessage = message;
-    this.showToast = true;
-  }
-
-  onToastDismiss() {
-    this.showToast = false;
-  }
-
   // Image error handling - simplified
   onImageError(event: any) {
+    console.log('❌ Image failed to load, switching to fallback');
     // Fallback to a default avatar when any image fails to load
     const img = event.target as HTMLImageElement;
-    const fallbackUrl = `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${this.userDisplayName}`;
+    const fallbackUrl = `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${this.userDisplayName || 'user'}`;
     img.src = fallbackUrl;
+    console.log('🔄 Fallback avatar URL:', fallbackUrl);
   }
 
   onImageLoad(event: any) {
-    // Image loaded successfully - no action needed
+    console.log('✅ Profile image loaded successfully');
   }
 
   // Get a safe profile image URL
@@ -563,8 +931,458 @@ export class Tab1Page implements OnInit, OnDestroy {
     }
   }
 
+  // Get mood emojis for the week
+  getMoodEmojisForWeek(): (string | null)[] {
+    const { dailyMoods } = this.dashboardData.weeklyMoodData;
+    
+    if (!dailyMoods || dailyMoods.length === 0) {
+      // Return 7 null values for empty week
+      return new Array(7).fill(null);
+    }
+    
+    return dailyMoods.map(mood => {
+      if (mood === null || mood === undefined) return null;
+      
+      // Convert mood value (1-10) to emoji
+      if (mood >= 9) return '😄'; // Very happy
+      if (mood >= 8) return '😊'; // Happy
+      if (mood >= 7) return '🙂'; // Content
+      if (mood >= 6) return '😌'; // Peaceful
+      if (mood >= 5) return '😐'; // Neutral
+      if (mood >= 4) return '😕'; // Slightly sad
+      if (mood >= 3) return '☹️';  // Sad
+      if (mood >= 2) return '😞'; // Very sad
+      return '😢'; // Extremely sad
+    });
+  }
+
   // Toggle wellness journey section
   toggleWellnessJourney() {
     this.isWellnessJourneyCollapsed = !this.isWellnessJourneyCollapsed;
+  }
+
+  // DEV: Force regenerate coaching suggestions for all active trackers
+  async devRegenerateCoaching(): Promise<void> {
+    // Prevent multiple concurrent executions
+    if (this.isRegeneratingCoaching) {
+      return;
+    }
+
+    try {
+      this.isRegeneratingCoaching = true;
+      this.logging.info('DEV: Force regenerating coaching suggestions for all active trackers');
+      
+      const activeTrackerIds = this.dashboardData.activeTrackers.map(tracker => tracker.id);
+      if (activeTrackerIds.length === 0) {
+        this.toastService.showWarning('❌ DEV: No active trackers found');
+        return;
+      }
+      
+      this.logging.info('DEV: Found active trackers', { 
+        count: activeTrackerIds.length, 
+        trackerIds: activeTrackerIds 
+      });
+      
+      // Clear all suggestion cache using the service
+      this.trackerSuggestions.clearAllSuggestions();
+      this.logging.info('DEV: Cleared all suggestion cache');
+      
+      // Show toast indicating regeneration started
+      this.toastService.showInfo(`🔄 DEV: Regenerating coaching for ${activeTrackerIds.length} tracker(s)...`);
+      
+      // Regenerate suggestions for all active trackers (force refresh)
+      let successCount = 0;
+      let failCount = 0;
+      
+      for (const trackerId of activeTrackerIds) {
+        try {
+          this.logging.info('DEV: Regenerating suggestions for tracker', { trackerId });
+          await this.trackerSuggestions.generateSuggestionsForTracker(trackerId);
+          successCount++;
+          this.logging.info('DEV: Successfully regenerated for tracker', { trackerId });
+        } catch (error) {
+          failCount++;
+          this.logging.error('DEV: Failed to regenerate for tracker', { trackerId, error });
+        }
+      }
+      
+      // Show final result
+      if (failCount === 0) {
+        this.toastService.showSuccess(`✅ DEV: Successfully regenerated coaching for all ${successCount} tracker(s)`);
+      } else {
+        this.toastService.showWarning(`⚠️ DEV: Regenerated ${successCount}/${activeTrackerIds.length} trackers (${failCount} failed)`);
+      }
+      
+      this.logging.info('DEV: Coaching regeneration completed', { 
+        total: activeTrackerIds.length, 
+        success: successCount, 
+        failed: failCount 
+      });
+      
+    } catch (error) {
+      this.logging.error('DEV: Failed to regenerate coaching', error);
+      this.toastService.showError('❌ DEV: Failed to regenerate coaching');
+    } finally {
+      this.isRegeneratingCoaching = false;
+    }
+  }
+
+  hasActiveTrackers(): boolean {
+    return this.dashboardData.activeTrackers.length > 0;
+  }
+
+  // Today's completion tracking methods
+  getTotalActiveTrackers(): number {
+    return this.dashboardData.activeTrackers.length;
+  }
+
+  getCompletedTrackersToday(): number {
+    // Count how many active trackers have entries today
+    const today = new Date().toISOString().split('T')[0];
+    return this.dashboardData.activeTrackers.filter(tracker => {
+      // Check if this tracker has any entry today
+      // This is a simplified check - in real implementation you'd check actual entries
+      return tracker.lastEntryDate && tracker.lastEntryDate.toISOString().split('T')[0] === today;
+    }).length;
+  }
+
+  getTodayCompletionPercentage(): number {
+    const total = this.getTotalActiveTrackers();
+    if (total === 0) return 0;
+    const completed = this.getCompletedTrackersToday();
+    return Math.round((completed / total) * 100);
+  }
+
+  getTodayProgressText(): string {
+    const completed = this.getCompletedTrackersToday();
+    const total = this.getTotalActiveTrackers();
+    
+    if (total === 0) return "No active trackers";
+    if (completed === 0) return "Ready to start your day";
+    if (completed === total) return "All targets completed! 🎉";
+    return `${completed}/${total} targets completed`;
+  }
+
+  getTodayRenewalText(): string {
+    const completed = this.getCompletedTrackersToday();
+    const total = this.getTotalActiveTrackers();
+    
+    if (total === 0) return "Create your first ritual to begin";
+    if (completed === 0) return "Ready for today's renewal?";
+    if (completed === total) return "Your energy is beautifully aligned ✨";
+    return `${completed} of ${total} intentions honored`;
+  }
+
+  hasSuggestionsToShow(): boolean {
+    // Check if any tracker has suggestions
+    return Object.keys(this.suggestionsState).some(trackerId => {
+      const suggestions = this.suggestionsState[trackerId];
+      return suggestions && !suggestions.isLoading && !suggestions.error && suggestions.suggestions;
+    });
+  }
+
+  trackActivity(index: number, activity: Activity): string {
+    return activity.id;
+  }
+
+  getActivityIcon(activityType: string): string {
+    const iconMap: { [key: string]: string } = {
+      'tracker': 'fa-solid fa-chart-line',
+      'tracker_entry': 'fa-solid fa-chart-simple',
+      'journal': 'fa-solid fa-book',
+      'meditation': 'fa-solid fa-brain',
+      'exercise': 'fa-solid fa-dumbbell',
+      'mood': 'fa-solid fa-face-smile',
+      'water': 'fa-solid fa-glass-water',
+      'sleep': 'fa-solid fa-moon',
+      'nutrition': 'fa-solid fa-apple-whole',
+      'mindfulness': 'fa-solid fa-leaf',
+      'goal': 'fa-solid fa-target',
+      'achievement': 'fa-solid fa-trophy',
+      // Additional activity types
+      'habit': 'fa-solid fa-repeat',
+      'task': 'fa-solid fa-list-check',
+      'reminder': 'fa-solid fa-bell',
+      'milestone': 'fa-solid fa-flag-checkered',
+      'reflection': 'fa-solid fa-lightbulb',
+      'wellness': 'fa-solid fa-heart',
+      'fitness': 'fa-solid fa-running',
+      'health': 'fa-solid fa-plus',
+      'learning': 'fa-solid fa-graduation-cap',
+      'work': 'fa-solid fa-briefcase',
+      'social': 'fa-solid fa-users',
+      'creativity': 'fa-solid fa-palette',
+      'default': 'fa-solid fa-bars-progress'
+    };
+    
+    // Debug unknown activity types
+    if (!iconMap[activityType]) {
+      console.log('🔍 Unknown activity type:', activityType, 'using default icon');
+    }
+    
+    return iconMap[activityType] || iconMap['default'];
+  }
+
+  formatActivityTime(timestamp: any): string {
+    try {
+      const now = new Date();
+      let activityTime: Date;
+      
+      // Handle different timestamp formats
+      if (timestamp && typeof timestamp.toDate === 'function') {
+        // Firestore Timestamp
+        activityTime = timestamp.toDate();
+      } else if (timestamp instanceof Date) {
+        // Already a Date object
+        activityTime = timestamp;
+      } else if (typeof timestamp === 'string' || typeof timestamp === 'number') {
+        // String or number timestamp
+        activityTime = new Date(timestamp);
+      } else {
+        // Fallback to current time
+        activityTime = now;
+      }
+      
+      // Check if the date is valid
+      if (isNaN(activityTime.getTime())) {
+        return 'Recently';
+      }
+      
+      const diffInMinutes = Math.floor((now.getTime() - activityTime.getTime()) / (1000 * 60));
+      
+      if (diffInMinutes < 1) {
+        return 'Just now';
+      } else if (diffInMinutes < 60) {
+        return `${diffInMinutes}m ago`;
+      } else if (diffInMinutes < 1440) { // 24 hours
+        const hours = Math.floor(diffInMinutes / 60);
+        return `${hours}h ago`;
+      } else {
+        const days = Math.floor(diffInMinutes / 1440);
+        if (days === 1) {
+          return 'Yesterday';
+        } else if (days < 7) {
+          return `${days}d ago`;
+        } else {
+          return activityTime.toLocaleDateString();
+        }
+      }
+    } catch (error) {
+      console.warn('Error formatting activity time:', error);
+      return 'Recently';
+    }
+  }
+
+  async refreshCoaching(): Promise<void> {
+    try {
+      // Clear existing suggestions
+      this.suggestionsState = {};
+      
+      // Reload suggestions for all active trackers
+      if (this.dashboardData.activeTrackers.length > 0) {
+        await this.loadSuggestionsForActiveTrackers();
+      }
+      
+      this.logging.info('AI coaching refreshed successfully');
+    } catch (error) {
+      this.logging.error('Failed to refresh AI coaching', { error });
+    }
+  }
+
+  getActivityGradientClass(activityType: string): string {
+    const gradientMap: { [key: string]: string } = {
+      'tracker': 'bg-gradient-to-br from-blue-500 to-blue-600',
+      'journal': 'bg-gradient-to-br from-purple-500 to-purple-600',
+      'meditation': 'bg-gradient-to-br from-indigo-500 to-indigo-600',
+      'exercise': 'bg-gradient-to-br from-emerald-500 to-emerald-600',
+      'mood': 'bg-gradient-to-br from-yellow-500 to-yellow-600',
+      'water': 'bg-gradient-to-br from-cyan-500 to-cyan-600',
+      'sleep': 'bg-gradient-to-br from-violet-500 to-violet-600',
+      'nutrition': 'bg-gradient-to-br from-green-500 to-green-600',
+      'mindfulness': 'bg-gradient-to-br from-teal-500 to-teal-600',
+      'goal': 'bg-gradient-to-br from-red-500 to-red-600',
+      'achievement': 'bg-gradient-to-br from-amber-500 to-amber-600',
+      // Additional activity types
+      'habit': 'bg-gradient-to-br from-orange-500 to-orange-600',
+      'task': 'bg-gradient-to-br from-slate-500 to-slate-600',
+      'reminder': 'bg-gradient-to-br from-pink-500 to-pink-600',
+      'milestone': 'bg-gradient-to-br from-rose-500 to-rose-600',
+      'reflection': 'bg-gradient-to-br from-lime-500 to-lime-600',
+      'wellness': 'bg-gradient-to-br from-red-400 to-red-500',
+      'fitness': 'bg-gradient-to-br from-green-400 to-green-500',
+      'health': 'bg-gradient-to-br from-blue-400 to-blue-500',
+      'learning': 'bg-gradient-to-br from-purple-400 to-purple-500',
+      'work': 'bg-gradient-to-br from-gray-500 to-gray-600',
+      'social': 'bg-gradient-to-br from-sky-500 to-sky-600',
+      'creativity': 'bg-gradient-to-br from-fuchsia-500 to-fuchsia-600',
+      'default': 'bg-gradient-to-br from-neutral-500 to-neutral-600'
+    };
+    
+    return gradientMap[activityType] || gradientMap['default'];
+  }
+
+  getActivityTypeLabel(activityType: string): string {
+    const labelMap: { [key: string]: string } = {
+      'tracker': 'Tracker',
+      'tracker_entry': 'Tracked',
+      'journal': 'Journal',
+      'meditation': 'Meditation',
+      'exercise': 'Exercise',
+      'mood': 'Mood',
+      'water': 'Hydration',
+      'sleep': 'Sleep',
+      'nutrition': 'Nutrition',
+      'mindfulness': 'Mindfulness',
+      'goal': 'Goal',
+      'achievement': 'Achievement',
+      // Additional activity types
+      'habit': 'Habit',
+      'task': 'Task',
+      'reminder': 'Reminder',
+      'milestone': 'Milestone',
+      'reflection': 'Reflection',
+      'wellness': 'Wellness',
+      'fitness': 'Fitness',
+      'health': 'Health',
+      'learning': 'Learning',
+      'work': 'Work',
+      'social': 'Social',
+      'creativity': 'Creative',
+      'default': 'Activity'
+    };
+    
+    return labelMap[activityType] || labelMap['default'];
+  }
+
+  async handleRefresh(event: any) {
+    try {
+      // Reload dashboard data
+      await this.loadDashboardData();
+      // Reload AI suggestions
+      if (this.dashboardData.activeTrackers.length > 0) {
+        await this.loadSuggestionsForActiveTrackers();
+      }
+    } catch (error) {
+      console.error('Error refreshing dashboard:', error);
+    } finally {
+      event.target.complete();
+    }
+  }
+
+  /**
+   * Get the tracker that most consistently improves mood
+   */
+  getMoodBoostingTracker(): string {
+    // For now, return a default tracker name
+    // In the future, this will be calculated from mood correlation data
+    return this.dashboardData.activeTrackers.find(t => t.category === 'mind')?.name || 'Meditation';
+  }
+
+  /**
+   * Get the category with highest consistency
+   */
+  getMostConsistentCategory(): string {
+    const categories = ['Mind', 'Body', 'Soul', 'Beauty'];
+    // For now, return the category with highest score
+    // In the future, this will be calculated from actual consistency data
+    const categoryPerformance = this.dashboardData.analytics.categoryPerformance;
+    
+    let bestCategory = 'Mind';
+    let bestScore = 0;
+    
+    Object.entries(categoryPerformance).forEach(([category, data]: [string, any]) => {
+      if (data.score > bestScore) {
+        bestScore = data.score;
+        bestCategory = category.charAt(0).toUpperCase() + category.slice(1);
+      }
+    });
+    
+    return bestCategory;
+  }
+
+  /**
+   * Access Math functions in template
+   */
+  Math = Math;
+
+  // Global insights reading mode (like Today's Action)
+  isInsightsReadingMode = false;
+
+  /**
+   * Toggle global insights reading mode
+   */
+  toggleInsightExpansion(trackerId: string, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
+    // Toggle global reading mode instead of individual cards
+    this.isInsightsReadingMode = !this.isInsightsReadingMode;
+  }
+
+  /**
+   * Check if insights are in reading mode (global expansion)
+   */
+  isInsightExpanded(trackerId: string): boolean {
+    return this.isInsightsReadingMode;
+  }
+
+  /**
+   * Get the first insight text for preview (truncated)
+   */
+  getFirstInsightText(trackerId: string): string {
+    const suggestions = this.getTrackerSuggestions(trackerId)?.suggestions;
+    if (suggestions && suggestions.length > 0) {
+      const firstSuggestion = suggestions[0];
+      let fullText = '';
+      
+      if (typeof firstSuggestion === 'string') {
+        fullText = firstSuggestion;
+      } else if (firstSuggestion && typeof firstSuggestion === 'object' && firstSuggestion.text) {
+        fullText = firstSuggestion.text;
+      }
+      
+      // Truncate to first sentence or 100 characters, whichever is shorter
+      if (fullText) {
+        const firstSentence = fullText.split('.')[0];
+        if (firstSentence.length < 100) {
+          return firstSentence + '.';
+        } else {
+          return fullText.substring(0, 100) + '...';
+        }
+      }
+    }
+    return '';
+  }
+
+  /**
+   * Get the first available motivational quote from active trackers
+   */
+  getFirstMotivationalQuote(): any {
+    const trackersWithSuggestions = this.getTrackersWithSuggestions();
+    for (const tracker of trackersWithSuggestions) {
+      const suggestions = this.getTrackerSuggestions(tracker.id);
+      if (suggestions?.motivationalQuote) {
+        return suggestions.motivationalQuote;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get all available motivational quotes from active trackers
+   */
+  getAllMotivationalQuotes(): any[] {
+    const quotes: any[] = [];
+    const trackersWithSuggestions = this.getTrackersWithSuggestions();
+    
+    for (const tracker of trackersWithSuggestions) {
+      const suggestions = this.getTrackerSuggestions(tracker.id);
+      if (suggestions?.motivationalQuote) {
+        quotes.push(suggestions.motivationalQuote);
+      }
+    }
+    
+    return quotes;
   }
 }

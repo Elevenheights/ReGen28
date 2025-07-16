@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { GuestGuard } from './guards/guest.guard';
 import { AuthGuard } from './guards/auth.guard';
+import { OnboardingGuard } from './guards/onboarding.guard';
 
 export const routes: Routes = [
   // Intro page (first time visitors)
@@ -18,6 +19,20 @@ export const routes: Routes = [
   {
     path: 'tabs',
     loadChildren: () => import('./pages/tabs/tabs.routes').then((m) => m.routes)
+  },
+
+  // Tracker detail page (requires auth and completed onboarding)
+  {
+    path: 'tracker-detail/:id',
+    loadComponent: () => import('./pages/tracker-detail/tracker-detail.page').then(m => m.TrackerDetailPage),
+    canActivate: [AuthGuard, OnboardingGuard]
+  },
+
+  // Journal entry page (requires auth and completed onboarding)
+  {
+    path: 'journal-entry/:id',
+    loadComponent: () => import('./pages/journal-entry/journal-entry.page').then(m => m.JournalEntryPage),
+    canActivate: [AuthGuard, OnboardingGuard]
   },
   
   // Authentication routes (only for non-authenticated users)

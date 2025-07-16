@@ -101,10 +101,12 @@ Format your response as JSON:
 `;
   }
 
+
+
   /**
-   * Call OpenAI API
+   * Call OpenAI API - public method for all OpenAI text generation
    */
-  private async callOpenAI(prompt: string): Promise<any> {
+  async callOpenAI(prompt: string): Promise<any> {
     if (!this.openai) {
       throw new Error("OpenAI client not initialized");
     }
@@ -114,8 +116,8 @@ Format your response as JSON:
       messages: [
         {
           role: "system",
-          content: "You are a wellness expert providing personalized " +
-            "habit tracker recommendations. Always respond with valid JSON.",
+          content: "You are a wellness exper/coach providing personalized " +
+            "habit tracker recommendations and motivation. Always respond with valid JSON.",
         },
         {
           role: "user",

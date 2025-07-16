@@ -64,7 +64,7 @@ export class ActivityHelper {
       id: '', // Will be set by Firestore
       userId,
       type: ActivityType.TRACKER_ENTRY,
-      title: `Logged ${trackerName}`,
+      title: `Tracked ${trackerName}`,
       description: `${value} ${unit}`,
       icon: trackerIcon,
       color: trackerColor,

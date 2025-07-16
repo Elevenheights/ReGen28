@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { TrackerCategory, TrackerType, TrackerFrequency, Tracker } from '../models/tracker.interface';
+import { TrackerCategory, TrackerType, TrackerFrequency, Tracker, LoggingFieldConfig } from '../models/tracker.interface';
 
 export interface DefaultTrackerTemplate {
   id: string;
@@ -12,6 +12,7 @@ export interface DefaultTrackerTemplate {
   color: string;
   icon: string;
   description?: string;
+  loggingFields?: LoggingFieldConfig;
 }
 
 export interface AppConfig {
@@ -49,7 +50,17 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#3b82f6',
       icon: 'fa-brain',
-      description: 'Daily meditation practice for mindfulness and mental clarity'
+      description: 'Daily meditation practice for mindfulness and mental clarity',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        quality: true,
+        duration: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
     {
       id: 'focus-sessions',
@@ -61,7 +72,18 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#1e40af',
       icon: 'fa-bullseye',
-      description: 'Deep work sessions without distractions'
+      description: 'Deep work sessions without distractions',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        quality: true,
+        intensity: true,
+        duration: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
     {
       id: 'learning',
@@ -73,7 +95,17 @@ export class ConfigService {
       frequency: TrackerFrequency.WEEKLY,
       color: '#1d4ed8',
       icon: 'fa-graduation-cap',
-      description: 'Time spent learning new skills or knowledge'
+      description: 'Time spent learning new skills or knowledge',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        quality: true,
+        duration: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
     {
       id: 'mindfulness',
@@ -85,7 +117,16 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#2563eb',
       icon: 'fa-leaf',
-      description: 'Mindful moments throughout the day'
+      description: 'Mindful moments throughout the day',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        quality: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
 
     // BODY TRACKERS
@@ -99,7 +140,19 @@ export class ConfigService {
       frequency: TrackerFrequency.WEEKLY,
       color: '#10b981',
       icon: 'fa-dumbbell',
-      description: 'Physical activity and workout sessions'
+      description: 'Physical activity and workout sessions',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        intensity: true,
+        quality: true,
+        duration: true,
+        notes: true,
+        tags: true,
+        socialContext: true,
+        photos: true
+      }
     },
     {
       id: 'sleep',
@@ -111,7 +164,15 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#059669',
       icon: 'fa-bed',
-      description: 'Track your sleep duration each night'
+      description: 'Track your sleep duration each night',
+      loggingFields: {
+        value: true,
+        mood: true,
+        quality: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
     {
       id: 'water',
@@ -123,7 +184,14 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#0891b2',
       icon: 'fa-glass-water',
-      description: 'Daily water consumption tracking'
+      description: 'Daily water consumption tracking',
+      loggingFields: {
+        value: true,
+        mood: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
     {
       id: 'steps',
@@ -135,7 +203,15 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#0d9488',
       icon: 'fa-walking',
-      description: 'Daily step count for activity monitoring'
+      description: 'Daily step count for activity monitoring',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
     {
       id: 'stretching',
@@ -147,7 +223,17 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#059669',
       icon: 'fa-child-reaching',
-      description: 'Daily stretching and flexibility exercises'
+      description: 'Daily stretching and flexibility exercises',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        quality: true,
+        duration: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
 
     // SOUL TRACKERS
@@ -161,7 +247,16 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#8b5cf6',
       icon: 'fa-heart',
-      description: 'Daily gratitude journaling and appreciation'
+      description: 'Daily gratitude journaling and appreciation',
+      loggingFields: {
+        value: true,
+        mood: true,
+        quality: true,
+        notes: true,
+        tags: true,
+        socialContext: true,
+        photos: true
+      }
     },
     {
       id: 'prayer',
@@ -173,7 +268,17 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#7c3aed',
       icon: 'fa-praying-hands',
-      description: 'Spiritual practice and connection time'
+      description: 'Spiritual practice and connection time',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        quality: true,
+        duration: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
     {
       id: 'social',
@@ -185,7 +290,17 @@ export class ConfigService {
       frequency: TrackerFrequency.WEEKLY,
       color: '#6d28d9',
       icon: 'fa-users',
-      description: 'Meaningful connections with others'
+      description: 'Meaningful connections with others',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        quality: true,
+        notes: true,
+        tags: true,
+        socialContext: true,
+        photos: true
+      }
     },
     {
       id: 'kindness',
@@ -197,7 +312,16 @@ export class ConfigService {
       frequency: TrackerFrequency.WEEKLY,
       color: '#5b21b6',
       icon: 'fa-hand-holding-heart',
-      description: 'Random acts of kindness and giving'
+      description: 'Random acts of kindness and giving',
+      loggingFields: {
+        value: true,
+        mood: true,
+        quality: true,
+        notes: true,
+        tags: true,
+        socialContext: true,
+        photos: true
+      }
     },
 
     // BEAUTY TRACKERS
@@ -211,7 +335,15 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#ec4899',
       icon: 'fa-sparkles',
-      description: 'Morning and evening skincare routines'
+      description: 'Morning and evening skincare routines',
+      loggingFields: {
+        value: true,
+        mood: true,
+        quality: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
     {
       id: 'self-care',
@@ -223,7 +355,17 @@ export class ConfigService {
       frequency: TrackerFrequency.WEEKLY,
       color: '#db2777',
       icon: 'fa-spa',
-      description: 'Dedicated time for personal care and relaxation'
+      description: 'Dedicated time for personal care and relaxation',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        quality: true,
+        duration: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
     {
       id: 'beauty',
@@ -235,7 +377,16 @@ export class ConfigService {
       frequency: TrackerFrequency.WEEKLY,
       color: '#be185d',
       icon: 'fa-mirror',
-      description: 'Beauty treatments and personal grooming'
+      description: 'Beauty treatments and personal grooming',
+      loggingFields: {
+        value: true,
+        mood: true,
+        quality: true,
+        duration: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
     {
       id: 'grooming',
@@ -247,7 +398,16 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#9d174d',
       icon: 'fa-cut',
-      description: 'Daily grooming and personal care'
+      description: 'Daily grooming and personal care',
+      loggingFields: {
+        value: true,
+        mood: true,
+        quality: true,
+        duration: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
 
     // MOOD TRACKER (Universal)
@@ -261,7 +421,16 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#f59e0b',
       icon: 'fa-face-smile',
-      description: 'Track your overall mood and emotional state'
+      description: 'Track your overall mood and emotional state',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        notes: true,
+        tags: true,
+        socialContext: true,
+        photos: true
+      }
     },
     {
       id: 'energy',
@@ -273,7 +442,15 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#d97706',
       icon: 'fa-bolt',
-      description: 'Monitor your daily energy levels'
+      description: 'Monitor your daily energy levels',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     },
     {
       id: 'wellness',
@@ -285,7 +462,16 @@ export class ConfigService {
       frequency: TrackerFrequency.DAILY,
       color: '#b45309',
       icon: 'fa-heart-pulse',
-      description: 'Rate your overall sense of wellbeing'
+      description: 'Rate your overall sense of wellbeing',
+      loggingFields: {
+        value: true,
+        mood: true,
+        energy: true,
+        quality: true,
+        notes: true,
+        tags: true,
+        photos: true
+      }
     }
   ];
 
@@ -353,7 +539,8 @@ export class ConfigService {
       config: {
         reminderEnabled: false,
         requirePhotos: false,
-        maxPhotos: this.appConfig.maxPhotosPerTracker
+        maxPhotos: this.appConfig.maxPhotosPerTracker,
+        loggingFields: template.loggingFields
       },
       
       // Apply any customizations

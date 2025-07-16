@@ -25,6 +25,16 @@ export interface User {
   // Onboarding status
   isOnboardingComplete: boolean;
   
+  // Subscription status
+  status: 'active' | 'inactive' | 'suspended'; // active = paid/trial users, inactive = expired trial users without AI suggestions
+  subscriptionType?: 'trial' | 'premium' | 'expired'; // Track subscription type
+  trialEndsAt?: Date; // When free trial expires
+  lastActiveAt?: Date; // Track when user was last active
+  
+  // Suggestion tracking (new fields)
+  lastSuggestionsGeneratedDate?: string; // YYYY-MM-DD format in user's timezone
+  lastSuggestionsGeneratedAt?: Date;      // Timestamp when suggestions were last generated
+  
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -40,6 +50,7 @@ export interface UserPreferences {
   // App settings
   darkMode: boolean;
   language: string;
+  timezone: string; // IANA timezone (e.g., "America/New_York", "Europe/London")
   
   // Privacy
   dataSharing: boolean;

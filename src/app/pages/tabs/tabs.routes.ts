@@ -30,6 +30,11 @@ export const routes: Routes = [
           import('./settings/tab4.page').then((m) => m.Tab4Page),
       },
       {
+        path: 'add-tracker',
+        loadComponent: () =>
+          import('../add-tracker/add-tracker.page').then((m) => m.AddTrackerPage),
+      },
+      {
         path: '',
         redirectTo: '/tabs/dashboard',
         pathMatch: 'full',

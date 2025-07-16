@@ -1,0 +1,361 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button 
+        fill="clear" 
+        (click)="onBack()"
+        aria-label="Go back"
+        class="back-button">
+        <span class="back-arrow">‹</span>
+      </ion-button>
+    </ion-buttons>
+    
+    <ion-title>
+      <ng-container *ngIf="mode === 'new'">New Entry</ng-container>
+      <ng-container *ngIf="mode === 'view' && !isEditing">View Entry</ng-container>
+      <ng-container *ngIf="mode === 'view' && isEditing">Edit Entry</ng-container>
+    </ion-title>
+    
+    <ion-buttons slot="end">
+      <!-- View mode buttons -->
+      <ng-container *ngIf="mode === 'view' && !isEditing">
+        <ion-button 
+          fill="clear" 
+          (click)="toggleEdit()"
+          aria-label="Edit entry">
+          <i class="fa-solid fa-edit"></i>
+        </ion-button>
+        <ion-button 
+          fill="clear" 
+          (click)="onMoreOptions()"
+          aria-label="More options">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </ion-button>
+      </ng-container>
+      
+      <!-- Edit/New mode buttons -->
+      <ng-container *ngIf="isEditing">
+        <ion-button 
+          *ngIf="mode === 'view'"
+          (click)="isEditing = false" 
+          fill="clear"
+          aria-label="Cancel editing">
+          Cancel
+        </ion-button>
+
+        <!-- Save button for new entries only -->
+        <ion-button 
+          *ngIf="mode === 'new'"
+          (click)="handleSaveClick()" 
+          [disabled]="isSaving"
+          fill="clear"
+          color="primary"
+          aria-label="Save entry">
+          <i *ngIf="isSaving" class="fa-solid fa-spinner fa-spin text-xl text-black"></i>
+          <i *ngIf="!isSaving" class="fa-solid fa-floppy-disk text-xl text-black"></i>
+        </ion-button>
+      </ng-container>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="bg-neutral-50">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="flex items-center justify-center h-full">
+    <div class="text-center">
+      <i class="fa-solid fa-spinner fa-spin text-neutral-400 text-2xl mb-2"></i>
+      <p class="text-sm text-neutral-500">Loading entry...</p>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading" class="p-4 space-y-6">
+    
+    <!-- Prompt Display (if selected) -->
+    <div *ngIf="selectedPrompt && !isEditing" class="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-6 shadow-sm border border-purple-100">
+      <div class="flex items-center space-x-3 mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-white shadow-sm">
+          <i class="fa-solid {{ getCategoryIcon(selectedPrompt.category) }}"></i>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-neutral-900">Inspired by</h3>
+          <p class="text-sm text-purple-600 font-medium">{{ selectedPrompt.category | titlecase }} • Writing Prompt</p>
+        </div>
+      </div>
+      <blockquote class="text-sm text-neutral-700 leading-relaxed italic border-l-4 border-purple-300 pl-4 bg-white/50 rounded-r-lg p-3">
+        "{{ selectedPrompt.text }}"
+      </blockquote>
+    </div>
+
+    <form [formGroup]="entryForm" (ngSubmit)="onSave()">
+      
+      <!-- Title Section -->
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
+        <ng-container *ngIf="!isEditing">
+          <div class="flex items-start justify-between mb-4">
+            <h1 class="text-2xl font-bold text-neutral-900 leading-tight">
+              {{ entryForm.get('title')?.value || 'Untitled Entry' }}
+            </h1>
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white shadow-sm">
+              <i class="fa-solid {{ getCategoryIcon(entryForm.get('category')?.value) }}"></i>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-calendar text-neutral-400 text-sm"></i>
+                <span class="text-sm text-neutral-600">{{ entryForm.get('date')?.value | date:'mediumDate' }}</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-tag text-neutral-400 text-sm"></i>
+                <span class="text-sm text-neutral-600">{{ getCategoryDisplayName(entryForm.get('category')?.value) }}</span>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3 text-xs text-neutral-500">
+              <span>{{ getWordCount() }} words</span>
+              <span>•</span>
+              <span>{{ getReadingTime() }} min read</span>
+            </div>
+          </div>
+        </ng-container>
+        
+        <ng-container *ngIf="isEditing">
+          <div class="mb-4">
+            <label class="text-sm font-medium text-neutral-700 block mb-2">
+              Title *
+            </label>
+            <ion-input 
+              formControlName="title"
+              placeholder="Give your entry a title..."
+              class="border border-neutral-200 rounded-xl px-4 py-3"
+              fill="outline">
+            </ion-input>
+            <div *ngIf="entryForm.get('title')?.invalid && entryForm.get('title')?.touched" 
+                 class="text-red-500 text-sm mt-1">
+              Title is required
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- Content Section -->
+      <div class="bg-white rounded-2xl shadow-sm border border-neutral-100">
+        <ng-container *ngIf="!isEditing">
+          <div class="p-8">
+            <div class="prose prose-neutral prose-lg max-w-none text-neutral-800 leading-relaxed" 
+                 [innerHTML]="entryForm.get('content')?.value">
+            </div>
+          </div>
+        </ng-container>
+        
+        <ng-container *ngIf="isEditing">
+          <div class="p-6 pb-0">
+            <label class="text-sm font-medium text-neutral-700 block mb-4">
+              Your thoughts *
+            </label>
+          </div>
+          <app-rich-text-editor
+            formControlName="content"
+            placeholder="Share what's on your mind..."
+            [minHeight]="'300px'"
+            class="block w-full">
+          </app-rich-text-editor>
+          <div *ngIf="entryForm.get('content')?.invalid && entryForm.get('content')?.touched" 
+               class="text-red-500 text-sm p-6 pt-2">
+            Please write at least 10 characters
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- Metadata Section -->
+      <div class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100 space-y-6">
+        
+        <!-- Date and Category -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ng-container *ngIf="isEditing">
+            <div>
+              <label class="text-sm font-medium text-neutral-700 block mb-2">
+                Date *
+              </label>
+              <ion-datetime 
+                formControlName="date"
+                presentation="date"
+                [max]="getTodayISOString()"
+                class="border border-neutral-200 rounded-xl px-4 py-3">
+              </ion-datetime>
+              <div *ngIf="entryForm.get('date')?.invalid && entryForm.get('date')?.touched" 
+                   class="text-red-500 text-sm mt-1">
+                Date is required
+              </div>
+            </div>
+
+            <div class="space-y-3">
+              <div>
+                <label class="text-sm font-medium text-neutral-700 block mb-2">
+                  Category
+                </label>
+                <ion-select 
+                  formControlName="category"
+                  placeholder="Select category"
+                  (ionChange)="onCategoryChange($event)"
+                  class="border border-neutral-200 rounded-xl px-4 py-3"
+                  fill="outline">
+                  <ion-select-option *ngFor="let category of categories" [value]="category">
+                    {{ getCategoryDisplayName(category) }}
+                  </ion-select-option>
+                </ion-select>
+              </div>
+              
+              <!-- Custom Category Input -->
+              <div *ngIf="isCustomCategorySelected()" class="custom-category-input">
+                <label class="text-sm font-medium text-neutral-700 block mb-2">
+                  Custom Category Name
+                </label>
+                <ion-input 
+                  formControlName="customCategory"
+                  placeholder="Enter your custom category..."
+                  class="border border-neutral-200 rounded-xl px-4 py-3"
+                  fill="outline">
+                </ion-input>
+                <div *ngIf="entryForm.get('customCategory')?.invalid && entryForm.get('customCategory')?.touched" 
+                     class="text-red-500 text-sm mt-1">
+                  Please enter a custom category name
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- Mood & Energy Section -->
+        <div *ngIf="isEditing || getSelectedMoodValue() || getSelectedEnergyValue()" class="space-y-4">
+          <h3 class="text-lg font-semibold text-neutral-900 flex items-center space-x-3 mb-6">
+            <i class="fa-solid fa-heart text-neutral-600"></i>
+            <span>{{ isEditing ? 'How are you feeling?' : 'Mood & Energy' }}</span>
+          </h3>
+
+          <!-- Mood Display/Selector -->
+          <div *ngIf="!isEditing && getSelectedMoodValue()" class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-4 border border-blue-100">
+            <div class="flex items-center space-x-4">
+              <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+                <span class="text-2xl">{{ getMoodEmoji(getSelectedMoodValue()) }}</span>
+              </div>
+              <div class="flex-1">
+                <p class="text-base font-medium text-neutral-900">{{ getSelectedMoodLabel() }}</p>
+                <p class="text-sm text-neutral-600">Mood: {{ getSelectedMoodValue() }}/10</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mood Selector (Edit Mode) -->
+          <div *ngIf="isEditing" class="mood-selector">
+            <ion-label class="text-sm font-medium text-neutral-700 mb-4 block">
+              Mood (1-10)
+            </ion-label>
+            <div class="grid grid-cols-5 gap-3">
+              <button *ngFor="let mood of moodOptions; trackBy: trackByMoodValue" 
+                      type="button"
+                      (click)="selectMood(mood.value)"
+                      [class.selected]="isMoodSelected(mood.value)"
+                      class="mood-button">
+                <div class="emoji">{{ mood.emoji }}</div>
+                <div class="value">{{ mood.value }}</div>
+              </button>
+            </div>
+            <div *ngIf="getSelectedMoodValue()" class="mt-4 text-center">
+              <div class="selected-mood-display">
+                <span class="text-sm font-medium text-neutral-700">
+                  {{ getMoodEmoji(getSelectedMoodValue()) }} 
+                  {{ getSelectedMoodLabel() }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Energy Display/Selector -->
+          <div *ngIf="getSelectedEnergyValue() || isEditing">
+            <div *ngIf="!isEditing" class="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-4 border border-orange-100">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <i class="fa-solid fa-bolt text-orange-500 text-lg"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-base font-medium text-neutral-900">{{ getEnergyLabel(getSelectedEnergyValue()) }}</p>
+                  <p class="text-sm text-neutral-600">Energy: {{ getSelectedEnergyValue() }}/5</p>
+                </div>
+              </div>
+            </div>
+            
+            <div *ngIf="isEditing">
+              <ion-label class="text-sm text-neutral-700 mb-3 block">
+                Energy Level
+              </ion-label>
+              <ion-range
+                formControlName="energy"
+                min="1"
+                max="5"
+                step="1"
+                snaps="true"
+                ticks="true"
+                color="primary">
+                <ion-label slot="start">Low</ion-label>
+                <ion-label slot="end">High</ion-label>
+              </ion-range>
+              <div *ngIf="getSelectedEnergyValue()" class="text-center mt-2">
+                <span class="text-sm text-neutral-600">
+                  {{ getEnergyLabel(getSelectedEnergyValue()) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tags Section -->
+      <div *ngIf="isEditing || selectedTags.length > 0" class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
+        <h3 class="text-lg font-semibold text-neutral-900 mb-6 flex items-center space-x-3">
+          <i class="fa-solid fa-tags text-neutral-600"></i>
+          <span>Tags</span>
+        </h3>
+        
+        <!-- View Mode Tags -->
+        <div *ngIf="!isEditing && selectedTags.length > 0" class="flex flex-wrap gap-2 mt-6">
+          <span *ngFor="let tag of selectedTags" 
+                class="px-3 py-1.5 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 text-sm font-medium rounded-full border border-blue-200 shadow-sm">
+            {{ tag }}
+          </span>
+        </div>
+        
+        <!-- Edit Mode Tags -->
+        <div *ngIf="isEditing" class="tags-selector">
+          <div class="flex flex-wrap gap-3">
+            <button *ngFor="let tag of availableTags; trackBy: trackByTagName" 
+                    type="button"
+                    (click)="toggleTag(tag)"
+                    [class.selected]="isTagSelected(tag)"
+                    class="tag-button">
+              {{ tag }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Floating Action Button (Edit Mode) -->
+  <ion-fab *ngIf="isEditing || mode === 'new'" vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button 
+      (click)="handleSaveClick()"
+      [disabled]="entryForm.invalid || isSaving"
+      style="--background: #3b82f6; --color: white;">
+      <i *ngIf="!isSaving" class="fa-solid fa-floppy-disk text-white text-lg"></i>
+      <i *ngIf="isSaving" class="fa-solid fa-spinner fa-spin text-white"></i>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>
+
+<!-- Action Sheet -->
+<ion-action-sheet
+  [isOpen]="showActionSheet"
+  [buttons]="actionSheetButtons"
+  (didDismiss)="showActionSheet = false">
+</ion-action-sheet> 
