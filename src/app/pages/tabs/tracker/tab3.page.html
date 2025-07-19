@@ -215,7 +215,8 @@
 
       <!-- Add New Activity -->
       <section *ngIf="activeTrackers.length > 0" class="mb-8">
-        <div class="bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-3xl p-6 shadow-xl cursor-pointer active:scale-[0.96] transition-all duration-200 relative overflow-hidden group"
+        <!-- Create Activity Tracker Button -->
+        <div class="bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-3xl p-6 shadow-xl cursor-pointer active:scale-[0.96] transition-all duration-200 relative overflow-hidden group mb-4"
              (click)="navigateToAddTracker()">
           <!-- Animated background decoration -->
           <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-active:scale-110 transition-transform duration-300"></div>
@@ -227,8 +228,27 @@
               <i class="fa-solid fa-plus text-white text-2xl"></i>
             </div>
             <div>
-              <h3 class="text-lg font-bold text-white mb-1">Add New Activity</h3>
-              <p class="text-sm text-purple-100 font-medium">Expand your wellness journey</p>
+              <h3 class="text-lg font-bold text-white mb-1">Create Activity Tracker</h3>
+              <p class="text-sm text-purple-100 font-medium">Start tracking a new wellness habit</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Log Activity Button -->
+        <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 shadow-xl cursor-pointer active:scale-[0.96] transition-all duration-200 relative overflow-hidden group"
+             (click)="openQuickLogModal()">
+          <!-- Animated background decoration -->
+          <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-active:scale-110 transition-transform duration-300"></div>
+          <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12 group-active:scale-110 transition-transform duration-300"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          
+          <div class="relative flex items-center space-x-5">
+            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg group-active:scale-95 transition-transform">
+              <i class="fa-solid fa-pen text-white text-2xl"></i>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-white mb-1">Log Activity</h3>
+              <p class="text-sm text-emerald-100 font-medium">Record progress for existing activities</p>
             </div>
           </div>
         </div>

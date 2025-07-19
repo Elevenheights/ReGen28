@@ -574,4 +574,18 @@ export class Tab3Page implements OnInit, OnDestroy {
       event.target.complete();
     }
   }
+
+  openQuickLogModal() {
+    // For now, open the existing logging modal service
+    // This could be enhanced to show a quick activity picker
+    if (this.activeTrackers.length > 0) {
+      // Open logging modal for the first tracker as an example
+      // In a real implementation, you might want to show a picker
+      this.loggingModalService.openLogModal(this.activeTrackers[0], (entry: TrackerEntry) => {
+        this.loadTrackerData();
+      });
+    } else {
+      this.toastService.showInfo('No activities available to log. Create an activity tracker first!');
+    }
+  }
 }
