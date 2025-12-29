@@ -187,8 +187,8 @@ export class AchievementService {
         achievement.rarity
       );
 
-      // Update user stats
-      await this.userService.incrementStat('totalMeditationMinutes', achievement.points); // Using meditation minutes as achievement points proxy
+      // TODO: Create proper achievement points tracking in user stats
+      // await this.userService.incrementStat('totalAchievementPoints', achievement.points);
     } else if (progress > 0) {
       status = AchievementStatus.IN_PROGRESS;
     }

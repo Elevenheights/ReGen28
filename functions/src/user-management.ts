@@ -58,7 +58,7 @@ export const completeUserOnboarding = onCall({
       stats: {
         totalTrackerEntries: 0,
         totalJournalEntries: 0,
-        totalMeditationMinutes: 0,
+
         completedTrackers: 0,
         currentStreaks: 0,
         longestStreak: 0,
@@ -166,7 +166,7 @@ export const updateUserStats = onCall({
     throw new HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const {statType, value} = data;
+  const {statType, value} = data; // eslint-disable-line @typescript-eslint/no-unused-vars
   const userId = auth.uid;
 
   try {
@@ -183,9 +183,7 @@ export const updateUserStats = onCall({
     case 'journalEntry':
       updateData['stats.totalJournalEntries'] = FieldValue.increment(1);
       break;
-    case 'meditationMinutes':
-      updateData['stats.totalMeditationMinutes'] = FieldValue.increment(value);
-      break;
+
     case 'completedTracker':
       updateData['stats.completedTrackers'] = FieldValue.increment(1);
       break;

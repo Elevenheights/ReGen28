@@ -30,6 +30,7 @@ import { LoggingService } from '../../../services/logging.service';
 import { TrackerSuggestionsService, TrackerSuggestionsState } from '../../../services/tracker-suggestions.service';
 import { AIRecommendationsService } from '../../../services/ai-recommendations.service';
 import { ToastService } from '../../../services/toast.service';
+import { StatisticsService } from '../../../services/statistics.service';
 
 // Models
 import { User } from '../../../models/user.interface';
@@ -185,6 +186,7 @@ export class Tab1Page implements OnInit, OnDestroy {
   // Developer mode properties
   isDeveloperMode = true; // Set to true for development
   isRegeneratingCoaching = false;
+  isCalculatingStats = false;
 
   // Computed properties for suggestions
   get isLoadingSuggestions(): boolean {
@@ -329,17 +331,51 @@ export class Tab1Page implements OnInit, OnDestroy {
     private errorHandling: ErrorHandlingService,
     private logging: LoggingService,
     private trackerSuggestions: TrackerSuggestionsService,
+    private statisticsService: StatisticsService,
     public router: Router,
     private toastService: ToastService
   ) {}
 
   ngOnInit() {
-    this.loadDashboardData();
+    this.loadEnhancedDashboardData();
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  // Retry dashboard loading (clear error state and try again)
+  retryDashboardLoad() {
+    this.hasGeneralError = false;
+    this.generalErrorMessage = '';
+    this.isLoading = true;
+    this.statisticsService.clearCacheForType('all');
+    this.loadEnhancedDashboardData();
+  }
+
+  // Developer method to trigger statistics calculation
+  async triggerStatsCalculation() {
+    if (!this.isDeveloperMode) return;
+    
+    this.isCalculatingStats = true;
+    try {
+      this.logging.info('Triggering manual statistics calculation');
+      await this.statisticsService.triggerStatsCalculation();
+      
+      // Show success message
+      await this.toastService.showSuccess('Statistics calculated successfully!');
+      
+      // Refresh dashboard with new stats
+      this.statisticsService.clearCacheForType('all');
+      this.loadEnhancedDashboardData();
+      
+    } catch (error) {
+      this.logging.error('Failed to trigger statistics calculation', error);
+      await this.toastService.showError('Failed to calculate statistics. Please try again.');
+    } finally {
+      this.isCalculatingStats = false;
+    }
   }
 
   private loadDashboardData() {
@@ -538,6 +574,193 @@ export class Tab1Page implements OnInit, OnDestroy {
           this.toastService.showError('Unable to load dashboard. Please check your connection and try again.');
         }
       });
+  }
+
+  /**
+   * Enhanced dashboard data loading using pre-calculated statistics
+   * This provides instant loading by leveraging the statistics service
+   */
+  private loadEnhancedDashboardData() {
+    this.logging.info('Loading enhanced dashboard with pre-calculated statistics');
+
+    // Get user profile first
+    const userProfile$ = this.userService.getCurrentUserProfile().pipe(
+      catchError((error) => {
+        this.logging.error('Could not load user profile', { error });
+        return this.errorHandling.handleErrorGracefully('loadUserProfile', error);
+      })
+    );
+    
+    // Get today's pre-calculated statistics
+    const todaysStats$ = this.statisticsService.getTodaysStats().pipe(
+      catchError((error) => {
+        this.logging.warn('Could not load today\'s statistics, falling back to basic data', { error });
+        return of(null);
+      })
+    );
+    
+    // Get weekly mood trend from statistics service
+    const weeklyMoodTrend$ = this.statisticsService.getWeeklyMoodTrend(1).pipe(
+      map(trends => {
+        if (trends.length === 0) return {
+          dailyMoods: [],
+          averageMood: 0,
+          trend: 'stable' as const,
+          entryCount: 0
+        };
+
+        const latestWeek = trends[0];
+        // Convert week data to daily array (simplified)
+        return {
+          dailyMoods: new Array(7).fill(latestWeek.averageMood > 0 ? latestWeek.averageMood : null),
+          averageMood: latestWeek.averageMood,
+          trend: 'stable' as const, // TODO: Calculate trend from statistics
+          entryCount: latestWeek.entryCount
+        };
+      }),
+      catchError((error) => {
+        this.logging.warn('Could not load weekly mood trend', { error });
+        return of({
+          dailyMoods: [],
+          averageMood: 0,
+          trend: 'stable' as const,
+          entryCount: 0
+        });
+      })
+    );
+    
+    // Get performance insights
+    const performanceInsights$ = this.statisticsService.getPerformanceInsights(7).pipe(
+      catchError((error) => {
+        this.logging.warn('Could not load performance insights', { error });
+        return of({
+          bestPerformanceHour: 9,
+          peakProductivityDays: [],
+          energyProductivityIndex: 0,
+          consistencyScore: 0,
+          categoryEngagement: { mind: 0, body: 0, soul: 0, beauty: 0 }
+        });
+      })
+    );
+    
+    // Still need recent activities and tracker data from existing services
+    const recentActivities$ = this.activityService.getRecentActivities(5).pipe(
+      catchError((error) => {
+        this.logging.error('Could not load recent activities', { error });
+        return of([]);
+      })
+    );
+
+    const trackerData$ = this.trackerService.getTrackerDashboardData().pipe(
+      catchError((error) => {
+        this.logging.error('Could not load tracker data', { error });
+        return of({ activeTrackers: [], weeklyStats: { totalEntries: 0 } });
+      })
+    );
+
+    // Combine all data streams
+    const enhancedDashboardData$ = combineLatest([
+      userProfile$,
+      todaysStats$,
+      weeklyMoodTrend$,
+      performanceInsights$,
+      recentActivities$,
+      trackerData$
+    ]).pipe(
+      map(([user, todaysStats, weeklyMoodData, performanceInsights, activities, trackerData]) => {
+        // Use statistics data when available, fallback to user profile stats
+        const wellnessScore = todaysStats?.engagementRate 
+          ? Math.round(todaysStats.engagementRate * 100) 
+          : (user?.stats?.weeklyActivityScore || 0);
+
+        const trackerStats = {
+          totalSessions: todaysStats?.totalTrackerEntries || user?.stats?.totalTrackerEntries || 0,
+          weeklyCount: trackerData?.weeklyStats?.totalEntries || 0,
+          streak: todaysStats?.trackerStreak || user?.stats?.currentStreaks || 0
+        };
+
+        const journalStats = {
+          totalEntries: todaysStats?.totalJournalEntries || user?.stats?.totalJournalEntries || 0,
+          weeklyCount: 0, // TODO: Calculate from statistics
+          streak: todaysStats?.journalStreak || 0
+        };
+
+        // Enhanced analytics using pre-calculated data
+        const analytics = {
+          wellnessScore,
+          moodData: {
+            average: todaysStats?.overallAverageMood || weeklyMoodData.averageMood || 0
+          },
+          consistencyRate: Math.round(performanceInsights.consistencyScore),
+          currentStreak: todaysStats?.overallStreak || user?.stats?.currentStreaks || 0,
+          categoryPerformance: {
+            mind: Math.round((performanceInsights.categoryEngagement.mind || 0) * 20), // Scale to 0-100
+            body: Math.round((performanceInsights.categoryEngagement.body || 0) * 20),
+            soul: Math.round((performanceInsights.categoryEngagement.soul || 0) * 20),
+            beauty: Math.round((performanceInsights.categoryEngagement.beauty || 0) * 20)
+          },
+          // Enhanced insights from statistics
+          peakPerformanceHour: performanceInsights.bestPerformanceHour,
+          peakPerformanceBoost: Math.round(performanceInsights.energyProductivityIndex / 4), // Scale down
+          moodBoostAmount: weeklyMoodData.averageMood > 0 ? Math.round(weeklyMoodData.averageMood * 10) / 10 : 0,
+          topCategoryConsistency: Math.round(performanceInsights.consistencyScore),
+          wellnessScoreChange: 5 // TODO: Calculate from trend analysis
+        };
+
+        return {
+          user,
+          journeyProgress: { currentDay: user?.currentDay || 1, progress: Math.round(((user?.currentDay || 1) / 28) * 100), milestone: this.calculateMilestone(user?.currentDay || 1) },
+          wellnessScore,
+          trackerStats,
+          journalStats,
+          weeklyMoodData,
+          recentActivities: activities || [],
+          activeTrackers: trackerData?.activeTrackers || [],
+          expandedSuggestions: {},
+          analytics,
+          trackerSuggestions: null,
+          suggestionsState: this.errorHandling.createSuccessState()
+        };
+      }),
+      catchError((error) => {
+        this.logging.error('Error loading enhanced dashboard data', { error });
+        return this.errorHandling.handleErrorGracefully('loadEnhancedDashboardData', error);
+      })
+    );
+
+    // Subscribe to enhanced dashboard data
+    enhancedDashboardData$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.dashboardData = data;
+          this.updateProfileImageUrl();
+          this.isLoading = false;
+          
+          // Load tracker-specific suggestions
+          this.loadSuggestionsForActiveTrackers();
+          
+          this.logging.info('Enhanced dashboard data loaded successfully', {
+            wellnessScore: data.wellnessScore,
+            hasTodaysStats: !!data.analytics,
+            activeTrackers: data.activeTrackers.length
+          });
+        },
+        error: (error) => {
+          this.logging.error('Statistics system unavailable - dashboard cannot load', { error });
+          this.isLoading = false;
+          this.hasGeneralError = true;
+          this.generalErrorMessage = 'Statistics system is currently unavailable. Please try again later or contact support if this persists.';
+        }
+      });
+  }
+
+  private calculateMilestone(currentDay: number): string {
+    if (currentDay >= 28) return '28-Day Champion';
+    if (currentDay >= 21) return 'Final Week';
+    if (currentDay >= 14) return 'Halfway Hero';
+    if (currentDay >= 7) return 'First Week Complete';
+    return 'Getting Started';
   }
 
   // Update profile image URL when user data changes
@@ -1256,12 +1479,16 @@ export class Tab1Page implements OnInit, OnDestroy {
 
   async handleRefresh(event: any) {
     try {
-      // Reload dashboard data
-      await this.loadDashboardData();
-      // Reload AI suggestions
-      if (this.dashboardData.activeTrackers.length > 0) {
-        await this.loadSuggestionsForActiveTrackers();
-      }
+      // Clear error state and cache for fresh data
+      this.hasGeneralError = false;
+      this.generalErrorMessage = '';
+      this.statisticsService.clearCacheForType('all');
+      
+      // Reload enhanced dashboard data
+      this.loadEnhancedDashboardData();
+      
+      // Small delay to allow loading to start
+      await new Promise(resolve => setTimeout(resolve, 500));
     } catch (error) {
       console.error('Error refreshing dashboard:', error);
     } finally {

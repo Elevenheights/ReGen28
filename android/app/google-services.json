@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "980859994035",
+    "project_id": "regen28-2fe51",
+    "storage_bucket": "regen28-2fe51.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:980859994035:android:a6bb3fb4259126cf6e55c6",
+        "android_client_info": {
+          "package_name": "com.regen28.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "980859994035-9ah4unhkfdqf1c4l24dnfp6l0oa2bk4b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDwvh99tMF-p06Z39apt9YGlENASoGXec"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "980859994035-9ah4unhkfdqf1c4l24dnfp6l0oa2bk4b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

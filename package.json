@@ -15,7 +15,11 @@
     "dead-code:exports": "ts-unused-exports tsconfig.json",
     "dead-code:imports": "unimported",
     "dead-code:check": "npm run dead-code:exports && npm run dead-code:imports",
-    "dead-code:full": "npm run lint && npm run dead-code:check"
+    "dead-code:full": "npm run lint && npm run dead-code:check",
+    "build:android": "npm run build && npx cap sync android",
+    "build:android:apk": "npm run build:android && cd android && .\\gradlew assembleDebug && cd ..",
+    "open:android": "npx cap open android",
+    "sync:android": "npx cap sync android"
   },
   "private": true,
   "dependencies": {
@@ -29,8 +33,9 @@
     "@angular/platform-browser-dynamic": "^20.0.0",
     "@angular/router": "^20.0.0",
     "@capacitor-firebase/authentication": "^7.2.0",
+    "@capacitor/android": "^7.4.1",
     "@capacitor/app": "7.0.1",
-    "@capacitor/core": "7.4.1",
+    "@capacitor/core": "8.0.0",
     "@capacitor/device": "^7.0.1",
     "@capacitor/haptics": "7.0.1",
     "@capacitor/keyboard": "7.0.1",
@@ -54,7 +59,7 @@
     "@angular/cli": "^20.0.0",
     "@angular/compiler-cli": "^20.0.0",
     "@angular/language-service": "^20.0.0",
-    "@capacitor/cli": "7.4.1",
+    "@capacitor/cli": "8.0.0",
     "@ionic/angular-toolkit": "^12.0.0",
     "@types/jasmine": "~5.1.0",
     "@typescript-eslint/eslint-plugin": "^8.18.0",

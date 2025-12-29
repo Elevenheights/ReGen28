@@ -15,10 +15,13 @@ import {
   sendPasswordResetEmail,
   sendEmailVerification,
   updateProfile,
-  onAuthStateChanged
+  onAuthStateChanged,
+  signInWithCredential
 } from '@angular/fire/auth';
 import { Observable, BehaviorSubject, from, of, switchMap, firstValueFrom, take } from 'rxjs';
 import { UserService } from './user.service';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
+import { Capacitor } from '@capacitor/core';
 
 export interface AuthState {
   user: User | null;
@@ -257,7 +260,7 @@ export class AuthService {
           stats: {
             totalTrackerEntries: 0,
             totalJournalEntries: 0,
-            totalMeditationMinutes: 0,
+    
             completedTrackers: 0,
             currentStreaks: 0,
             longestStreak: 0,
@@ -401,17 +404,41 @@ export class AuthService {
     this.setError(null);
     
     try {
-      const provider = new GoogleAuthProvider();
-      provider.addScope('profile');
-      provider.addScope('email');
+      // Check if running in Capacitor (native app)
+      const isCapacitorApp = Capacitor.isNativePlatform();
       
-      // For Capacitor/mobile apps, always use popup to avoid redirect issues
-      const isCapacitorApp = !!(window as any).Capacitor;
-      
-      if (this.isMobile() && !isCapacitorApp) {
+      if (isCapacitorApp) {
+        try {
+          console.log('🔑 Using native Capacitor Firebase Authentication for Google login');
+          const result = await FirebaseAuthentication.signInWithGoogle();
+          const credential = GoogleAuthProvider.credential(
+            result.credential?.idToken,
+            result.credential?.accessToken
+          );
+          const userCredential = await signInWithCredential(this.auth, credential);
+          this.setLoading(false);
+          return userCredential.user;
+        } catch (nativeError: any) {
+          console.warn('⚠️ Native Google login failed, falling back to redirect flow:', nativeError);
+          
+          const provider = new GoogleAuthProvider();
+          provider.addScope('profile');
+          provider.addScope('email');
+          
+          // Use redirect instead of popup to avoid the white screen issue in mobile browsers
+          sessionStorage.setItem('pendingOAuthRedirect', 'true');
+          await signInWithRedirect(this.auth, provider);
+          return null; // The app will reload and handle the result
+        }
+      } else if (this.isMobile()) {
         console.log('🔑 Using mobile redirect flow for Google login (web mobile)');
         // Set a flag to indicate we're expecting a redirect result
         sessionStorage.setItem('pendingOAuthRedirect', 'true');
+        
+        const provider = new GoogleAuthProvider();
+        provider.addScope('profile');
+        provider.addScope('email');
+        
         // Use redirect on mobile web for better UX
         await signInWithRedirect(this.auth, provider);
         console.log('🔑 Google redirect initiated, user will be redirected...');
@@ -419,8 +446,13 @@ export class AuthService {
         // handleRedirectResult() will handle the auth state when user returns
         return null; // Redirect will handle the rest
       } else {
-        console.log('🔑 Using popup flow for Google login (desktop or Capacitor app)');
-        // Use popup on desktop AND in Capacitor apps
+        console.log('🔑 Using popup flow for Google login (desktop)');
+        
+        const provider = new GoogleAuthProvider();
+        provider.addScope('profile');
+        provider.addScope('email');
+        
+        // Use popup on desktop
         const result = await signInWithPopup(this.auth, provider);
         console.log('🔑 Google popup login successful:', result.user.email);
         this.setLoading(false);
@@ -441,23 +473,47 @@ export class AuthService {
     this.setError(null);
     
     try {
-      const provider = new OAuthProvider('apple.com');
-      provider.addScope('email');
-      provider.addScope('name');
+      // Check if running in Capacitor (native app)
+      const isCapacitorApp = Capacitor.isNativePlatform();
       
-      // For Capacitor/mobile apps, always use popup to avoid redirect issues
-      const isCapacitorApp = !!(window as any).Capacitor;
-      
-      if (this.isMobile() && !isCapacitorApp) {
+      if (isCapacitorApp) {
+        console.log('🔑 Using native Capacitor Firebase Authentication for Apple login');
+        
+        // Use native Capacitor Firebase Authentication plugin
+        const result = await FirebaseAuthentication.signInWithApple();
+        console.log('🔑 Native Apple sign-in successful:', result);
+        
+        // Get the credential and sign in to Firebase Auth
+        const provider = new OAuthProvider('apple.com');
+        const credential = provider.credential({
+          idToken: result.credential?.idToken,
+          rawNonce: result.credential?.nonce
+        });
+        
+        const userCredential = await signInWithCredential(this.auth, credential);
+        console.log('🔑 Firebase Auth credential sign-in successful:', userCredential.user.email);
+        
+        this.setLoading(false);
+        return userCredential.user;
+      } else if (this.isMobile()) {
         // Set a flag to indicate we're expecting a redirect result
         sessionStorage.setItem('pendingOAuthRedirect', 'true');
+        
+        const provider = new OAuthProvider('apple.com');
+        provider.addScope('email');
+        provider.addScope('name');
+        
         // Use redirect on mobile web for better UX
         await signInWithRedirect(this.auth, provider);
         // Don't set loading to false here as the redirect is happening
         // handleRedirectResult() will handle the auth state when user returns
         return null; // Redirect will handle the rest
       } else {
-        // Use popup on desktop AND in Capacitor apps
+        const provider = new OAuthProvider('apple.com');
+        provider.addScope('email');
+        provider.addScope('name');
+        
+        // Use popup on desktop
         const result = await signInWithPopup(this.auth, provider);
         this.setLoading(false);
         return result.user;

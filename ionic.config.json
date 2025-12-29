@@ -1,5 +1,7 @@
 {
   "name": "regen28-app",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "angular-standalone"
 }

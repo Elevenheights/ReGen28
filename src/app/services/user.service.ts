@@ -66,7 +66,6 @@ export class UserService {
           stats: {
             totalTrackerEntries: 0,
             totalJournalEntries: 0,
-            totalMeditationMinutes: 0,
             completedTrackers: 0,
             currentStreaks: 0,
             longestStreak: 0,
@@ -109,7 +108,6 @@ export class UserService {
     const defaultStats: UserStats = {
       totalTrackerEntries: 0,
       totalJournalEntries: 0,
-      totalMeditationMinutes: 0,
       completedTrackers: 0,
       currentStreaks: 0,
       longestStreak: 0,
@@ -276,8 +274,6 @@ export class UserService {
         return 'trackerEntry';
       case 'totalJournalEntries':
         return 'journalEntry';
-      case 'totalMeditationMinutes':
-        return 'meditationMinutes';
       case 'completedTrackers':
         return 'completedTracker';
       default:

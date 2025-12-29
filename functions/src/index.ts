@@ -12,6 +12,7 @@ import {initializeApp} from "firebase-admin/app";
 import {getFirestore} from "firebase-admin/firestore";
 import {OpenAIService} from "./openai.service";
 import {completeUserOnboarding, updateUserStats, cleanupDuplicateTrackers, cleanupOldSuggestions, getTrackerSpecificSuggestions, onTrackerEntryCreated, checkExpiredTrackers, queueDailyTrackerSuggestions, processSuggestionJobs, onSuggestionJobCreated, updateUserSubscriptionStatus, checkExpiredTrials, getDailyJournalPrompt, getReflectionPrompts, queueDailyJournalPrompts, processJournalPromptJobs} from './user-management';
+import {calculateAllDailyStats, getUserDailyStats as getUserDailyStatsFunction, getTrackerDailyStats as getTrackerDailyStatsFunction, getJournalDailyStats as getJournalDailyStatsFunction, getWeeklyMoodTrend, getPerformanceInsights, triggerStatsCalculation, backfillUserStats, onTrackerEntryCreated as onTrackerEntryCreatedStats, onJournalEntryWritten, onActivityCreated} from './statistics-functions';
 
 // Initialize Firebase Admin (main entry point)
 initializeApp();
@@ -34,7 +35,19 @@ export {
   getDailyJournalPrompt,
   getReflectionPrompts,
   queueDailyJournalPrompts,
-  processJournalPromptJobs
+  processJournalPromptJobs,
+  // Statistics functions
+  calculateAllDailyStats,
+  getUserDailyStatsFunction,
+  getTrackerDailyStatsFunction,
+  getJournalDailyStatsFunction,
+  getWeeklyMoodTrend,
+  getPerformanceInsights,
+  triggerStatsCalculation,
+  backfillUserStats,
+  onTrackerEntryCreatedStats,
+  onJournalEntryWritten,
+  onActivityCreated
 };
 
 // Define the OpenAI API key secret

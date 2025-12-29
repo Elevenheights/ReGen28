@@ -117,7 +117,6 @@ export class WelcomePage implements OnInit {
           stats: {
             totalTrackerEntries: 0,
             totalJournalEntries: 0,
-            totalMeditationMinutes: 0,
             completedTrackers: 0,
             currentStreaks: 0,
             longestStreak: 0,
@@ -188,16 +187,15 @@ export class WelcomePage implements OnInit {
             analytics: true,
             backupEnabled: true
           },
-          stats: {
-            totalTrackerEntries: 0,
-            totalJournalEntries: 0,
-            totalMeditationMinutes: 0,
-            completedTrackers: 0,
-            currentStreaks: 0,
-            longestStreak: 0,
-            weeklyActivityScore: 0,
-            monthlyGoalsCompleted: 0
-          },
+                  stats: {
+          totalTrackerEntries: 0,
+          totalJournalEntries: 0,
+          completedTrackers: 0,
+          currentStreaks: 0,
+          longestStreak: 0,
+          weeklyActivityScore: 0,
+          monthlyGoalsCompleted: 0
+        },
           createdAt: new Date(),
           updatedAt: new Date()
         });

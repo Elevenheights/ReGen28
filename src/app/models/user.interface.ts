@@ -59,12 +59,63 @@ export interface UserPreferences {
 }
 
 export interface UserStats {
+  // === CURRENT BASIC STATS (EXISTING) ===
   totalTrackerEntries: number;
   totalJournalEntries: number;
-  totalMeditationMinutes: number;
   completedTrackers: number;
   currentStreaks: number;
   longestStreak: number;
   weeklyActivityScore: number;
   monthlyGoalsCompleted: number;
+  
+  // === NEW MOOD & WELLNESS ANALYTICS ===
+  overallAverageMood?: number;        // All-time average from all sources
+  overallMoodTrend?: 'improving' | 'declining' | 'stable';
+  weeklyMoodAverage?: number;         // Last 7 days average
+  monthlyMoodAverage?: number;        // Last 30 days average
+  averageEnergyLevel?: number;        // All-time average energy
+  energyTrend?: 'improving' | 'declining' | 'stable';
+  
+  // === NEW ACTIVITY BREAKDOWNS ===
+  weeklyTrackerEntries?: number;      // Last 7 days
+  monthlyTrackerEntries?: number;     // Last 30 days
+  weeklyJournalEntries?: number;      // Last 7 days
+  monthlyJournalEntries?: number;     // Last 30 days
+  totalActivities?: number;           // All activity records
+  todayActivityCount?: number;        // Today's activities
+  weeklyActivityCount?: number;       // Last 7 days activities
+  monthlyActivityCount?: number;      // Last 30 days activities
+  
+  // === NEW ACHIEVEMENT STATS ===
+  totalAchievementsEarned?: number;
+  totalAchievementPoints?: number;
+  recentAchievements?: number;        // This week
+  activeTrackersCount?: number;
+  completedTrackersCount?: number;
+  
+  // === NEW ENHANCED STREAKS ===
+  journalStreak?: number;             // Journal-only streak
+  trackerStreak?: number;             // Tracker-only streak
+  overallActivityStreak?: number;     // Any activity streak
+  longestJournalStreak?: number;      // Historical journal max
+  longestTrackerStreak?: number;      // Historical tracker max
+  longestActivityStreak?: number;     // Historical activity max
+  
+  // === NEW CONSISTENCY METRICS ===
+  weeklyConsistencyScore?: number;    // % of weekly goals met (0-100)
+  monthlyConsistencyScore?: number;   // % of monthly goals met (0-100)
+  averageSessionsPerWeek?: number;    // Rolling average
+  averageSessionDuration?: number;    // Average minutes per session
+  preferredActivityTime?: string;     // Peak usage hour ("14:00")
+  
+  // === NEW CATEGORY STATS ===
+  totalMindMinutes?: number;          // All Mind category time
+  totalBodySessions?: number;         // All Body category sessions
+  totalSoulActivities?: number;       // All Soul category activities
+  totalBeautyRoutines?: number;       // All Beauty category routines
+  
+  // === NEW SYSTEM METADATA ===
+  lastStatsCalculated?: Date;         // Last calculation timestamp
+  statsCalculationVersion?: number;   // For migration tracking
+  dataQualityScore?: number;          // Overall data completeness (0-100)
 } 

@@ -10,8 +10,22 @@
     <div class="text-neutral-500 font-medium">Loading your wellness dashboard...</div>
   </div>
 
+  <!-- Error state -->
+  <div *ngIf="hasGeneralError" class="flex flex-col justify-center items-center h-screen px-6">
+    <div class="w-20 h-20 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mb-6">
+      <i class="fa-solid fa-chart-line-down text-red-600 text-2xl"></i>
+    </div>
+    <h2 class="text-xl font-bold text-neutral-900 mb-3 text-center">Statistics System Unavailable</h2>
+    <p class="text-neutral-600 text-center mb-6 leading-relaxed">{{ generalErrorMessage }}</p>
+    <button class="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-full font-semibold active:scale-95 transition-transform"
+            (click)="retryDashboardLoad()">
+      <i class="fa-solid fa-refresh mr-2"></i>
+      Try Again
+    </button>
+  </div>
+
   <!-- Main Content -->
-  <main *ngIf="!isLoading" class="pb-24">
+  <main *ngIf="!isLoading && !hasGeneralError" class="pb-24">
     <!-- Integrated Header -->
     <section class="bg-gradient-to-br from-white via-blue-50 to-purple-50 px-4 pt-12 pb-4">
       <!-- User Welcome -->
@@ -838,6 +852,21 @@
               </div>
             </div>
             
+            <button class="w-full bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center active:scale-[0.98] transition-transform border border-white/30 mb-4" 
+                    (click)="triggerStatsCalculation()"
+                    [disabled]="isCalculatingStats">
+              <div class="flex items-center justify-center space-x-3">
+                <i *ngIf="!isCalculatingStats" class="fa-solid fa-chart-line text-white text-lg"></i>
+                <ion-spinner *ngIf="isCalculatingStats" name="crescent" class="w-5 h-5"></ion-spinner>
+                <span class="text-base font-semibold text-white">
+                  {{ isCalculatingStats ? 'Calculating...' : 'Calculate Statistics' }}
+                </span>
+              </div>
+              <p class="text-xs text-white/70 mt-2 font-medium">
+                {{ isCalculatingStats ? 'Please wait while we calculate your daily stats...' : 'Trigger manual calculation of today\'s pre-calculated statistics' }}
+              </p>
+            </button>
+
             <button class="w-full bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center active:scale-[0.98] transition-transform border border-white/30" 
                     (click)="devRegenerateCoaching()"
                     [disabled]="isRegeneratingCoaching">
