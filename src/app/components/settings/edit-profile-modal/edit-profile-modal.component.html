@@ -1,0 +1,104 @@
+<ion-header class="ion-no-border">
+	<ion-toolbar class="px-2">
+		<ion-buttons slot="start">
+			<ion-button (click)="dismiss()" [disabled]="isSaving || isUploading">
+				Cancel
+			</ion-button>
+		</ion-buttons>
+		<ion-title>Edit Profile</ion-title>
+		<ion-buttons slot="end">
+			<ion-button (click)="save()" [disabled]="profileForm.invalid || isSaving || isUploading" color="primary"
+				class="font-bold">
+				Done
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding bg-neutral-50">
+	<div class="max-w-md mx-auto py-8">
+		<!-- Avatar Upload Section -->
+		<div class="flex flex-col items-center mb-8">
+			<div class="relative group">
+				<div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-neutral-200">
+					<img [src]="profileImageUrl" alt="Profile avatar" class="w-full h-full object-cover">
+					<div *ngIf="isUploading" class="absolute inset-0 flex items-center justify-center bg-black/30">
+						<ion-spinner name="crescent" color="light"></ion-spinner>
+					</div>
+				</div>
+
+				<label for="avatar-input"
+					class="absolute bottom-0 right-0 w-10 h-10 bg-neutral-900 rounded-full flex items-center justify-center text-white border-2 border-white cursor-pointer hover:bg-neutral-800 transition-colors shadow-md">
+					<i class="fa-solid fa-camera text-sm"></i>
+					<input id="avatar-input" type="file" class="hidden" (change)="onFileSelected($event)"
+						accept="image/*">
+				</label>
+			</div>
+			<p class="text-xs text-neutral-500 mt-3">Tap camera to change photo</p>
+		</div>
+
+		<!-- Profile Form -->
+		<form [formGroup]="profileForm" class="space-y-6">
+			<div class="bg-white rounded-2xl p-4 border border-neutral-200 shadow-sm">
+				<div class="space-y-4">
+					<div>
+						<label
+							class="block text-xs font-medium text-neutral-500 mb-1 ml-1 uppercase tracking-wider">Full
+							Name</label>
+						<div class="relative">
+							<input type="text" formControlName="displayName" placeholder="Enter your name"
+								class="w-full bg-neutral-50 border border-neutral-100 rounded-xl px-4 py-3 text-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-200 transition-all font-medium">
+						</div>
+						<p *ngIf="profileForm.get('displayName')?.touched && profileForm.get('displayName')?.errors?.['required']"
+							class="text-xs text-red-500 mt-1 ml-1">
+							Name is required
+						</p>
+					</div>
+
+					<div>
+						<label
+							class="block text-xs font-medium text-neutral-500 mb-1 ml-1 uppercase tracking-wider">Email
+							Address</label>
+						<div class="relative">
+							<input type="email" formControlName="email" placeholder="email@example.com"
+								class="w-full bg-neutral-100 border border-neutral-100 rounded-xl px-4 py-3 text-neutral-400 cursor-not-allowed font-medium">
+							<div class="absolute right-4 top-1/2 -translate-y-1/2">
+								<i class="fa-solid fa-lock text-neutral-300 text-xs"></i>
+							</div>
+						</div>
+						<p class="text-[10px] text-neutral-400 mt-1 ml-1">Email cannot be changed here</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Additional Info Group -->
+			<div class="bg-white rounded-2xl p-4 border border-neutral-200 shadow-sm">
+				<h3 class="text-sm font-semibold text-neutral-900 mb-4">Account Information</h3>
+
+				<div class="space-y-3">
+					<div class="flex items-center justify-between py-2 border-b border-neutral-50">
+						<span class="text-sm text-neutral-500">Joined</span>
+						<span class="text-sm font-medium text-neutral-900">{{ user?.joinDate | date:'longDate' }}</span>
+					</div>
+					<div class="flex items-center justify-between py-2 border-b border-neutral-50">
+						<span class="text-sm text-neutral-500">Days in Journey</span>
+						<span class="text-sm font-medium text-neutral-900">{{ user?.currentDay || 0 }} / 28</span>
+					</div>
+					<div class="flex items-center justify-between py-2">
+						<span class="text-sm text-neutral-500">Subscription Status</span>
+						<span
+							class="text-sm font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full capitalize">{{
+							user?.subscriptionType || 'Trial' }}</span>
+					</div>
+				</div>
+			</div>
+		</form>
+
+		<div class="mt-8 px-4 text-center">
+			<p class="text-xs text-neutral-400">
+				Your profile information is used to personalize your dashboard and wellness suggestions. We respect your
+				privacy.
+			</p>
+		</div>
+	</div>
+</ion-content>

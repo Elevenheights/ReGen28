@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "980859994035-omq4r3a43ddl5fmso2haj80420kl4ikk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.regen28.app",
+            "certificate_hash": "d9e8827d723f92e169745a8b776b5a736ab771f9"
+          }
+        },
+        {
           "client_id": "980859994035-9ah4unhkfdqf1c4l24dnfp6l0oa2bk4b.apps.googleusercontent.com",
           "client_type": 3
         }

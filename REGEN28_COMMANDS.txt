@@ -1,0 +1,87 @@
+================================================================================
+REGEN28 PROJECT - COMMON COMMANDS CHEAT SHEET (Windows PowerShell)
+================================================================================
+
+--- 1. WEB DEVELOPMENT & LOCAL TESTING ---
+
+# Run the app locally in the browser (standard)
+npm start
+
+# Run the app locally with network access (for testing on other devices in same WiFi)
+npm run start:network
+
+# Run linter to check for code quality issues
+npm run lint
+
+# Run linter and fix automatic issues
+npm run lint:fix
+
+# Check for unused exports and dead code
+npm run dead-code:full
+
+
+--- 2. ANDROID DEVELOPMENT (Emulator & Physical Device) ---
+
+# Build the app and sync with Android project (Run this first)
+npm run build:android
+
+# Open the project in Android Studio (To run on emulator/device from there)
+npm run open:android
+
+# Sync Capacitor changes (Run if you change plugins or capacitor.config.json)
+npm run sync:android
+
+# Build a debug APK directly from PowerShell
+npm run build:android:apk
+# (The APK will be at: android\app\build\outputs\apk\debug\app-debug.apk)
+
+# View Android logs in real-time
+npx cap run android --list
+npx cap run android --target <DEVICE_ID>
+
+
+--- 3. FIREBASE FUNCTIONS ---
+
+# Build (compile) the functions
+cd functions; npm run build; cd ..
+
+# Run functions emulator locally (for testing without deploying)
+cd functions; npm run serve; cd ..
+
+# Deploy all functions to the cloud
+firebase deploy --only functions
+
+# Deploy a specific function (e.g., getPerformanceInsights)
+firebase deploy --only functions:getPerformanceInsights
+
+# View cloud function logs
+firebase functions:log
+
+
+--- 4. DATABASE & ENVIRONMENT ---
+
+# Deploy Firestore rules
+firebase deploy --only firestore:rules
+
+# Deploy Firestore indexes
+firebase deploy --only firestore:indexes
+
+# Update all dependencies (Root)
+npm install
+
+# Update all dependencies (Functions)
+cd functions; npm install; cd ..
+
+
+--- 5. TROUBLESHOOTING ---
+
+# Clear Android build cache
+cd android; .\gradlew clean; cd ..
+
+# Force rebuild everything for Android
+npm run build; npx cap sync android; cd android; .\gradlew assembleDebug; cd ..
+
+# Reset functions node_modules (if deployment fails due to lock file)
+cd functions; Remove-Item -Recurse -Force node_modules; Remove-Item package-lock.json; npm install; cd ..
+================================================================================
+

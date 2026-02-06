@@ -4,18 +4,18 @@
  * - User Management for onboarding and analytics
  */
 
+import {initializeApp} from "firebase-admin/app";
+initializeApp();
+
 import {setGlobalOptions} from "firebase-functions";
 import {onCall} from "firebase-functions/v2/https";
 import {defineSecret} from "firebase-functions/params";
 import * as logger from "firebase-functions/logger";
-import {initializeApp} from "firebase-admin/app";
 import {getFirestore} from "firebase-admin/firestore";
 import {OpenAIService} from "./openai.service";
 import {completeUserOnboarding, updateUserStats, cleanupDuplicateTrackers, cleanupOldSuggestions, getTrackerSpecificSuggestions, onTrackerEntryCreated, checkExpiredTrackers, queueDailyTrackerSuggestions, processSuggestionJobs, onSuggestionJobCreated, updateUserSubscriptionStatus, checkExpiredTrials, getDailyJournalPrompt, getReflectionPrompts, queueDailyJournalPrompts, processJournalPromptJobs} from './user-management';
 import {calculateAllDailyStats, getUserDailyStats as getUserDailyStatsFunction, getTrackerDailyStats as getTrackerDailyStatsFunction, getJournalDailyStats as getJournalDailyStatsFunction, getWeeklyMoodTrend, getPerformanceInsights, triggerStatsCalculation, backfillUserStats, onTrackerEntryCreated as onTrackerEntryCreatedStats, onJournalEntryWritten, onActivityCreated} from './statistics-functions';
 
-// Initialize Firebase Admin (main entry point)
-initializeApp();
 const db = getFirestore();
 
 // Export all functions
@@ -54,7 +54,9 @@ export {
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
 
 // Set global options for cost control
-setGlobalOptions({maxInstances: 10});
+setGlobalOptions({
+  maxInstances: 10
+});
 
 // Available activities data
 const AVAILABLE_TRACKERS = [
@@ -372,7 +374,6 @@ export const getTrackerRecommendations = onCall<RecommendationRequest>(
   {
     maxInstances: 5,
     secrets: [openaiApiKey],
-    cors: true,
     invoker: 'public',
   },
   async (request) => {
@@ -463,7 +464,6 @@ interface LogTrackerEntryRequest {
  */
 export const logTrackerEntry = onCall<LogTrackerEntryRequest>(
   {
-    cors: true,
     invoker: 'public',
   },
   async (request) => {

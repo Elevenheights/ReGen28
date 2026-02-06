@@ -187,7 +187,7 @@ export const onActivityCreated = onDocumentCreated(
  * Get user daily stats for a specific date or date range
  */
 export const getUserDailyStats = onCall({
-  cors: true,
+  cors: ["https://localhost", "http://localhost:4200"], // Explicitly allow Capacitor and local dev
   invoker: 'public'
 }, async (request) => {
   const { auth, data } = request;
@@ -245,7 +245,6 @@ export const getUserDailyStats = onCall({
  * Get tracker daily stats for a date range
  */
 export const getTrackerDailyStats = onCall({
-  cors: true,
   invoker: 'public'
 }, async (request) => {
   const { auth, data } = request;
@@ -295,7 +294,6 @@ export const getTrackerDailyStats = onCall({
  * Get journal daily stats for a date range
  */
 export const getJournalDailyStats = onCall({
-  cors: true,
   invoker: 'public'
 }, async (request) => {
   const { auth, data } = request;
@@ -335,7 +333,7 @@ export const getJournalDailyStats = onCall({
  * Get weekly mood trend analysis
  */
 export const getWeeklyMoodTrend = onCall({
-  cors: true,
+  cors: ["https://localhost", "http://localhost:4200"], // Explicitly allow Capacitor and local dev
   invoker: 'public'
 }, async (request) => {
   const { auth, data } = request;
@@ -374,7 +372,7 @@ export const getWeeklyMoodTrend = onCall({
  * Get performance insights for a user
  */
 export const getPerformanceInsights = onCall({
-  cors: true,
+  cors: ["https://localhost", "http://localhost:4200"], // Explicitly allow Capacitor and local dev
   invoker: 'public'
 }, async (request) => {
   const { auth, data } = request;
@@ -454,7 +452,6 @@ export const getPerformanceInsights = onCall({
  * Manual trigger for calculating stats (admin/dev use)
  */
 export const triggerStatsCalculation = onCall({
-  cors: true,
   invoker: 'public'
 }, async (request) => {
   const { auth, data } = request;
@@ -499,7 +496,6 @@ export const triggerStatsCalculation = onCall({
  * Backfill historical statistics for a user
  */
 export const backfillUserStats = onCall({
-  cors: true,
   invoker: 'public'
 }, async (request) => {
   const { auth, data } = request;

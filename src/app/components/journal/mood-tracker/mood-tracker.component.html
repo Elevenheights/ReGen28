@@ -1,0 +1,38 @@
+<div class="bg-white rounded-2xl p-4 border border-neutral-100 shadow-sm">
+	<div class="flex items-center justify-between mb-4">
+		<h3 class="text-sm font-semibold text-neutral-900">Weekly Mood</h3>
+		<span class="text-xs text-neutral-400">Last 30 Days</span>
+	</div>
+
+	<!-- Loading State -->
+	<div *ngIf="isLoading" class="h-32 flex items-end justify-between space-x-2 animate-pulse">
+		<div *ngFor="let i of [1,2,3,4]" class="w-full bg-neutral-100 rounded-t-lg" [style.height.%]="20 + (i * 10)">
+		</div>
+	</div>
+
+	<!-- Chart State -->
+	<div *ngIf="!isLoading && weeklyTrends.length > 0" class="h-32 flex items-end justify-between space-x-3 px-2">
+		<div *ngFor="let week of weeklyTrends" class="flex flex-col items-center w-full group relative">
+			<!-- Tooltip -->
+			<div
+				class="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity bg-neutral-800 text-white text-[10px] px-2 py-1 rounded pointer-events-none whitespace-nowrap z-10">
+				{{ week.averageMood }}/10 ({{ week.entryCount }} entries)
+			</div>
+
+			<!-- Bar -->
+			<div class="w-full rounded-t-lg transition-all duration-500 ease-out hover:opacity-80 cursor-pointer"
+				[ngClass]="getMoodColor(week.averageMood)" [style.height]="getMoodHeight(week.averageMood)">
+			</div>
+
+			<!-- Date Label -->
+			<span class="text-[10px] text-neutral-400 mt-2">{{ week.week | date:'MMM d' }}</span>
+		</div>
+	</div>
+
+	<!-- Empty State -->
+	<div *ngIf="!isLoading && weeklyTrends.length === 0"
+		class="h-32 flex flex-col items-center justify-center text-neutral-400">
+		<i class="fa-solid fa-chart-simple text-2xl mb-2 opacity-50"></i>
+		<span class="text-xs">No enough data yet</span>
+	</div>
+</div>

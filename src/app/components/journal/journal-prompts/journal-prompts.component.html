@@ -1,0 +1,65 @@
+<!-- Daily Prompt -->
+<section class="mb-6">
+	<div class="flex items-center justify-between mb-3">
+		<h2 class="text-base text-neutral-900">Today's Prompt</h2>
+		<div class="flex items-center space-x-2">
+			<button type="button" class="p-2 bg-transparent border-none" (click)="onRefresh()" [disabled]="isRefreshing"
+				title="Refresh AI prompts">
+				<!-- Spinner while refreshing -->
+				<ion-spinner name="crescent" *ngIf="isRefreshing" class="w-5 h-5"></ion-spinner>
+
+				<!-- Refresh icon when idle -->
+				<ion-icon name="refresh-outline" *ngIf="!isRefreshing" color="medium" class="text-xl"></ion-icon>
+			</button>
+		</div>
+	</div>
+
+	<!-- Loading daily prompt -->
+	<div *ngIf="isLoadingDailyPrompt" class="w-full bg-neutral-200 rounded-xl h-16 animate-pulse"></div>
+
+	<!-- Daily prompt loaded -->
+	<button *ngIf="!isLoadingDailyPrompt && dailyPrompt"
+		class="w-full bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-4 border border-purple-100 text-left active:scale-[0.98] transition-all"
+		(click)="onPromptSelected(dailyPrompt)">
+		<div class="flex items-center space-x-4">
+			<i class="fa-solid {{ getCategoryIcon(dailyPrompt.category) }} text-purple-600"></i>
+			<span class="text-sm text-neutral-700">{{ dailyPrompt.text }}</span>
+		</div>
+	</button>
+
+	<!-- No daily prompt available -->
+	<div *ngIf="!isLoadingDailyPrompt && !dailyPrompt" class="text-center py-4">
+		<p class="text-sm text-neutral-500">No daily prompt available</p>
+	</div>
+</section>
+
+<!-- Reflection Prompts -->
+<section class="mb-6">
+	<div class="flex items-center justify-between mb-3">
+		<h2 class="text-base text-neutral-900">Reflection Prompts</h2>
+	</div>
+
+	<!-- Loading prompts -->
+	<div *ngIf="isLoadingPrompts" class="space-y-2">
+		<div class="w-full bg-neutral-200 rounded-xl h-12 animate-pulse"></div>
+		<div class="w-full bg-neutral-200 rounded-xl h-12 animate-pulse"></div>
+		<div class="w-full bg-neutral-200 rounded-xl h-12 animate-pulse"></div>
+	</div>
+
+	<!-- Loaded prompts -->
+	<div *ngIf="!isLoadingPrompts && prompts.length > 0" class="space-y-2">
+		<button *ngFor="let prompt of prompts.slice(0, 3)"
+			class="w-full bg-white rounded-xl p-3 border border-neutral-100 text-left hover:bg-neutral-50 transition-colors active:scale-[0.98]"
+			(click)="onPromptSelected(prompt)">
+			<div class="flex items-center">
+				<i class="fa-solid {{ getCategoryIcon(prompt.category) }} text-neutral-600 text-base mr-4"></i>
+				<span class="text-sm text-neutral-700">{{ prompt.text }}</span>
+			</div>
+		</button>
+	</div>
+
+	<!-- No prompts available -->
+	<div *ngIf="!isLoadingPrompts && prompts.length === 0" class="text-center py-4">
+		<p class="text-sm text-neutral-500">No prompts available at the moment</p>
+	</div>
+</section>

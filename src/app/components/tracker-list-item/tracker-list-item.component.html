@@ -1,0 +1,89 @@
+<!-- Tracker List Item with Swipe Actions -->
+<ion-item-sliding #slidingItem [disabled]="!showSwipeActions">
+
+	<!-- Left Swipe Options (Start) -->
+	<ion-item-options side="start">
+		<!-- Quick Log -->
+		<ion-item-option color="success" (click)="onSwipeAction('edit')">
+			<div class="flex flex-col items-center py-2">
+				<i class="fa-solid fa-pen mb-1"></i>
+				<span class="text-xs">Edit</span>
+			</div>
+		</ion-item-option>
+
+		<!-- Pause/Resume -->
+		<ion-item-option [color]="isPaused ? 'primary' : 'warning'"
+			(click)="onSwipeAction(isPaused ? 'resume' : 'pause')">
+			<div class="flex flex-col items-center py-2">
+				<i [class]="'fa-solid ' + (isPaused ? 'fa-play' : 'fa-pause') + ' mb-1'"></i>
+				<span class="text-xs">{{ isPaused ? 'Resume' : 'Pause' }}</span>
+			</div>
+		</ion-item-option>
+	</ion-item-options>
+
+	<!-- Main Content -->
+	<ion-item lines="none" class="tracker-item">
+		<div class="w-full py-2">
+			<!-- Loading overlay -->
+			<div *ngIf="isDeleting || isToggling || isExtending || isCompleting"
+				class="absolute inset-0 bg-white/80 flex items-center justify-center z-10 rounded-2xl">
+				<ion-spinner name="crescent" [style.color]="trackerColor"></ion-spinner>
+			</div>
+
+			<!-- Paused indicator -->
+			<div *ngIf="isPaused" class="absolute top-0 left-0 right-0 h-1 bg-amber-400 rounded-t-2xl"></div>
+
+			<!-- Tracker Card -->
+			<app-tracker-card [tracker]="tracker" [compactMode]="compactMode" [showActions]="true"
+				(quickLog)="onQuickLog()" (openLogModal)="onOpenLogModal()" (openDetail)="onCardClick()"
+				(extendTracker)="onExtendFromCard()" (completeTracker)="onCompleteFromCard()">
+			</app-tracker-card>
+
+			<!-- Mode Toggle Button (subtle) -->
+			<button *ngIf="!compactMode" (click)="onSwipeAction('toggleMode'); $event.stopPropagation()"
+				class="absolute top-3 right-3 w-6 h-6 rounded-full bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center transition-colors z-20"
+				[title]="tracker.isOngoing ? 'Convert to Challenge' : 'Make Ongoing'">
+				<i
+					[class]="'fa-solid text-[10px] text-neutral-500 ' + (tracker.isOngoing ? 'fa-hourglass' : 'fa-infinity')"></i>
+			</button>
+		</div>
+	</ion-item>
+
+	<!-- Right Swipe Options (End) -->
+	<ion-item-options side="end">
+		<!-- Extend (for challenges only) -->
+		<ion-item-option *ngIf="!tracker.isOngoing && !tracker.isCompleted" color="primary"
+			(click)="onSwipeAction('extend')">
+			<div class="flex flex-col items-center py-2">
+				<i class="fa-solid fa-calendar-plus mb-1"></i>
+				<span class="text-xs">Extend</span>
+			</div>
+		</ion-item-option>
+
+		<!-- Complete (for challenges only) -->
+		<ion-item-option *ngIf="!tracker.isOngoing && !tracker.isCompleted" color="success"
+			(click)="onSwipeAction('complete')">
+			<div class="flex flex-col items-center py-2">
+				<i class="fa-solid fa-check-circle mb-1"></i>
+				<span class="text-xs">Complete</span>
+			</div>
+		</ion-item-option>
+
+		<!-- Toggle Mode -->
+		<ion-item-option color="secondary" (click)="onSwipeAction('toggleMode')">
+			<div class="flex flex-col items-center py-2">
+				<i [class]="'fa-solid mb-1 ' + (tracker.isOngoing ? 'fa-hourglass' : 'fa-infinity')"></i>
+				<span class="text-xs">{{ tracker.isOngoing ? 'Challenge' : 'Ongoing' }}</span>
+			</div>
+		</ion-item-option>
+
+		<!-- Delete -->
+		<ion-item-option color="danger" (click)="onSwipeAction('delete')">
+			<div class="flex flex-col items-center py-2">
+				<i class="fa-solid fa-trash mb-1"></i>
+				<span class="text-xs">Delete</span>
+			</div>
+		</ion-item-option>
+	</ion-item-options>
+
+</ion-item-sliding>

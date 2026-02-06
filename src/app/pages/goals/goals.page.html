@@ -1,0 +1,126 @@
+<ion-header class="ion-no-border">
+	<ion-toolbar class="px-4 py-2">
+		<ion-buttons slot="start">
+			<ion-button routerLink="/tabs/tab1" routerDirection="back">
+				<i class="fa-solid fa-arrow-left text-neutral-900"></i>
+			</ion-button>
+		</ion-buttons>
+		<ion-title class="font-bold text-neutral-900">My Goals</ion-title>
+		<ion-buttons slot="end">
+			<ion-button (click)="onAddGoal()" class="bg-neutral-900 text-white rounded-xl px-2">
+				<i class="fa-solid fa-plus mr-2"></i>
+				New
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content class="bg-neutral-50">
+	<div class="px-4 py-6 max-w-2xl mx-auto">
+		<!-- Header Stats -->
+		<div class="grid grid-cols-2 gap-4 mb-8">
+			<div class="bg-white p-4 rounded-2xl border border-neutral-100 shadow-sm">
+				<p class="text-xs text-neutral-500 uppercase tracking-wider mb-1">Active Goals</p>
+				<p class="text-2xl font-bold text-neutral-900">{{ activeGoals.length }}</p>
+			</div>
+			<div class="bg-white p-4 rounded-2xl border border-neutral-100 shadow-sm">
+				<p class="text-xs text-neutral-500 uppercase tracking-wider mb-1">Completed</p>
+				<p class="text-2xl font-bold text-green-600">{{ completedGoals.length }}</p>
+			</div>
+		</div>
+
+		<!-- Empty State -->
+		<div *ngIf="!isLoading && goals.length === 0"
+			class="flex flex-col items-center justify-center py-20 text-center">
+			<div class="w-20 h-20 bg-neutral-100 rounded-full flex items-center justify-center mb-4">
+				<i class="fa-solid fa-bullseye text-neutral-400 text-3xl"></i>
+			</div>
+			<h3 class="text-lg font-bold text-neutral-900 mb-2">No goals yet</h3>
+			<p class="text-sm text-neutral-500 max-w-xs mx-auto mb-8">
+				Define your big-picture objectives and we'll help you track them alongside your habits.
+			</p>
+			<button (click)="onAddGoal()"
+				class="bg-neutral-900 text-white px-8 py-3 rounded-2xl font-bold shadow-lg shadow-neutral-200 active:scale-95 transition-all">
+				Create Your First Goal
+			</button>
+		</div>
+
+		<!-- Goals List -->
+		<div *ngIf="goals.length > 0" class="space-y-6">
+			<div *ngFor="let goal of goals"
+				class="bg-white rounded-3xl p-5 border border-neutral-100 shadow-sm hover:shadow-md transition-all">
+				<div class="flex items-start justify-between mb-4">
+					<div class="flex items-center space-x-3">
+						<div class="w-10 h-10 rounded-xl flex items-center justify-center" [ngClass]="{
+                   'bg-blue-50 text-blue-600': goal.category === 'mind',
+                   'bg-green-50 text-green-600': goal.category === 'body',
+                   'bg-purple-50 text-purple-600': goal.category === 'soul',
+                   'bg-rose-50 text-rose-600': goal.category === 'beauty'
+                 }">
+							<i class="fa-solid" [ngClass]="{
+                'fa-brain': goal.category === 'mind',
+                'fa-dumbbell': goal.category === 'body',
+                'fa-heart': goal.category === 'soul',
+                'fa-sparkles': goal.category === 'beauty'
+              }"></i>
+						</div>
+						<div>
+							<h3 class="font-bold text-neutral-900 leading-tight">{{ goal.title }}</h3>
+							<p class="text-xs text-neutral-500 flex items-center mt-0.5">
+								<i class="fa-regular fa-calendar-check mr-1 text-[10px]"></i>
+								Target: {{ goal.targetDate ? (goal.targetDate | date:'mediumDate') : 'No deadline' }}
+							</p>
+						</div>
+					</div>
+					<span class="px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter" [ngClass]="{
+                  'bg-red-50 text-red-600': goal.priority === 'high',
+                  'bg-amber-50 text-amber-600': goal.priority === 'medium',
+                  'bg-green-50 text-green-600': goal.priority === 'low'
+                }">
+						{{ goal.priority }}
+					</span>
+				</div>
+
+				<!-- Progress Section -->
+				<div class="mb-4">
+					<div class="flex items-center justify-between text-xs mb-1.5 px-0.5">
+						<span class="font-semibold text-neutral-600">Progress</span>
+						<span class="font-bold text-neutral-900">{{ goal.progress }}%</span>
+					</div>
+					<div class="w-full bg-neutral-100 h-2 rounded-full overflow-hidden">
+						<div class="bg-neutral-900 h-full rounded-full transition-all duration-500"
+							[style.width.%]="goal.progress"></div>
+					</div>
+				</div>
+
+				<!-- Milestones Section (if any) -->
+				<div *ngIf="goal.milestones.length > 0" class="space-y-2 pt-2 border-t border-neutral-50">
+					<div *ngFor="let milestone of goal.milestones" (click)="onToggleMilestone(goal.id, milestone.id)"
+						class="flex items-center space-x-3 p-2 rounded-xl hover:bg-neutral-50 transition-colors cursor-pointer">
+						<div class="w-5 h-5 rounded-md border flex items-center justify-center transition-all"
+							[ngClass]="milestone.isCompleted ? 'bg-neutral-900 border-neutral-900' : 'bg-transparent border-neutral-300'">
+							<i *ngIf="milestone.isCompleted" class="fa-solid fa-check text-[10px] text-white"></i>
+						</div>
+						<span class="text-sm transition-all"
+							[ngClass]="milestone.isCompleted ? 'text-neutral-400 line-through' : 'text-neutral-700'">
+							{{ milestone.title }}
+						</span>
+					</div>
+				</div>
+
+				<!-- Actions -->
+				<div
+					class="flex items-center justify-end space-x-4 mt-4 text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
+					<button class="hover:text-neutral-900 transition-colors">Edit</button>
+					<button class="hover:text-red-600 transition-colors">Delete</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Loading State -->
+		<div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20">
+			<ion-spinner name="crescent" color="dark"></ion-spinner>
+			<p class="text-xs text-neutral-400 mt-4">Fine-tuning your goals...</p>
+		</div>
+	</div>
+</ion-content>

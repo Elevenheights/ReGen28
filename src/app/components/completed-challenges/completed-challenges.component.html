@@ -1,0 +1,148 @@
+<!-- Completed Challenges Component -->
+<div class="completed-challenges">
+
+	<!-- Loading State -->
+	<div *ngIf="isLoading" class="flex items-center justify-center py-12">
+		<ion-spinner name="crescent" class="text-indigo-500"></ion-spinner>
+	</div>
+
+	<!-- Error State -->
+	<div *ngIf="hasError && !isLoading" class="text-center py-12">
+		<div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+			<i class="fa-solid fa-exclamation-triangle text-red-500 text-2xl"></i>
+		</div>
+		<p class="text-neutral-600 mb-4">Failed to load completed challenges</p>
+		<button (click)="refresh()"
+			class="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors">
+			Try Again
+		</button>
+	</div>
+
+	<!-- Empty State -->
+	<div *ngIf="!isLoading && !hasError && completedChallenges.length === 0" class="text-center py-12">
+		<div
+			class="w-20 h-20 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+			<i class="fa-solid fa-trophy text-amber-500 text-3xl"></i>
+		</div>
+		<h3 class="text-lg font-semibold text-neutral-800 mb-2">No Completed Challenges Yet</h3>
+		<p class="text-neutral-500 max-w-xs mx-auto">Complete your first tracker challenge to see your achievements
+			here!</p>
+	</div>
+
+	<!-- Content -->
+	<div *ngIf="!isLoading && !hasError && completedChallenges.length > 0">
+
+		<!-- Summary Stats (Full Mode) -->
+		<div *ngIf="displayMode === 'full'" class="grid grid-cols-2 gap-3 mb-6">
+			<div class="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl p-4 text-white">
+				<div class="text-3xl font-bold">{{ totalCompleted }}</div>
+				<div class="text-indigo-200 text-sm">Challenges Completed</div>
+			</div>
+			<div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white">
+				<div class="text-3xl font-bold">{{ averageSuccessRate }}%</div>
+				<div class="text-emerald-200 text-sm">Average Success</div>
+			</div>
+			<div class="bg-white rounded-2xl p-4 shadow-sm border border-neutral-100">
+				<div class="text-2xl font-bold text-neutral-800">{{ totalDaysTracked }}</div>
+				<div class="text-neutral-500 text-sm">Total Days Tracked</div>
+			</div>
+			<div class="bg-white rounded-2xl p-4 shadow-sm border border-neutral-100">
+				<div class="flex items-center space-x-2">
+					<i class="fa-solid fa-fire text-amber-500"></i>
+					<span class="text-2xl font-bold text-neutral-800">{{ longestStreak }}</span>
+				</div>
+				<div class="text-neutral-500 text-sm">Best Streak</div>
+			</div>
+		</div>
+
+		<!-- Completed Challenges List -->
+		<div class="space-y-3">
+			<h3 *ngIf="displayMode === 'full'"
+				class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-3">
+				Completed Challenges
+			</h3>
+
+			<!-- Compact Mode: Horizontal Scroll -->
+			<div *ngIf="displayMode === 'compact'"
+				class="flex overflow-x-auto space-x-3 pb-2 -mx-1 px-1 hide-scrollbar">
+				<div *ngFor="let challenge of completedChallenges" (click)="onViewDetails(challenge.tracker)"
+					class="flex-shrink-0 w-40 bg-white rounded-2xl p-3 shadow-sm border border-neutral-100 cursor-pointer hover:shadow-md transition-all">
+					<div class="flex items-center space-x-2 mb-2">
+						<div class="w-8 h-8 rounded-lg flex items-center justify-center"
+							[style.background]="challenge.tracker.color || getCategoryColor(challenge.tracker.category)">
+							<i
+								[class]="'fa-solid ' + (challenge.tracker.icon || getCategoryIcon(challenge.tracker.category)) + ' text-white text-sm'"></i>
+						</div>
+						<div class="flex-1 min-w-0">
+							<h4 class="text-sm font-semibold text-neutral-800 truncate">{{ challenge.tracker.name }}
+							</h4>
+						</div>
+					</div>
+					<div class="flex items-center justify-between text-xs">
+						<span class="px-2 py-0.5 rounded-full font-medium"
+							[class]="getSuccessRateClass(challenge.successRate)">
+							{{ challenge.successRate }}%
+						</span>
+						<span class="text-neutral-400">{{ formatDate(challenge.completedDate) }}</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Full Mode: Vertical List -->
+			<div *ngIf="displayMode === 'full'" class="space-y-3">
+				<div *ngFor="let challenge of completedChallenges" (click)="onViewDetails(challenge.tracker)"
+					class="bg-white rounded-2xl p-4 shadow-sm border border-neutral-100 cursor-pointer hover:shadow-md transition-all">
+
+					<div class="flex items-start space-x-4">
+						<!-- Icon -->
+						<div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
+							[style.background]="'linear-gradient(135deg, ' + (challenge.tracker.color || getCategoryColor(challenge.tracker.category)) + ', ' + (challenge.tracker.color || getCategoryColor(challenge.tracker.category)) + '90)'">
+							<i
+								[class]="'fa-solid ' + (challenge.tracker.icon || getCategoryIcon(challenge.tracker.category)) + ' text-white text-xl'"></i>
+						</div>
+
+						<!-- Details -->
+						<div class="flex-1 min-w-0">
+							<div class="flex items-start justify-between mb-2">
+								<div>
+									<h4 class="font-semibold text-neutral-900">{{ challenge.tracker.name }}</h4>
+									<p class="text-sm text-neutral-500">{{ formatDuration(challenge.durationDays) }}
+										challenge</p>
+								</div>
+								<span class="px-3 py-1 rounded-full text-sm font-semibold"
+									[class]="getSuccessRateClass(challenge.successRate)">
+									{{ challenge.successRate }}% {{ getSuccessRateLabel(challenge.successRate) }}
+								</span>
+							</div>
+
+							<!-- Stats Row -->
+							<div class="flex items-center space-x-4 text-sm">
+								<div class="flex items-center space-x-1 text-neutral-600">
+									<i class="fa-solid fa-check-circle text-emerald-500 text-xs"></i>
+									<span>{{ challenge.totalEntries }} entries</span>
+								</div>
+								<div *ngIf="challenge.streak > 0" class="flex items-center space-x-1 text-neutral-600">
+									<i class="fa-solid fa-fire text-amber-500 text-xs"></i>
+									<span>{{ challenge.streak }} day streak</span>
+								</div>
+								<div class="flex items-center space-x-1 text-neutral-400">
+									<i class="fa-regular fa-calendar text-xs"></i>
+									<span>Completed {{ formatDate(challenge.completedDate) }}</span>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Action Buttons -->
+					<div class="flex items-center justify-end space-x-2 mt-4 pt-3 border-t border-neutral-100">
+						<button (click)="onRestartChallenge(challenge.tracker, $event)"
+							class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:shadow-md transition-all flex items-center space-x-2">
+							<i class="fa-solid fa-rotate-right text-xs"></i>
+							<span>Start Again</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

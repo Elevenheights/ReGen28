@@ -22,7 +22,6 @@ const openaiApiKey = defineSecret("OPENAI_API_KEY");
  * Critical for data integrity and complex operations
  */
 export const completeUserOnboarding = onCall({
-  cors: true,
   invoker: 'public',
 }, async (request) => {
   const db = getFirestore();
@@ -156,7 +155,6 @@ export const completeUserOnboarding = onCall({
  * Critical for accurate streak and achievement calculations
  */
 export const updateUserStats = onCall({
-  cors: true,
   invoker: 'public',
 }, async (request) => {
   const db = getFirestore();
@@ -166,7 +164,7 @@ export const updateUserStats = onCall({
     throw new HttpsError('unauthenticated', 'User must be authenticated');
   }
 
-  const {statType, value} = data; // eslint-disable-line @typescript-eslint/no-unused-vars
+  const {statType} = data; // eslint-disable-line @typescript-eslint/no-unused-vars
   const userId = auth.uid;
 
   try {
@@ -211,7 +209,7 @@ export const updateUserStats = onCall({
 export const getTrackerSpecificSuggestions = onCall({
   maxInstances: 5,
   secrets: [openaiApiKey],
-  cors: true,
+  cors: ["https://localhost", "http://localhost:4200"], // Explicitly allow Capacitor and local dev
   invoker: 'public',
 }, async (request) => {
   const db = getFirestore();
@@ -594,7 +592,7 @@ Return ONLY a JSON object:
 export const getDailyJournalPrompt = onCall({
   maxInstances: 5,
   secrets: [openaiApiKey],
-  cors: true,
+  cors: ["https://localhost", "http://localhost:4200"], // Explicitly allow Capacitor and local dev
   invoker: 'public',
 }, async (request) => {
   const db = getFirestore();
@@ -885,7 +883,7 @@ Return ONLY a JSON object:
 export const getReflectionPrompts = onCall({
   maxInstances: 5,
   secrets: [openaiApiKey],
-  cors: true,
+  cors: ["https://localhost", "http://localhost:4200"], // Explicitly allow Capacitor and local dev
   invoker: 'public',
 }, async (request) => {
   const db = getFirestore();
@@ -1350,7 +1348,6 @@ export const processJournalPromptJobs = onCall({
   maxInstances: 3,
   timeoutSeconds: 300,
   secrets: [openaiApiKey],
-  cors: true,
   invoker: 'public',
 }, async (request) => {
   const db = getFirestore();
@@ -1815,7 +1812,6 @@ export const processSuggestionJobs = onCall({
   maxInstances: 3, // Allow multiple workers to run concurrently
   timeoutSeconds: 300, // 5 minutes timeout
   secrets: [openaiApiKey],
-  cors: true,
   invoker: 'public',
 }, async (request) => {
   const db = getFirestore();
@@ -2122,7 +2118,6 @@ function getUserCurrentDateTime(userTimezone: string): { formattedDateTime: stri
  * Call this when user subscribes, trial expires, or cancels subscription
  */
 export const updateUserSubscriptionStatus = onCall({
-  cors: true,
   invoker: 'public',
 }, async (request) => {
   const db = getFirestore();
@@ -2305,7 +2300,6 @@ export const cleanupOldSuggestions = onSchedule('0 2 * * *', async () => {
  * Clean up duplicate trackers for users who experienced the duplication bug
  */
 export const cleanupDuplicateTrackers = onCall({
-  cors: true,
   invoker: 'public',
 }, async (request) => {
   const db = getFirestore();

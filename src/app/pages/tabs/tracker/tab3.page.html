@@ -1,296 +1,245 @@
 <ion-content class="bg-neutral-50">
-  <!-- Pull to refresh -->
-  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
+	<!-- Pull to refresh -->
+	<ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+		<ion-refresher-content></ion-refresher-content>
+	</ion-refresher>
 
-  <!-- Loading state -->
-  <div *ngIf="isLoading" class="flex flex-col justify-center items-center h-screen">
-    <ion-spinner name="crescent" class="scale-150 mb-4"></ion-spinner>
-    <div class="text-neutral-500 font-medium">Loading your activities...</div>
-  </div>
+	<!-- Loading state -->
+	<div *ngIf="isLoading" class="flex flex-col justify-center items-center h-screen">
+		<ion-spinner name="crescent" class="scale-150 mb-4"></ion-spinner>
+		<div class="text-neutral-500 font-medium">Loading your activities...</div>
+	</div>
 
-  <!-- Main Content -->
-  <main *ngIf="!isLoading" class="pb-24">
-    <!-- Integrated Header -->
-    <section class="bg-gradient-to-br from-purple-800 via-purple-700 to-fuchsia-800 px-4 pt-12 pb-6 relative overflow-hidden">
-      <!-- Background texture overlay -->
-      <div class="absolute inset-0 opacity-40" style="background-image: radial-gradient(circle at 25% 25%, rgba(88, 28, 135, 0.3) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(134, 25, 143, 0.3) 0%, transparent 50%);"></div>
-      
-      <!-- User Welcome -->
-      <div class="flex items-center justify-between mb-6 relative">
-        <div class="flex items-center space-x-4">
-          <div>
-            <h1 class="text-2xl text-white leading-tight header-serif">Your Wellness Activities</h1>
-            <p class="text-sm text-purple-100 font-medium">Track your sacred rhythms</p>
-          </div>
-        </div>
-        <button class="p-3 bg-white/20 backdrop-blur-sm rounded-2xl shadow-md active:scale-95 transition-transform"
-                (click)="router.navigate(['/add-tracker'])">
-          <i class="fa-solid fa-plus text-xl text-white"></i>
-        </button>
-      </div>
+	<!-- Main Content -->
+	<main *ngIf="!isLoading" class="pb-24">
+		<!-- Integrated Header -->
+		<section
+			class="bg-gradient-to-br from-purple-800 via-purple-700 to-fuchsia-800 px-4 pt-12 pb-6 relative overflow-hidden">
+			<!-- Background texture overlay -->
+			<div class="absolute inset-0 opacity-40"
+				style="background-image: radial-gradient(circle at 25% 25%, rgba(88, 28, 135, 0.3) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(134, 25, 143, 0.3) 0%, transparent 50%);">
+			</div>
 
-      <!-- Today's Flow - Inline in Header -->
-      <div class="relative">
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-md">
-              <i class="fa-solid fa-chart-simple text-white text-lg"></i>
-            </div>
-            <div>
-              <h3 class="text-base font-semibold text-white">Today's Flow</h3>
-              <p class="text-xs text-purple-100 font-medium">{{ getActiveCount() }} activities in motion</p>
-            </div>
-          </div>
-          <div class="text-right">
-            <div class="text-2xl font-bold text-white">{{ getTodayCompletedCount() }}/{{ getActiveCount() }}</div>
-            <div class="text-xs text-purple-100 font-semibold">honored</div>
-          </div>
-        </div>
-        <div class="w-full bg-white/20 backdrop-blur-sm rounded-full h-3 shadow-sm">
-          <div class="bg-gradient-to-r from-white to-purple-100 h-3 rounded-full transition-all duration-500 ease-out" 
-               [style.width.%]="getOverallProgress()"></div>
-        </div>
-      </div>
-    </section>
+			<!-- User Welcome -->
+			<div class="flex items-center justify-between mb-6 relative">
+				<div class="flex items-center space-x-4">
+					<div>
+						<h1 class="text-2xl text-white leading-tight header-serif">Your Wellness Activities</h1>
+						<p class="text-sm text-purple-100 font-medium">Track your sacred rhythms</p>
+					</div>
+				</div>
+				<button
+					class="p-3 bg-white/20 backdrop-blur-sm rounded-2xl shadow-md active:scale-95 transition-transform"
+					(click)="router.navigate(['/add-tracker'])">
+					<i class="fa-solid fa-plus text-xl text-white"></i>
+				</button>
+			</div>
 
-    <!-- Activities Content -->
-    <div class="px-4 pt-5 pb-6 space-y-8">
-      <!-- Active Activities -->
-      <section class="mb-8">
-        <div class="flex items-center justify-between mb-5">
-          <h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
-            <i class="fa-solid fa-seedling text-eucalyptus-600"></i>
-            <span>Your Activities</span>
-          </h2>
-          <button class="text-sm text-neutral-500 font-medium active:scale-95 transition-transform">Manage</button>
-        </div>
-        
-        <!-- No active activities -->
-        <div *ngIf="activeTrackers.length === 0" class="space-y-6">
-          <!-- Empty state with sacred design -->
-          <div class="bg-gradient-to-br from-lavender-50 to-dusty-rose-100 rounded-3xl p-10 shadow-md text-center">
-            <div class="w-24 h-24 bg-gradient-to-br from-lavender-200 to-dusty-rose-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-md">
-              <i class="fa-solid fa-seedling text-4xl text-midnight-plum"></i>
-            </div>
-            <h3 class="text-xl font-bold text-neutral-900 mb-3">Plant Your First Seeds</h3>
-            <p class="text-sm text-neutral-700 font-medium mb-8 max-w-sm mx-auto leading-relaxed">
-              Begin your journey of intentional growth. Choose activities that nurture your mind, body, soul, and beauty.
-            </p>
-          </div>
-          
-          <!-- Sacred action cards -->
-          <div class="grid grid-cols-1 gap-5">
-            <div class="bg-white rounded-3xl p-6 shadow-md cursor-pointer active:scale-[0.98] transition-transform"
-                 (click)="router.navigate(['/add-tracker'])">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-5">
-                  <div class="w-16 h-16 bg-gradient-to-br from-eucalyptus-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-md">
-                    <i class="fa-solid fa-spa text-white text-xl"></i>
-                  </div>
-                  <div>
-                    <h4 class="text-base font-semibold text-neutral-900 mb-1">Browse Wellness Templates</h4>
-                    <p class="text-sm text-neutral-600">Mind, Body, Soul & Beauty</p>
-                  </div>
-                </div>
-                <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-              </div>
-            </div>
-            
-            <div class="bg-white rounded-3xl p-6 shadow-md cursor-pointer active:scale-[0.98] transition-transform"
-                 (click)="router.navigate(['/add-tracker'])">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-5">
-                  <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-md">
-                    <i class="fa-solid fa-magic-wand-sparkles text-white text-xl"></i>
-                  </div>
-                  <div>
-                    <h4 class="text-base font-semibold text-neutral-900 mb-1">Create Custom Activity</h4>
-                    <p class="text-sm text-neutral-600">Build your own unique habit</p>
-                  </div>
-                </div>
-                <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-              </div>
-            </div>
-          </div>
-        </div>
+			<!-- Today's Flow - Inline in Header -->
+			<div class="relative">
+				<div class="flex items-center justify-between mb-4">
+					<div class="flex items-center space-x-3">
+						<div
+							class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-md">
+							<i class="fa-solid fa-chart-simple text-white text-lg"></i>
+						</div>
+						<div>
+							<h3 class="text-base font-semibold text-white">Today's Flow</h3>
+							<p class="text-xs text-purple-100 font-medium">{{ getActiveCount() }} activities in motion
+							</p>
+						</div>
+					</div>
+					<div class="text-right">
+						<div class="text-2xl font-bold text-white">{{ getTodayCompletedCount() }}/{{ getActiveCount() }}
+						</div>
+						<div class="text-xs text-purple-100 font-semibold">honored</div>
+					</div>
+				</div>
+				<div class="w-full bg-white/20 backdrop-blur-sm rounded-full h-3 shadow-sm">
+					<div class="bg-gradient-to-r from-white to-purple-100 h-3 rounded-full transition-all duration-500 ease-out"
+						[style.width.%]="getOverallProgress()"></div>
+				</div>
+			</div>
+		</section>
 
-        <!-- Active activities list -->
-        <div *ngIf="activeTrackers.length > 0" class="space-y-3">
-          <div *ngFor="let tracker of activeTrackers; trackBy: trackByTrackerId" 
-               class="bg-white rounded-2xl p-4 shadow-sm cursor-pointer active:scale-[0.98] transition-all duration-200 border border-neutral-100"
-               (click)="navigateToTrackerDetail(tracker)">
-            
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-3 flex-1 min-w-0">
-                <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                     [style.background]="'linear-gradient(135deg, ' + getTrackerColor(tracker) + ', ' + getTrackerColor(tracker) + '90)'">
-                  <i [class]="'fa-solid ' + getTrackerIcon(tracker) + ' text-white text-lg'"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <h3 class="text-sm font-semibold text-neutral-900 mb-1 truncate">{{ tracker?.name || 'Unknown Activity' }}</h3>
-                  <div class="flex items-center space-x-2">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-                          [style.background-color]="getTrackerColor(tracker) + '15'"
-                          [style.color]="getTrackerColor(tracker)">
-                      {{ tracker?.category ? getCategoryLabel(tracker.category) : 'General' }}
-                    </span>
-                    <span *ngIf="tracker?.streak && tracker.streak > 0" 
-                          class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700">
-                      <i class="fa-solid fa-fire text-[9px] mr-1"></i>{{ tracker.streak }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="flex items-center space-x-2 flex-shrink-0">
-                <span *ngIf="tracker?.todayCompleted" 
-                      class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center">
-                  <i class="fa-solid fa-check text-emerald-600 text-xs"></i>
-                </span>
-                
-                <!-- Quick action buttons -->
-                <div *ngIf="tracker?.type === 'boolean'" class="flex">
-                  <button class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-full text-xs font-medium shadow-sm active:scale-95 transition-transform" 
-                          (click)="$event.stopPropagation(); quickLog(tracker, 1)">
-                    Done
-                  </button>
-                </div>
-                
-                <!-- Quick log buttons for other trackers -->
-                <div *ngIf="tracker?.type !== 'boolean'" class="flex space-x-1.5">
-                  <span class="px-2 py-1 bg-neutral-100 text-neutral-600 rounded-full text-xs font-semibold">
-                    {{ tracker?.totalEntries || 0 }}
-                  </span>
-                  <button class="px-3 py-1 bg-blue-500 text-white rounded-full text-xs font-medium shadow-sm active:scale-95 transition-transform" 
-                          (click)="$event.stopPropagation(); openLogModal(tracker)">
-                    <i class="fa-solid fa-plus text-[10px] mr-1"></i>Add
-                  </button>
-                </div>
-                
-                <i class="fa-solid fa-chevron-right text-neutral-300 text-xs"></i>
-              </div>
-            </div>
-            
-            <!-- Enhanced progress bar with today's progress -->
-            <div class="flex items-center space-x-2 mt-3">
-              <div class="flex-1 bg-neutral-200 rounded-full h-1.5">
-                <div class="h-1.5 rounded-full transition-all duration-300" 
-                     [style.width.%]="getTodayProgress(tracker)"
-                     [style.background-color]="getTrackerColor(tracker)"></div>
-              </div>
-              <span class="text-xs text-neutral-500 font-medium">
-                Today: {{ getTodayEntryCount(tracker) }}/{{ tracker?.target || 1 }}
-              </span>
-            </div>
-            
-            <!-- Target and frequency info -->
-            <div class="flex items-center space-x-4 mt-2 pt-2 border-t border-neutral-100">
-              <!-- Target -->
-              <div class="flex items-center space-x-2">
-                <div class="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center">
-                  <i class="fa-solid fa-bullseye text-white text-[10px]"></i>
-                </div>
-                <span class="text-xs text-neutral-600 font-medium">
-                  Target: {{ tracker?.target || 1 }} {{ tracker?.unit || 'entry' }}{{ (tracker?.target || 1) > 1 ? (tracker?.unit === 'entry' ? 'ies' : 's') : '' }}
-                </span>
-              </div>
-              
-              <!-- Frequency -->
-              <div class="flex items-center space-x-2">
-                <div class="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-                  <i class="fa-solid fa-calendar text-white text-[10px]"></i>
-                </div>
-                <span class="text-xs text-neutral-600 font-medium">
-                  {{ tracker?.frequency === 'daily' ? 'Daily' : tracker?.frequency === 'weekly' ? 'Weekly' : 'Monthly' }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+		<!-- Activities Content -->
+		<div class="px-4 pt-5 pb-6 space-y-8">
+
+			<!-- Stats Summary -->
+			<section>
+				<app-tracker-stats [stats]="trackerStats" [isLoading]="isLoading"></app-tracker-stats>
+			</section>
+
+			<!-- Active Activities -->
+			<section class="mb-8">
+				<div class="flex items-center justify-between mb-5">
+					<h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
+						<i class="fa-solid fa-seedling text-eucalyptus-600"></i>
+						<span>Your Activities</span>
+					</h2>
+					<button
+						class="text-sm text-neutral-500 font-medium active:scale-95 transition-transform">Manage</button>
+				</div>
+
+				<!-- No active activities -->
+				<div *ngIf="activeTrackers.length === 0" class="space-y-6">
+					<!-- Empty state with sacred design -->
+					<div
+						class="bg-gradient-to-br from-lavender-50 to-dusty-rose-100 rounded-3xl p-10 shadow-md text-center">
+						<div
+							class="w-24 h-24 bg-gradient-to-br from-lavender-200 to-dusty-rose-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-md">
+							<i class="fa-solid fa-seedling text-4xl text-midnight-plum"></i>
+						</div>
+						<h3 class="text-xl font-bold text-neutral-900 mb-3">Plant Your First Seeds</h3>
+						<p class="text-sm text-neutral-700 font-medium mb-8 max-w-sm mx-auto leading-relaxed">
+							Begin your journey of intentional growth. Choose activities that nurture your mind, body,
+							soul, and beauty.
+						</p>
+					</div>
+
+					<!-- Sacred action cards -->
+					<div class="grid grid-cols-1 gap-5">
+						<div class="bg-white rounded-3xl p-6 shadow-md cursor-pointer active:scale-[0.98] transition-transform"
+							(click)="router.navigate(['/add-tracker'])">
+							<div class="flex items-center justify-between">
+								<div class="flex items-center space-x-5">
+									<div
+										class="w-16 h-16 bg-gradient-to-br from-eucalyptus-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-md">
+										<i class="fa-solid fa-spa text-white text-xl"></i>
+									</div>
+									<div>
+										<h4 class="text-base font-semibold text-neutral-900 mb-1">Browse Wellness
+											Templates</h4>
+										<p class="text-sm text-neutral-600">Mind, Body, Soul & Beauty</p>
+									</div>
+								</div>
+								<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+							</div>
+						</div>
+
+						<div class="bg-white rounded-3xl p-6 shadow-md cursor-pointer active:scale-[0.98] transition-transform"
+							(click)="router.navigate(['/add-tracker'])">
+							<div class="flex items-center justify-between">
+								<div class="flex items-center space-x-5">
+									<div
+										class="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-md">
+										<i class="fa-solid fa-magic-wand-sparkles text-white text-xl"></i>
+									</div>
+									<div>
+										<h4 class="text-base font-semibold text-neutral-900 mb-1">Create Custom Activity
+										</h4>
+										<p class="text-sm text-neutral-600">Build your own unique habit</p>
+									</div>
+								</div>
+								<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Active activities list -->
+				<div *ngIf="activeTrackers.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+					<app-tracker-card *ngFor="let tracker of activeTrackers; trackBy: trackByTrackerId"
+						[tracker]="tracker" (quickLog)="quickLog(tracker, 1)" (openLogModal)="openLogModal(tracker)"
+						(openDetail)="navigateToTrackerDetail(tracker)" class="h-full">
+					</app-tracker-card>
+				</div>
+			</section>
 
 
 
-      <!-- Add New Activity -->
-      <section *ngIf="activeTrackers.length > 0" class="mb-8">
-        <!-- Create Activity Tracker Button -->
-        <div class="bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-3xl p-6 shadow-xl cursor-pointer active:scale-[0.96] transition-all duration-200 relative overflow-hidden group mb-4"
-             (click)="navigateToAddTracker()">
-          <!-- Animated background decoration -->
-          <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-active:scale-110 transition-transform duration-300"></div>
-          <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12 group-active:scale-110 transition-transform duration-300"></div>
-          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          
-          <div class="relative flex items-center space-x-5">
-            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg group-active:scale-95 transition-transform">
-              <i class="fa-solid fa-plus text-white text-2xl"></i>
-            </div>
-            <div>
-              <h3 class="text-lg font-bold text-white mb-1">Create Activity Tracker</h3>
-              <p class="text-sm text-purple-100 font-medium">Start tracking a new wellness habit</p>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Log Activity Button -->
-        <div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 shadow-xl cursor-pointer active:scale-[0.96] transition-all duration-200 relative overflow-hidden group"
-             (click)="openQuickLogModal()">
-          <!-- Animated background decoration -->
-          <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-active:scale-110 transition-transform duration-300"></div>
-          <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12 group-active:scale-110 transition-transform duration-300"></div>
-          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          
-          <div class="relative flex items-center space-x-5">
-            <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg group-active:scale-95 transition-transform">
-              <i class="fa-solid fa-pen text-white text-2xl"></i>
-            </div>
-            <div>
-              <h3 class="text-lg font-bold text-white mb-1">Log Activity</h3>
-              <p class="text-sm text-emerald-100 font-medium">Record progress for existing activities</p>
-            </div>
-          </div>
-        </div>
-      </section>
+			<!-- Add New Activity -->
+			<section *ngIf="activeTrackers.length > 0" class="mb-8">
+				<!-- Create Activity Tracker Button -->
+				<div class="bg-gradient-to-br from-purple-600 to-fuchsia-600 rounded-3xl p-6 shadow-xl cursor-pointer active:scale-[0.96] transition-all duration-200 relative overflow-hidden group mb-4"
+					(click)="navigateToAddTracker()">
+					<!-- Animated background decoration -->
+					<div
+						class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-active:scale-110 transition-transform duration-300">
+					</div>
+					<div
+						class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12 group-active:scale-110 transition-transform duration-300">
+					</div>
+					<div
+						class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+					</div>
 
-      <!-- Celebrated Completions -->
-      <section *ngIf="completedTrackers.length > 0">
-        <div class="flex items-center justify-between mb-5">
-          <h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
-            <i class="fa-solid fa-trophy text-amber-500"></i>
-            <span>Celebrated Completions</span>
-          </h2>
-          <button class="text-sm text-neutral-500 font-medium active:scale-95 transition-transform">View all</button>
-        </div>
-        <div class="space-y-4">
-          <div *ngFor="let tracker of completedTrackers.slice(0, 3); trackBy: trackByTrackerId" 
-               class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-3xl p-5 shadow-sm">
-            <div *ngIf="tracker" class="flex items-center justify-between">
-              <div class="flex items-center space-x-5">
-                <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-                  <i [class]="'fa-solid ' + getTrackerIcon(tracker)" 
-                     [style.color]="getTrackerColor(tracker)" 
-                     class="text-lg"></i>
-                </div>
-                <div>
-                  <p class="text-base font-semibold text-neutral-900 mb-1">{{ tracker?.name || 'Unknown Activity' }}</p>
-                  <p class="text-sm text-amber-700 font-medium">
-                    <i class="fa-solid fa-check-circle mr-1"></i>
-                    Journey complete • {{ tracker?.category ? getCategoryLabel(tracker.category) : 'General' }}
-                  </p>
-                </div>
-              </div>
-              <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
-                <i class="fa-solid fa-trophy text-amber-600"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  </main>
+					<div class="relative flex items-center space-x-5">
+						<div
+							class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg group-active:scale-95 transition-transform">
+							<i class="fa-solid fa-plus text-white text-2xl"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-bold text-white mb-1">Create Activity Tracker</h3>
+							<p class="text-sm text-purple-100 font-medium">Start tracking a new wellness habit</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Log Activity Button -->
+				<div class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 shadow-xl cursor-pointer active:scale-[0.96] transition-all duration-200 relative overflow-hidden group"
+					(click)="openQuickLogModal()">
+					<!-- Animated background decoration -->
+					<div
+						class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 group-active:scale-110 transition-transform duration-300">
+					</div>
+					<div
+						class="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12 group-active:scale-110 transition-transform duration-300">
+					</div>
+					<div
+						class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+					</div>
+
+					<div class="relative flex items-center space-x-5">
+						<div
+							class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg group-active:scale-95 transition-transform">
+							<i class="fa-solid fa-pen text-white text-2xl"></i>
+						</div>
+						<div>
+							<h3 class="text-lg font-bold text-white mb-1">Log Activity</h3>
+							<p class="text-sm text-emerald-100 font-medium">Record progress for existing activities</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Celebrated Completions -->
+			<section *ngIf="completedTrackers.length > 0">
+				<div class="flex items-center justify-between mb-5">
+					<h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
+						<i class="fa-solid fa-trophy text-amber-500"></i>
+						<span>Celebrated Completions</span>
+					</h2>
+					<button class="text-sm text-neutral-500 font-medium active:scale-95 transition-transform">View
+						all</button>
+				</div>
+				<div class="space-y-4">
+					<div *ngFor="let tracker of completedTrackers.slice(0, 3); trackBy: trackByTrackerId"
+						class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-3xl p-5 shadow-sm">
+						<div *ngIf="tracker" class="flex items-center justify-between">
+							<div class="flex items-center space-x-5">
+								<div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+									<i [class]="'fa-solid ' + getTrackerIcon(tracker)"
+										[style.color]="getTrackerColor(tracker)" class="text-lg"></i>
+								</div>
+								<div>
+									<p class="text-base font-semibold text-neutral-900 mb-1">{{ tracker?.name ||
+										'Unknown Activity' }}</p>
+									<p class="text-sm text-amber-700 font-medium">
+										<i class="fa-solid fa-check-circle mr-1"></i>
+										Journey complete • {{ tracker?.category ? getCategoryLabel(tracker.category) :
+										'General' }}
+									</p>
+								</div>
+							</div>
+							<div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+								<i class="fa-solid fa-trophy text-amber-600"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+		</div>
+	</main>
 
 </ion-content>
-
-

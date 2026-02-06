@@ -1,0 +1,37 @@
+// Tracker List Item Styles
+
+ion-item-sliding {
+	margin-bottom: 12px;
+}
+
+ion-item {
+	--background: transparent;
+	--padding-start: 0;
+	--padding-end: 0;
+	--inner-padding-start: 0;
+	--inner-padding-end: 0;
+	--min-height: auto;
+}
+
+.tracker-item {
+	position: relative;
+
+	&::part(native) {
+		background: transparent;
+		padding: 0;
+	}
+}
+
+ion-item-option {
+	min-width: 80px;
+
+	i {
+		font-size: 18px;
+	}
+}
+
+ion-spinner {
+	--color: #6366f1;
+	width: 32px;
+	height: 32px;
+}

@@ -1,0 +1,270 @@
+<ion-modal [isOpen]="isOpen" (didDismiss)="close()">
+	<ng-template>
+		<div class="h-full bg-gradient-to-br from-neutral-50 to-neutral-100 flex flex-col">
+
+			<!-- Header -->
+			<div class="px-5 pt-6 pb-4 bg-white shadow-sm">
+				<div class="flex items-center justify-between mb-4">
+					<button (click)="close()"
+						class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors">
+						<i class="fa-solid fa-xmark text-neutral-600 text-lg"></i>
+					</button>
+					<h1 class="text-lg font-bold text-neutral-900">{{ stepTitle }}</h1>
+					<div class="w-10"></div>
+				</div>
+
+				<!-- Progress Steps -->
+				<div class="flex items-center justify-center space-x-2">
+					<div *ngFor="let i of [0, 1, 2, 3]" class="h-1.5 rounded-full transition-all duration-300"
+						[class.w-8]="stepIndex === i" [class.w-4]="stepIndex !== i"
+						[class.bg-indigo-500]="stepIndex >= i" [class.bg-neutral-200]="stepIndex < i">
+					</div>
+				</div>
+			</div>
+
+			<!-- Content -->
+			<div class="flex-1 overflow-y-auto px-5 py-6">
+
+				<!-- Step 1: Category Selection -->
+				<div *ngIf="currentStep === 'category'" class="space-y-4">
+					<p class="text-neutral-600 text-center mb-6">What type of habit would you like to build?</p>
+
+					<div class="grid grid-cols-2 gap-3">
+						<button *ngFor="let category of categories" (click)="selectCategory(category.value)"
+							class="p-4 rounded-2xl border-2 transition-all duration-200 text-left"
+							[class]="getCategoryClass(category.value)"
+							[style.border-color]="selectedCategory === category.value ? category.color : 'transparent'"
+							[style.background]="selectedCategory === category.value ? category.color + '10' : 'white'">
+							<div class="w-12 h-12 rounded-xl flex items-center justify-center mb-3"
+								[style.background]="'linear-gradient(135deg, ' + category.color + ', ' + category.color + '90)'">
+								<i [class]="'fa-solid ' + category.icon + ' text-white text-xl'"></i>
+							</div>
+							<h3 class="font-semibold text-neutral-900 mb-1">{{ category.label }}</h3>
+							<p class="text-xs text-neutral-500">{{ category.description }}</p>
+						</button>
+					</div>
+				</div>
+
+				<!-- Step 2: Template Selection -->
+				<div *ngIf="currentStep === 'template'" class="space-y-4">
+					<p class="text-neutral-600 text-center mb-4">Choose a template or start from scratch</p>
+
+					<button (click)="skipTemplate()"
+						class="w-full p-4 bg-white rounded-2xl border-2 border-dashed border-neutral-300 text-center hover:border-indigo-400 hover:bg-indigo-50 transition-all">
+						<i class="fa-solid fa-plus text-neutral-400 text-xl mb-2"></i>
+						<p class="font-medium text-neutral-700">Create Custom Tracker</p>
+					</button>
+
+					<div *ngIf="availableTemplates.length > 0" class="space-y-3 mt-4">
+						<h3 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide">Suggested Templates
+						</h3>
+
+						<button *ngFor="let template of availableTemplates" (click)="selectTemplate(template); goNext()"
+							class="w-full p-4 bg-white rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center space-x-4"
+							[class.ring-2]="selectedTemplate?.name === template.name"
+							[class.ring-indigo-500]="selectedTemplate?.name === template.name">
+							<div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+								[style.background]="'linear-gradient(135deg, ' + template.color + ', ' + template.color + '90)'">
+								<i [class]="'fa-solid ' + template.icon + ' text-white text-lg'"></i>
+							</div>
+							<div class="flex-1 text-left">
+								<h4 class="font-semibold text-neutral-900">{{ template.name }}</h4>
+								<p class="text-sm text-neutral-500">{{ template.target }} {{ template.unit }} / {{
+									template.frequency }}</p>
+							</div>
+							<i class="fa-solid fa-chevron-right text-neutral-300"></i>
+						</button>
+					</div>
+
+					<div *ngIf="availableTemplates.length === 0" class="text-center py-8">
+						<i class="fa-solid fa-box-open text-neutral-300 text-4xl mb-3"></i>
+						<p class="text-neutral-500">No templates for this category yet</p>
+					</div>
+				</div>
+
+				<!-- Step 3: Customize -->
+				<div *ngIf="currentStep === 'customize'" class="space-y-6">
+
+					<!-- Name -->
+					<div>
+						<label class="block text-sm font-medium text-neutral-700 mb-2">Tracker Name</label>
+						<input type="text" [(ngModel)]="trackerForm.name" placeholder="Enter tracker name..."
+							class="w-full px-4 py-3 bg-white rounded-xl border border-neutral-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all"
+							maxlength="50">
+					</div>
+
+					<!-- Icon & Color -->
+					<div class="flex space-x-4">
+						<div class="flex-1">
+							<label class="block text-sm font-medium text-neutral-700 mb-2">Icon</label>
+							<button (click)="toggleIconPicker()"
+								class="w-full px-4 py-3 bg-white rounded-xl border border-neutral-200 flex items-center justify-between hover:border-indigo-400 transition-all">
+								<div class="flex items-center space-x-3">
+									<div class="w-8 h-8 rounded-lg flex items-center justify-center"
+										[style.background]="trackerForm.color">
+										<i [class]="'fa-solid ' + trackerForm.icon + ' text-white'"></i>
+									</div>
+									<span class="text-neutral-600">Change Icon</span>
+								</div>
+								<i class="fa-solid fa-chevron-down text-neutral-400 text-sm"></i>
+							</button>
+
+							<!-- Icon Picker Dropdown -->
+							<div *ngIf="showIconPicker"
+								class="mt-2 p-3 bg-white rounded-xl border border-neutral-200 shadow-lg grid grid-cols-5 gap-2">
+								<button *ngFor="let icon of iconOptions" (click)="selectIcon(icon)"
+									class="w-10 h-10 rounded-lg flex items-center justify-center hover:bg-indigo-100 transition-colors"
+									[class.bg-indigo-500]="trackerForm.icon === icon"
+									[class.text-white]="trackerForm.icon === icon">
+									<i [class]="'fa-solid ' + icon"></i>
+								</button>
+							</div>
+						</div>
+
+						<div class="w-24">
+							<label class="block text-sm font-medium text-neutral-700 mb-2">Color</label>
+							<input type="color" [(ngModel)]="trackerForm.color"
+								class="w-full h-12 rounded-xl border border-neutral-200 cursor-pointer">
+						</div>
+					</div>
+
+					<!-- Type -->
+					<div>
+						<label class="block text-sm font-medium text-neutral-700 mb-2">Tracking Type</label>
+						<div class="grid grid-cols-2 gap-2">
+							<button *ngFor="let type of typeOptions" (click)="trackerForm.type = type.value"
+								class="p-3 bg-white rounded-xl border-2 text-left transition-all"
+								[class.border-indigo-500]="trackerForm.type === type.value"
+								[class.bg-indigo-50]="trackerForm.type === type.value"
+								[class.border-transparent]="trackerForm.type !== type.value">
+								<div class="flex items-center space-x-2 mb-1">
+									<i [class]="'fa-solid ' + type.icon + ' text-indigo-500'"></i>
+									<span class="font-medium text-neutral-800">{{ type.label }}</span>
+								</div>
+								<p class="text-xs text-neutral-500">{{ type.description }}</p>
+							</button>
+						</div>
+					</div>
+
+					<!-- Target & Unit -->
+					<div class="flex space-x-4">
+						<div class="flex-1">
+							<label class="block text-sm font-medium text-neutral-700 mb-2">Target</label>
+							<input type="number" [(ngModel)]="trackerForm.target" min="1" max="1000"
+								class="w-full px-4 py-3 bg-white rounded-xl border border-neutral-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all">
+						</div>
+						<div class="flex-1">
+							<label class="block text-sm font-medium text-neutral-700 mb-2">Unit</label>
+							<input type="text" [(ngModel)]="trackerForm.unit" placeholder="e.g., minutes, glasses"
+								class="w-full px-4 py-3 bg-white rounded-xl border border-neutral-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all">
+						</div>
+					</div>
+
+					<!-- Frequency -->
+					<div>
+						<label class="block text-sm font-medium text-neutral-700 mb-2">Frequency</label>
+						<div class="flex space-x-2">
+							<button *ngFor="let freq of frequencyOptions" (click)="trackerForm.frequency = freq.value"
+								class="flex-1 py-3 rounded-xl border-2 transition-all font-medium"
+								[class.border-indigo-500]="trackerForm.frequency === freq.value"
+								[class.bg-indigo-500]="trackerForm.frequency === freq.value"
+								[class.text-white]="trackerForm.frequency === freq.value"
+								[class.border-neutral-200]="trackerForm.frequency !== freq.value"
+								[class.bg-white]="trackerForm.frequency !== freq.value">
+								{{ freq.label }}
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<!-- Step 4: Duration -->
+				<div *ngIf="currentStep === 'duration'" class="space-y-6">
+					<p class="text-neutral-600 text-center mb-4">How long do you want to commit to this habit?</p>
+
+					<div class="grid grid-cols-2 gap-3">
+						<button *ngFor="let preset of durationPresets" (click)="selectDuration(preset.days)"
+							class="p-4 bg-white rounded-2xl border-2 text-left transition-all"
+							[class.border-indigo-500]="isDurationSelected(preset.days)"
+							[class.bg-indigo-50]="isDurationSelected(preset.days)"
+							[class.border-transparent]="!isDurationSelected(preset.days)">
+							<div class="flex items-center justify-between mb-2">
+								<span class="text-xl font-bold"
+									[class.text-indigo-600]="isDurationSelected(preset.days)"
+									[class.text-neutral-800]="!isDurationSelected(preset.days)">
+									{{ preset.label }}
+								</span>
+								<i *ngIf="preset.days === -1" class="fa-solid fa-infinity text-amber-500"></i>
+							</div>
+							<p class="text-sm text-neutral-500">{{ preset.description }}</p>
+						</button>
+					</div>
+
+					<!-- Preview Card -->
+					<div class="mt-6 p-4 bg-white rounded-2xl shadow-sm">
+						<h4 class="text-sm font-semibold text-neutral-500 uppercase tracking-wide mb-3">Preview</h4>
+						<div class="flex items-center space-x-4">
+							<div class="w-14 h-14 rounded-xl flex items-center justify-center"
+								[style.background]="'linear-gradient(135deg, ' + trackerForm.color + ', ' + trackerForm.color + '90)'">
+								<i [class]="'fa-solid ' + trackerForm.icon + ' text-white text-xl'"></i>
+							</div>
+							<div class="flex-1">
+								<h3 class="font-semibold text-neutral-900">{{ trackerForm.name || 'Tracker Name' }}</h3>
+								<p class="text-sm text-neutral-500">
+									{{ trackerForm.target }} {{ trackerForm.unit }} / {{ trackerForm.frequency }}
+								</p>
+								<p class="text-xs text-neutral-400 mt-1">
+									<span *ngIf="trackerForm.isOngoing">Ongoing habit</span>
+									<span *ngIf="!trackerForm.isOngoing">{{ trackerForm.durationDays }}-day
+										challenge</span>
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Reminder Toggle -->
+					<div class="flex items-center justify-between p-4 bg-white rounded-2xl">
+						<div class="flex items-center space-x-3">
+							<div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center">
+								<i class="fa-solid fa-bell text-amber-600"></i>
+							</div>
+							<div>
+								<h4 class="font-medium text-neutral-800">Daily Reminders</h4>
+								<p class="text-sm text-neutral-500">Get notified to track</p>
+							</div>
+						</div>
+						<ion-toggle [(ngModel)]="trackerForm.reminderEnabled" [enableOnOffLabels]="true"></ion-toggle>
+					</div>
+
+					<div *ngIf="trackerForm.reminderEnabled" class="p-4 bg-white rounded-2xl">
+						<label class="block text-sm font-medium text-neutral-700 mb-2">Reminder Time</label>
+						<input type="time" [(ngModel)]="trackerForm.reminderTime"
+							class="w-full px-4 py-3 bg-neutral-50 rounded-xl border border-neutral-200">
+					</div>
+				</div>
+			</div>
+
+			<!-- Footer -->
+			<div class="px-5 py-4 bg-white border-t border-neutral-100">
+				<div class="flex space-x-3">
+					<button *ngIf="canGoBack" (click)="goBack()"
+						class="flex-1 py-3.5 bg-neutral-100 text-neutral-700 rounded-xl font-semibold hover:bg-neutral-200 transition-colors">
+						Back
+					</button>
+					<button (click)="goNext()" [disabled]="!canGoNext || isSubmitting"
+						class="flex-1 py-3.5 rounded-xl font-semibold transition-all"
+						[class.bg-gradient-to-r]="canGoNext && !isSubmitting"
+						[class.from-indigo-500]="canGoNext && !isSubmitting"
+						[class.to-purple-600]="canGoNext && !isSubmitting"
+						[class.text-white]="canGoNext && !isSubmitting" [class.shadow-lg]="canGoNext && !isSubmitting"
+						[class.bg-neutral-200]="!canGoNext || isSubmitting"
+						[class.text-neutral-400]="!canGoNext || isSubmitting">
+						<span *ngIf="!isSubmitting">
+							{{ currentStep === 'duration' ? 'Create Tracker' : 'Continue' }}
+						</span>
+						<ion-spinner *ngIf="isSubmitting" name="crescent" class="w-5 h-5"></ion-spinner>
+					</button>
+				</div>
+			</div>
+		</div>
+	</ng-template>
+</ion-modal>

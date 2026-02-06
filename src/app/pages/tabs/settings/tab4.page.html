@@ -1,213 +1,248 @@
 <!-- Header -->
 <header class="bg-white border-b border-neutral-200 px-4 py-3">
-  <div class="flex items-center justify-between">
-    <div class="flex items-center space-x-3">
-      <img [src]="profileImageUrl" 
-           [alt]="userDisplayName + ' profile'" 
-           class="w-8 h-8 rounded-full object-cover"
-           (error)="onImageError($event)"
-           (load)="onImageLoad($event)">
-      <div>
-        <h1 class="text-lg text-neutral-900">Settings</h1>
-        <p class="text-xs text-neutral-500">Customize your wellness experience</p>
-      </div>
-    </div>
-    <button class="p-2">
-      <i class="fa-regular fa-bell text-neutral-600"></i>
-    </button>
-  </div>
+	<div class="flex items-center justify-between">
+		<div class="flex items-center space-x-3">
+			<img [src]="profileImageUrl" [alt]="userDisplayName + ' profile'" class="w-8 h-8 rounded-full object-cover"
+				(error)="onImageError($event)" (load)="onImageLoad($event)">
+			<div>
+				<h1 class="text-lg text-neutral-900">Settings</h1>
+				<p class="text-xs text-neutral-500">Customize your wellness experience</p>
+			</div>
+		</div>
+		<button class="p-2">
+			<i class="fa-regular fa-bell text-neutral-600"></i>
+		</button>
+	</div>
 </header>
 
 <ion-content class="bg-neutral-50">
-  <!-- Main Content -->
-  <main class="px-4 py-6 pb-24">
-    <!-- Profile Section -->
-    <section class="mb-6">
-      <div class="bg-white rounded-2xl p-4 border border-neutral-100">
-        <div class="flex items-center space-x-4 mb-4">
-          <img src="https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=42" alt="Profile" class="w-16 h-16 rounded-full">
-          <div class="flex-1">
-            <h2 class="text-base text-neutral-900">Sarah Johnson</h2>
-            <p class="text-sm text-neutral-500">sarah.johnson&#64;email.com</p>
-            <p class="text-xs text-neutral-400">Premium Member</p>
-          </div>
-          <button class="p-2">
-            <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-          </button>
-        </div>
-        <div class="grid grid-cols-3 gap-3 pt-3 border-t border-neutral-100">
-          <div class="text-center">
-            <p class="text-lg text-neutral-900">127</p>
-            <p class="text-xs text-neutral-500">Days</p>
-          </div>
-          <div class="text-center">
-            <p class="text-lg text-neutral-900">8</p>
-            <p class="text-xs text-neutral-500">Practices</p>
-          </div>
-          <div class="text-center">
-            <p class="text-lg text-neutral-900">23</p>
-            <p class="text-xs text-neutral-500">Entries</p>
-          </div>
-        </div>
-      </div>
-    </section>
+	<!-- Main Content -->
+	<main class="px-4 py-6 pb-24">
+		<!-- Profile Section -->
+		<section class="mb-6" *ngIf="user">
+			<div class="bg-white rounded-2xl p-4 border border-neutral-100">
+				<div class="flex items-center space-x-4 mb-4">
+					<img [src]="profileImageUrl" [alt]="userDisplayName" class="w-16 h-16 rounded-full object-cover">
+					<div class="flex-1">
+						<h2 class="text-base text-neutral-900">{{ userDisplayName }}</h2>
+						<p class="text-sm text-neutral-500">{{ user.email }}</p>
+						<p class="text-xs text-neutral-400 capitalize">{{ user.subscriptionType || 'Free' }} Member</p>
+					</div>
+					<button class="p-2" (click)="onEditProfile()">
+						<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+					</button>
+				</div>
+				<div class="grid grid-cols-3 gap-3 pt-3 border-t border-neutral-100">
+					<div class="text-center">
+						<p class="text-lg text-neutral-900">{{ user.currentDay || 0 }}</p>
+						<p class="text-xs text-neutral-500">Days</p>
+					</div>
+					<div class="text-center">
+						<p class="text-lg text-neutral-900">{{ user.stats?.totalTrackerEntries || 0 }}</p>
+						<p class="text-xs text-neutral-500">Practices</p>
+					</div>
+					<div class="text-center">
+						<p class="text-lg text-neutral-900">{{ user.stats?.totalJournalEntries || 0 }}</p>
+						<p class="text-xs text-neutral-500">Entries</p>
+					</div>
+				</div>
+			</div>
+		</section>
 
-    <!-- Account Settings -->
-    <section class="mb-6">
-      <h2 class="text-base text-neutral-900 mb-3">Account</h2>
-      <div class="bg-white rounded-2xl border border-neutral-100">
-        <button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-              <i class="fa-solid fa-user text-neutral-600 text-sm"></i>
-            </div>
-            <span class="text-sm text-neutral-900">Edit Profile</span>
-          </div>
-          <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-        </button>
-        <button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-              <i class="fa-solid fa-lock text-neutral-600 text-sm"></i>
-            </div>
-            <span class="text-sm text-neutral-900">Privacy & Security</span>
-          </div>
-          <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-        </button>
-        <button class="w-full flex items-center justify-between p-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-              <i class="fa-solid fa-crown text-neutral-600 text-sm"></i>
-            </div>
-            <div class="flex-1 text-left">
-              <span class="text-sm text-neutral-900">Premium Plan</span>
-              <p class="text-xs text-neutral-500">Active until Dec 2025</p>
-            </div>
-          </div>
-          <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-        </button>
-      </div>
-    </section>
+		<!-- Account Settings -->
+		<section class="mb-6">
+			<h2 class="text-base text-neutral-900 mb-3">Account</h2>
+			<div class="bg-white rounded-2xl border border-neutral-100">
+				<button class="w-full flex items-center justify-between p-4 border-b border-neutral-100"
+					(click)="onEditProfile()">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-user text-neutral-600 text-sm"></i>
+						</div>
+						<span class="text-sm text-neutral-900">Edit Profile</span>
+					</div>
+					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+				</button>
+				<button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-lock text-neutral-600 text-sm"></i>
+						</div>
+						<span class="text-sm text-neutral-900">Privacy & Security</span>
+					</div>
+					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+				</button>
+				<button class="w-full flex items-center justify-between p-4">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-crown text-neutral-600 text-sm"></i>
+						</div>
+						<div class="flex-1 text-left">
+							<span class="text-sm text-neutral-900">Premium Plan</span>
+							<p class="text-xs text-neutral-500" *ngIf="user?.trialEndsAt">Trial ends {{
+								user?.trialEndsAt
+								| date }}</p>
+						</div>
+					</div>
+					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+				</button>
+			</div>
+		</section>
 
-    <!-- App Preferences -->
-    <section class="mb-6">
-      <h2 class="text-base text-neutral-900 mb-3">Wellness Preferences</h2>
-      <div class="bg-white rounded-2xl border border-neutral-100">
-        <div class="flex items-center justify-between p-4 border-b border-neutral-100">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-              <i class="fa-solid fa-bell text-neutral-600 text-sm"></i>
-            </div>
-            <span class="text-sm text-neutral-900">Daily Reminders</span>
-          </div>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" checked class="sr-only peer">
-            <div class="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neutral-800"></div>
-          </label>
-        </div>
-        <div class="flex items-center justify-between p-4 border-b border-neutral-100">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-              <i class="fa-solid fa-moon text-neutral-600 text-sm"></i>
-            </div>
-            <span class="text-sm text-neutral-900">Dark Mode</span>
-          </div>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" class="sr-only peer">
-            <div class="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neutral-800"></div>
-          </label>
-        </div>
-        <button class="w-full flex items-center justify-between p-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-              <i class="fa-solid fa-language text-neutral-600 text-sm"></i>
-            </div>
-            <div class="flex-1 text-left">
-              <span class="text-sm text-neutral-900">Language</span>
-              <p class="text-xs text-neutral-500">English</p>
-            </div>
-          </div>
-          <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-        </button>
-      </div>
-    </section>
+		<!-- App Preferences -->
+		<section class="mb-6">
+			<h2 class="text-base text-neutral-900 mb-3">Wellness Preferences</h2>
+			<div class="bg-white rounded-2xl border border-neutral-100">
+				<div class="flex items-center justify-between p-4 border-b border-neutral-100">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-bell text-neutral-600 text-sm"></i>
+						</div>
+						<span class="text-sm text-neutral-900">Daily Reminders</span>
+					</div>
+					<label class="relative inline-flex items-center cursor-pointer">
+						<input type="checkbox" [checked]="user?.preferences?.dailyReminders" class="sr-only peer"
+							(change)="onToggleSetting('Reminders', $event)">
+						<div
+							class="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neutral-800">
+						</div>
+					</label>
+				</div>
+				<div class="flex items-center justify-between p-4 border-b border-neutral-100">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-moon text-neutral-600 text-sm"></i>
+						</div>
+						<span class="text-sm text-neutral-900">Dark Mode</span>
+					</div>
+					<label class="relative inline-flex items-center cursor-pointer">
+						<input type="checkbox" [checked]="user?.preferences?.darkMode" class="sr-only peer"
+							(change)="onToggleSetting('Dark Mode', $event)">
+						<div
+							class="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neutral-800">
+						</div>
+					</label>
+				</div>
+				<button class="w-full flex items-center justify-between p-4">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-language text-neutral-600 text-sm"></i>
+						</div>
+						<div class="flex-1 text-left">
+							<span class="text-sm text-neutral-900">Language</span>
+							<p class="text-xs text-neutral-500">{{ user?.preferences?.language === 'en' ? 'English' :
+								user?.preferences?.language }}</p>
+						</div>
+					</div>
+					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+				</button>
+			</div>
+		</section>
 
-    <!-- Data & Backup -->
-    <section class="mb-6">
-      <h2 class="text-base text-neutral-900 mb-3">Data & Privacy</h2>
-      <div class="bg-white rounded-2xl border border-neutral-100">
-        <button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-              <i class="fa-solid fa-cloud text-neutral-600 text-sm"></i>
-            </div>
-            <div class="flex-1 text-left">
-              <span class="text-sm text-neutral-900">Backup Data</span>
-              <p class="text-xs text-neutral-500">Last backup: Today</p>
-            </div>
-          </div>
-          <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-        </button>
-        <button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-              <i class="fa-solid fa-download text-neutral-600 text-sm"></i>
-            </div>
-            <span class="text-sm text-neutral-900">Export Journal</span>
-          </div>
-          <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-        </button>
-        <button class="w-full flex items-center justify-between p-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-              <i class="fa-solid fa-shield text-neutral-600 text-sm"></i>
-            </div>
-            <span class="text-sm text-neutral-900">Encryption Settings</span>
-          </div>
-          <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-        </button>
-      </div>
-    </section>
+		<!-- Data & Backup -->
+		<section class="mb-6">
+			<h2 class="text-base text-neutral-900 mb-3">Data & Privacy</h2>
+			<div class="bg-white rounded-2xl border border-neutral-100">
+				<button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-cloud text-neutral-600 text-sm"></i>
+						</div>
+						<div class="flex-1 text-left">
+							<span class="text-sm text-neutral-900">Backup Data</span>
+							<p class="text-xs text-neutral-500">Last backup: {{ user?.updatedAt | date:'mediumDate' }}
+							</p>
+						</div>
+					</div>
+					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+				</button>
+				<button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-download text-neutral-600 text-sm"></i>
+						</div>
+						<span class="text-sm text-neutral-900">Export Journal</span>
+					</div>
+					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+				</button>
+				<button class="w-full flex items-center justify-between p-4">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-shield text-neutral-600 text-sm"></i>
+						</div>
+						<span class="text-sm text-neutral-900">Encryption Settings</span>
+					</div>
+					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+				</button>
+			</div>
+		</section>
 
-    <!-- Support -->
-    <section class="mb-6">
-      <h2 class="text-base text-neutral-900 mb-3">Support & Resources</h2>
-      <div class="bg-white rounded-2xl border border-neutral-100">
-        <button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-              <i class="fa-solid fa-heart text-neutral-600 text-sm"></i>
-            </div>
-            <span class="text-sm text-neutral-900">Crisis Resources</span>
-          </div>
-          <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-        </button>
-        <button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-              <i class="fa-solid fa-envelope text-neutral-600 text-sm"></i>
-            </div>
-            <span class="text-sm text-neutral-900">Contact Support</span>
-          </div>
-          <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-        </button>
-        <button class="w-full flex items-center justify-between p-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-              <i class="fa-solid fa-star text-neutral-600 text-sm"></i>
-            </div>
-            <span class="text-sm text-neutral-900">Rate App</span>
-          </div>
-          <i class="fa-solid fa-chevron-right text-neutral-400"></i>
-        </button>
-      </div>
-    </section>
+		<!-- Developer Mode -->
+		<section class="mb-6">
+			<h2 class="text-base text-neutral-900 mb-3">Development</h2>
+			<div class="bg-white rounded-2xl border border-neutral-100">
+				<div class="flex items-center justify-between p-4">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-amber-50 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-code text-amber-600 text-sm"></i>
+						</div>
+						<div>
+							<span class="text-sm text-neutral-900">Developer Mode</span>
+							<p class="text-xs text-neutral-500">Enable advanced debugging tools</p>
+						</div>
+					</div>
+					<label class="relative inline-flex items-center cursor-pointer">
+						<input type="checkbox" [checked]="user?.preferences?.developerMode" class="sr-only peer"
+							(change)="onToggleSetting('Developer Mode', $event)">
+						<div
+							class="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500">
+						</div>
+					</label>
+				</div>
+			</div>
+		</section>
 
-    <!-- Sign Out -->
-    <section>
-      <button class="w-full bg-white rounded-2xl p-4 border border-neutral-100 text-center">
-        <span class="text-sm text-neutral-600">Sign Out</span>
-      </button>
-    </section>
-  </main>
+		<!-- Support -->
+		<section class="mb-6">
+			<h2 class="text-base text-neutral-900 mb-3">Support & Resources</h2>
+			<div class="bg-white rounded-2xl border border-neutral-100">
+				<button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-heart text-neutral-600 text-sm"></i>
+						</div>
+						<span class="text-sm text-neutral-900">Crisis Resources</span>
+					</div>
+					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+				</button>
+				<button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-envelope text-neutral-600 text-sm"></i>
+						</div>
+						<span class="text-sm text-neutral-900">Contact Support</span>
+					</div>
+					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+				</button>
+				<button class="w-full flex items-center justify-between p-4">
+					<div class="flex items-center space-x-3">
+						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-star text-neutral-600 text-sm"></i>
+						</div>
+						<span class="text-sm text-neutral-900">Rate App</span>
+					</div>
+					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
+				</button>
+			</div>
+		</section>
+
+		<!-- Sign Out -->
+		<section>
+			<button
+				class="w-full bg-white rounded-2xl p-4 border border-neutral-100 text-center active:bg-neutral-50 transition-colors"
+				(click)="onSignOut()">
+				<span class="text-sm text-red-500 font-medium">Sign Out</span>
+			</button>
+		</section>
+	</main>
 </ion-content>

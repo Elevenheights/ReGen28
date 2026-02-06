@@ -88,5 +88,9 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: '/intro'
+  },
+  {
+    path: 'goals',
+    loadComponent: () => import('./pages/goals/goals.page').then( m => m.GoalsPage)
   }
 ];

@@ -1,0 +1,42 @@
+:host {
+	--ion-background-color: #f9fafb;
+}
+
+ion-content {
+	--padding-top: 20px;
+	--padding-bottom: 20px;
+}
+
+form {
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+ion-range {
+	--knob-size: 20px;
+	--bar-background: #e5e7eb;
+	--bar-background-active: var(--ion-color-primary);
+	--bar-height: 4px;
+}
+
+ion-textarea {
+	font-size: 16px;
+	--padding-start: 0;
+	--padding-end: 0;
+	--padding-top: 0;
+	--padding-bottom: 0;
+}
+
+ion-input {
+	--padding-start: 0;
+	--padding-end: 0;
+}
+
+.shadow-sm {
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+button {
+	cursor: pointer;
+	outline: none;
+}

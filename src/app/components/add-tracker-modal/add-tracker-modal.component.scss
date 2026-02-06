@@ -1,0 +1,43 @@
+// Add Tracker Modal Styles
+
+ion-modal {
+	--border-radius: 20px;
+	--height: 100%;
+}
+
+ion-toggle {
+	--background: #e5e7eb;
+	--background-checked: #6366f1;
+	--handle-background: white;
+	--handle-background-checked: white;
+}
+
+input[type="color"] {
+	appearance: none;
+	-webkit-appearance: none;
+	border: none;
+	padding: 0;
+
+	&::-webkit-color-swatch-wrapper {
+		padding: 0;
+	}
+
+	&::-webkit-color-swatch {
+		border: none;
+		border-radius: 12px;
+	}
+}
+
+// Custom scrollbar
+::-webkit-scrollbar {
+	width: 4px;
+}
+
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #d1d5db;
+	border-radius: 2px;
+}

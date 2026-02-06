@@ -1,0 +1,143 @@
+<div class="bg-white rounded-2xl shadow-sm cursor-pointer active:scale-[0.98] transition-all duration-200 border border-neutral-100 h-full flex flex-col overflow-hidden"
+	[class.p-4]="!compactMode" [class.p-3]="compactMode" (click)="onCardClick()">
+
+	<!-- Header Row -->
+	<div class="flex items-center justify-between" [class.mb-3]="!compactMode" [class.mb-2]="compactMode">
+		<div class="flex items-center space-x-3 flex-1 min-w-0">
+			<!-- Icon -->
+			<div class="rounded-xl flex items-center justify-center flex-shrink-0" [class.w-12]="!compactMode"
+				[class.h-12]="!compactMode" [class.w-10]="compactMode" [class.h-10]="compactMode"
+				[style.background]="'linear-gradient(135deg, ' + trackerColor + ', ' + trackerColor + '90)'">
+				<i [class]="'fa-solid ' + trackerIcon + ' text-white'" [class.text-lg]="!compactMode"
+					[class.text-base]="compactMode"></i>
+			</div>
+
+			<!-- Name & Category -->
+			<div class="flex-1 min-w-0">
+				<h3 class="font-semibold text-neutral-900 truncate" [class.text-sm]="!compactMode"
+					[class.text-xs]="compactMode">
+					{{ tracker?.name || 'Unknown Activity' }}
+				</h3>
+				<div class="flex items-center space-x-2 flex-wrap">
+					<!-- Category Badge -->
+					<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+						[style.background-color]="trackerColor + '15'" [style.color]="trackerColor">
+						{{ categoryShortLabel }}
+					</span>
+
+					<!-- Streak Badge -->
+					<span *ngIf="hasStreak"
+						class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700">
+						<i class="fa-solid text-[9px] mr-1" [class.fa-fire]="isOnFire"
+							[class.fa-bolt]="!isOnFire"></i>{{ tracker.streak }}
+					</span>
+
+					<!-- Trend Indicator -->
+					<span *ngIf="tracker.trend && !compactMode" class="inline-flex items-center text-[10px]"
+						[class]="trendClass">
+						<i [class]="'fa-solid ' + trendIcon + ' text-[8px]'"></i>
+					</span>
+				</div>
+			</div>
+		</div>
+
+		<!-- Action Buttons -->
+		<div *ngIf="showActions" class="flex items-center space-x-2 flex-shrink-0">
+			<!-- Today Completed Check -->
+			<span *ngIf="tracker?.todayCompleted"
+				class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center">
+				<i class="fa-solid fa-check text-emerald-600 text-xs"></i>
+			</span>
+
+			<!-- Quick action for boolean trackers -->
+			<div *ngIf="tracker?.type === 'boolean' && !tracker?.todayCompleted" class="flex">
+				<button
+					class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-full text-xs font-medium shadow-sm active:scale-95 transition-transform"
+					(click)="onQuickLog($event)">
+					Done
+				</button>
+			</div>
+
+			<!-- Add button for other trackers -->
+			<div *ngIf="tracker?.type !== 'boolean'" class="flex items-center space-x-1.5">
+				<span class="px-2 py-1 bg-neutral-100 text-neutral-600 rounded-full text-xs font-semibold">
+					{{ tracker?.totalEntries || 0 }}
+				</span>
+				<button
+					class="px-3 py-1 bg-blue-500 text-white rounded-full text-xs font-medium shadow-sm active:scale-95 transition-transform"
+					(click)="onOpenLogModal($event)">
+					<i class="fa-solid fa-plus text-[10px] mr-1"></i>Add
+				</button>
+			</div>
+
+			<i class="fa-solid fa-chevron-right text-neutral-300 text-xs ml-1"></i>
+		</div>
+	</div>
+
+	<!-- Progress Section -->
+	<div class="mt-auto">
+		<!-- Progress bar with gradient -->
+		<div class="flex items-center space-x-2" [class.mt-3]="!compactMode" [class.mt-2]="compactMode">
+			<div class="flex-1 bg-neutral-200 rounded-full overflow-hidden" [class.h-2]="!compactMode"
+				[class.h-1.5]="compactMode">
+				<div class="h-full rounded-full transition-all duration-500 ease-out"
+					[style.width.%]="tracker.progress || 0" [style.background]="progressGradient">
+				</div>
+			</div>
+			<span class="text-xs text-neutral-500 font-medium min-w-[2.5rem] text-right">
+				{{ tracker?.progress || 0 }}%
+			</span>
+		</div>
+
+		<!-- Milestone Progress (if available) -->
+		<div *ngIf="tracker.nextMilestone && tracker.milestoneProgress && !compactMode"
+			class="mt-2 flex items-center space-x-2">
+			<div class="flex-1 bg-amber-100 rounded-full h-1 overflow-hidden">
+				<div class="h-full rounded-full bg-amber-500 transition-all duration-300"
+					[style.width.%]="milestoneProgressPercent"></div>
+			</div>
+			<span class="text-[10px] text-amber-600 font-medium">
+				{{ milestoneProgressPercent }}% to {{ tracker.nextMilestone }} days
+			</span>
+		</div>
+
+		<!-- Footer: Target, Frequency, Duration -->
+		<div class="flex items-center justify-between pt-2 border-t border-neutral-100" [class.mt-3]="!compactMode"
+			[class.mt-2]="compactMode">
+			<!-- Target Info -->
+			<div class="flex items-center space-x-2">
+				<i class="fa-solid fa-bullseye text-neutral-400 text-[10px]"></i>
+				<span class="text-xs text-neutral-500 font-medium">
+					{{ tracker?.target || 1 }} / {{ frequencyLabel }}
+				</span>
+
+				<!-- Adherence Score -->
+				<span *ngIf="tracker.adherence !== undefined && !compactMode" class="text-xs font-medium"
+					[class]="adherenceClass">
+					{{ adherencePercent }}% adherence
+				</span>
+			</div>
+
+			<!-- Duration Display -->
+			<div *ngIf="durationDisplay"
+				class="flex items-center space-x-1.5 px-2 py-1 rounded-full text-xs font-medium"
+				[class]="durationClass">
+				<i [class]="'fa-solid ' + durationIcon + ' text-[10px]'"></i>
+				<span>{{ durationDisplay }}</span>
+			</div>
+		</div>
+
+		<!-- Expiring Soon Warning -->
+		<div *ngIf="tracker.daysRemaining !== undefined && tracker.daysRemaining > 0 && tracker.daysRemaining <= 3 && !compactMode"
+			class="mt-2 flex items-center justify-between bg-amber-50 rounded-lg px-3 py-2">
+			<div class="flex items-center space-x-2">
+				<i class="fa-solid fa-triangle-exclamation text-amber-500 text-xs"></i>
+				<span class="text-xs text-amber-700">Challenge ending soon!</span>
+			</div>
+			<button (click)="onExtend($event)"
+				class="px-3 py-1 bg-amber-500 text-white rounded-full text-xs font-medium hover:bg-amber-600 transition-colors">
+				Extend
+			</button>
+		</div>
+	</div>
+</div>
