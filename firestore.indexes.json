@@ -1,0 +1,75 @@
+{
+	"indexes": [
+		{
+			"collectionGroup": "user-daily-stats",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "date",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "user-daily-stats",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "date",
+					"order": "ASCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "journal-daily-stats",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "date",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "goals",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "createdAt",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "tracker-daily-stats",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "trackerId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "date",
+					"order": "DESCENDING"
+				}
+			]
+		}
+	],
+	"fieldOverrides": []
+}

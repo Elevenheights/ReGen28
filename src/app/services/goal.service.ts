@@ -4,6 +4,7 @@ import { DatabaseService, QueryOptions } from './database.service';
 import { ErrorHandlingService } from './error-handling.service';
 import { LoggingService } from './logging.service';
 import { Goal, GoalStatus } from '../models/goal.interface';
+import { ActivityService } from './activity.service';
 import { Observable, of, firstValueFrom } from 'rxjs';
 import { map, switchMap, take } from 'rxjs/operators';
 
@@ -16,6 +17,7 @@ export class GoalService {
 	constructor(
 		private authService: AuthService,
 		private db: DatabaseService,
+		private activityService: ActivityService,
 		private errorHandler: ErrorHandlingService,
 		private logging: LoggingService
 	) { }
@@ -65,6 +67,14 @@ export class GoalService {
 		try {
 			this.logging.info('Creating new goal', { title: newGoal.title });
 			const goalId = await firstValueFrom(this.db.createDocument<Goal>(this.COLLECTION, newGoal));
+
+			// Create recent activity record
+			try {
+				await this.activityService.createActivityFromGoalCreated(goalId, newGoal.title, newGoal.category);
+			} catch (activityError) {
+				this.logging.warn('Goal created but activity record failed', { activityError });
+			}
+
 			return goalId;
 		} catch (error) {
 			this.errorHandler.handleError('createGoal', error);
@@ -126,5 +136,14 @@ export class GoalService {
 			status,
 			completedAt: progress === 100 ? new Date() : undefined
 		});
+
+		// Create activity if goal completed
+		if (status === 'completed' && goal.status !== 'completed') {
+			try {
+				await this.activityService.createActivityFromGoalCompletion(goalId, goal.title, goal.category);
+			} catch (activityError) {
+				this.logging.warn('Goal completed but activity record failed', { activityError });
+			}
+		}
 	}
 }

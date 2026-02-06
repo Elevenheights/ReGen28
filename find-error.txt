@@ -1,0 +1,17 @@
+Error: Could not load the default credentials. Browse to https://cloud.google.com/docs/authentication/getting-started for more information.
+    at GoogleAuth.getApplicationDefaultAsync (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\google-auth-library\build\src\auth\googleauth.js:287:15)
+    at async GoogleAuth._GoogleAuth_determineClient (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\google-auth-library\build\src\auth\googleauth.js:834:32)
+    at async GoogleAuth.getClient (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\google-auth-library\build\src\auth\googleauth.js:698:20)
+    at async GrpcClient._getCredentials (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\google-gax\src\grpc.ts:209:20)
+    at async GrpcClient.createStub (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\google-gax\src\grpc.ts:426:19)
+Caused by: Error
+    at QueryUtil._getResponse (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\@google-cloud\firestore\build\src\reference\query-util.js:44:23)
+    at Query._getResponse (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\@google-cloud\firestore\build\src\reference\query.js:784:32)
+    at Query._get (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\@google-cloud\firestore\build\src\reference\query.js:777:35)
+    at C:\Users\miggl\Documents\Development\regen28\functions\node_modules\@google-cloud\firestore\build\src\reference\query.js:745:43
+    at C:\Users\miggl\Documents\Development\regen28\functions\node_modules\@google-cloud\firestore\build\src\telemetry\enabled-trace-util.js:110:30
+    at NoopContextManager.with (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\@opentelemetry\api\src\context\NoopContextManager.ts:31:15)
+    at ContextAPI.with (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\@opentelemetry\api\src\api\context.ts:77:42)
+    at NoopTracer.startActiveSpan (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\@opentelemetry\api\src\trace\NoopTracer.ts:98:27)
+    at ProxyTracer.startActiveSpan (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\@opentelemetry\api\src\trace\ProxyTracer.ts:51:20)
+    at EnabledTraceUtil.startActiveSpan (C:\Users\miggl\Documents\Development\regen28\functions\node_modules\@google-cloud\firestore\build\src\telemetry\enabled-trace-util.js:102:28)

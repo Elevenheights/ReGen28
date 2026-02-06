@@ -3,26 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
-	IonHeader,
-	IonToolbar,
-	IonTitle,
 	IonContent,
-	IonButton,
-	IonIcon,
-	IonModal,
-	IonItem,
-	IonInput,
-	IonSelect,
-	IonSelectOption,
-	IonRange,
-	IonLabel,
-	IonTextarea,
-	IonDatetime,
-	IonCheckbox,
-	IonAlert,
 	IonRefresher,
-	IonRefresherContent,
-	IonSpinner
+	IonRefresherContent
 } from '@ionic/angular/standalone';
 import { Subject, takeUntil, combineLatest, map, firstValueFrom } from 'rxjs';
 
@@ -49,6 +32,11 @@ import { User } from '../../../models/user.interface';
 import { TrackerCardComponent } from '../../../components/tracker-card/tracker-card.component';
 import { TrackerStatsComponent, TrackerDashboardStats } from '../../../components/tracker-stats/tracker-stats.component';
 
+import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
+import { SectionSeparatorComponent } from '../../../components/section-separator/section-separator.component';
+
+import { CountUpDirective } from '../../../directives/count-up.directive';
+
 @Component({
 	selector: 'app-tab3',
 	templateUrl: 'tab3.page.html',
@@ -57,28 +45,13 @@ import { TrackerStatsComponent, TrackerDashboardStats } from '../../../component
 	imports: [
 		CommonModule,
 		FormsModule,
-		IonHeader,
-		IonToolbar,
-		IonTitle,
 		IonContent,
-		IonButton,
-		IonIcon,
-		IonModal,
-		IonItem,
-		IonInput,
-		IonSelect,
-		IonSelectOption,
-		IonRange,
-		IonLabel,
-		IonTextarea,
-		IonDatetime,
-		IonCheckbox,
-		IonAlert,
 		IonRefresher,
 		IonRefresherContent,
-		IonSpinner,
 		TrackerCardComponent,
-		TrackerStatsComponent
+		TrackerStatsComponent,
+		PageHeaderComponent,
+		CountUpDirective
 	],
 })
 export class Tab3Page implements OnInit, OnDestroy {
@@ -99,7 +72,59 @@ export class Tab3Page implements OnInit, OnDestroy {
 	isLoading = true;
 	activeSegment: 'active' | 'completed' = 'active';
 
-	// Data
+	// Grouped Data
+	get groupedTrackers(): { category: string, trackers: TrackerData[] }[] {
+		const groups: { [key: string]: TrackerData[] } = {};
+
+		// Initialize groups
+		['mind', 'body', 'soul', 'beauty', 'custom'].forEach(cat => groups[cat] = []);
+
+		// Fill groups
+		this.activeTrackers.forEach(tracker => {
+			const cat = tracker.category?.toLowerCase() || 'custom';
+			if (groups[cat]) {
+				groups[cat].push(tracker);
+			} else {
+				groups['custom'].push(tracker);
+			}
+		});
+
+		// Return only groups with trackers
+		return Object.keys(groups)
+			.filter(cat => groups[cat].length > 0)
+			.map(cat => ({
+				category: cat,
+				trackers: groups[cat]
+			}));
+	}
+
+	getCategoryIconForGroup(category: string): string {
+		switch (category.toLowerCase()) {
+			case 'mind': return 'fa-brain';
+			case 'body': return 'fa-heart-pulse';
+			case 'soul': return 'fa-spa';
+			case 'beauty': return 'fa-wand-magic-sparkles';
+			default: return 'fa-shapes';
+		}
+	}
+
+	getCategoryColorForGroup(category: string): string {
+		switch (category.toLowerCase()) {
+			case 'mind': return 'blue';
+			case 'body': return 'emerald';
+			case 'soul': return 'purple';
+			case 'beauty': return 'pink';
+			default: return 'amber';
+		}
+	}
+
+	get dailyProgress(): number {
+		return this.getOverallProgress();
+	}
+
+	onAddTracker() {
+		this.navigateToAddTracker();
+	}
 
 	constructor(
 		private trackerService: TrackerService,

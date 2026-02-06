@@ -15,7 +15,8 @@ import {
 	IonCol,
 	IonRefresher,
 	IonRefresherContent,
-	IonSpinner
+	IonSpinner,
+	ModalController
 } from '@ionic/angular/standalone';
 
 // Services
@@ -41,6 +42,8 @@ import { Tracker } from '../../../models/tracker.interface';
 
 // Components
 import { ProfileImageComponent } from '../../../components/profile-image';
+import { BreatheModalComponent } from '../../../components/breathe-modal/breathe-modal.component';
+import { WriteEntryModalComponent } from '../../../components/journal/write-entry-modal/write-entry-modal.component';
 
 // RxJS
 import { Subject, combineLatest, of, firstValueFrom } from 'rxjs';
@@ -62,6 +65,7 @@ interface DashboardData {
 	activeTrackers: any[];
 	todaysEntries: any[];
 	activeGoals: Goal[];
+	weeklyActivityStats: any[]; // UserDailyStats[]
 	expandedSuggestions: { [trackerId: string]: boolean };
 	analytics: {
 		wellnessScore: number;
@@ -97,6 +101,11 @@ interface DailyIntention {
 
 // Removed old daily suggestion interfaces - now using TrackerSpecificSuggestionsResponse
 
+import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
+import { SectionSeparatorComponent } from '../../../components/section-separator/section-separator.component';
+
+import { CountUpDirective } from '../../../directives/count-up.directive';
+
 @Component({
 	selector: 'app-tab1',
 	templateUrl: 'tab1.page.html',
@@ -104,21 +113,13 @@ interface DailyIntention {
 	standalone: true,
 	imports: [
 		CommonModule,
-		IonHeader,
-		IonToolbar,
-		IonTitle,
 		IonContent,
-		IonCard,
-		IonCardContent,
-		IonButton,
-		IonIcon,
-		IonGrid,
-		IonRow,
-		IonCol,
 		IonRefresher,
 		IonRefresherContent,
 		IonSpinner,
-		ProfileImageComponent
+		PageHeaderComponent,
+		SectionSeparatorComponent,
+		CountUpDirective
 	],
 })
 export class Tab1Page implements OnInit, OnDestroy {
@@ -141,6 +142,7 @@ export class Tab1Page implements OnInit, OnDestroy {
 		activeTrackers: [],
 		todaysEntries: [],
 		activeGoals: [],
+		weeklyActivityStats: [],
 		expandedSuggestions: {},
 		analytics: {
 			wellnessScore: 0,
@@ -180,6 +182,9 @@ export class Tab1Page implements OnInit, OnDestroy {
 	// Global reading mode for Today's Actions
 	isReadingMode = false;
 
+	// Mood Chart Timeframe
+	moodChartTimeframe: 'week' | 'month' = 'week';
+
 	// Collapsed state for wellness journey section
 	isWellnessJourneyCollapsed = true;
 
@@ -193,6 +198,12 @@ export class Tab1Page implements OnInit, OnDestroy {
 	isDeveloperMode = false;
 	isRegeneratingCoaching = false;
 	isCalculatingStats = false;
+
+	// Quote slideshow state
+	currentQuoteIndex = 0;
+	isQuoteTransitioning = false;
+	private quoteIntervalId: any = null;
+	private readonly QUOTE_INTERVAL_MS = 8000; // 8 seconds per quote
 
 	// Computed properties for suggestions
 	get isLoadingSuggestions(): boolean {
@@ -340,16 +351,19 @@ export class Tab1Page implements OnInit, OnDestroy {
 		private trackerSuggestions: TrackerSuggestionsService,
 		private statisticsService: StatisticsService,
 		public router: Router,
-		private toastService: ToastService
+		private toastService: ToastService,
+		private modalCtrl: ModalController
 	) { }
 
 	ngOnInit() {
 		this.loadEnhancedDashboardData();
+		this.startQuoteSlideshow();
 	}
 
 	ngOnDestroy() {
 		this.destroy$.next();
 		this.destroy$.complete();
+		this.stopQuoteSlideshow();
 	}
 
 	// Retry dashboard loading (clear error state and try again)
@@ -463,13 +477,13 @@ export class Tab1Page implements OnInit, OnDestroy {
 		);
 
 		// Combine the observable data streams with proper error handling
-		const dashboardData$ = combineLatest([
+		const dashboardData$ = combineLatest(
 			userProfile$,
 			journeyProgress$,
 			trackerData$,
 			recentActivities$,
 			weeklyMoodData$
-		]).pipe(
+		).pipe(
 			map(([user, journeyProgress, trackerData, activities, weeklyMoodData]) => {
 				const result = {
 					user,
@@ -490,20 +504,16 @@ export class Tab1Page implements OnInit, OnDestroy {
 					activeTrackers: trackerData?.activeTrackers || [],
 					todaysEntries: trackerData?.todaysEntries || [],
 					activeGoals: [], // Legacy loader
+					weeklyActivityStats: [],
 					expandedSuggestions: {},
 					analytics: {
 						wellnessScore: user?.stats?.weeklyActivityScore || 0,
 						moodData: {
 							average: weeklyMoodData.averageMood || 0
 						},
-						consistencyRate: Math.round((user?.stats?.totalTrackerEntries || 0) / Math.max(user?.currentDay || 1, 1) * 100),
+						consistencyRate: 0,
 						currentStreak: user?.stats?.currentStreaks || 0,
-						categoryPerformance: {
-							mind: 75,
-							body: 80,
-							soul: 70,
-							beauty: 85
-						},
+						categoryPerformance: this.calculateCategoryPerformance([], trackerData?.activeTrackers || []),
 						// Insights data
 						peakPerformanceHour: 9,
 						peakPerformanceBoost: 25,
@@ -536,6 +546,7 @@ export class Tab1Page implements OnInit, OnDestroy {
 					activeTrackers: [],
 					todaysEntries: [],
 					activeGoals: [],
+					weeklyActivityStats: [],
 					expandedSuggestions: {},
 					analytics: {
 						wellnessScore: 0,
@@ -672,8 +683,11 @@ export class Tab1Page implements OnInit, OnDestroy {
 		const trackerData$ = this.trackerService.getTrackerDashboardData().pipe(
 			catchError((error) => {
 				this.logging.error('Could not load tracker data', { error });
+				// MEMORY FALLBACK: If the service call fails, try to use whatever is in memory
+				// This prevents "No activities" when only stats/goals are broken
+				const cachedTrackers = this.trackerService['cachedTrackers'] || [];
 				return of({
-					activeTrackers: [],
+					activeTrackers: cachedTrackers,
 					todaysEntries: [],
 					weeklyStats: { totalEntries: 0, completedTrackers: 0, averageMood: 0 }
 				} as any);
@@ -687,8 +701,16 @@ export class Tab1Page implements OnInit, OnDestroy {
 			})
 		);
 
+		// Get weekly activity stats for engagement chart
+		const weeklyActivityStats$ = this.statisticsService.getRecentStats(7).pipe(
+			catchError((error) => {
+				this.logging.warn('Could not load weekly activity stats', { error });
+				return of([]);
+			})
+		);
+
 		// Combine all data streams
-		const enhancedDashboardData$ = combineLatest([
+		const enhancedDashboardData$ = combineLatest(
 			userProfile$,
 			todaysStats$,
 			weeklyMoodTrend$,
@@ -696,16 +718,19 @@ export class Tab1Page implements OnInit, OnDestroy {
 			recentActivities$,
 			trackerData$,
 			weeklyJournalStats$,
-			activeGoals$
-		]).pipe(
-			map(([user, todaysStats, weeklyMoodData, performanceInsights, activities, trackerData, weeklyJournalStats, activeGoals]) => {
+			activeGoals$,
+			weeklyActivityStats$
+		).pipe(
+			map(([user, todaysStats, weeklyMoodData, performanceInsights, activities, trackerData, weeklyJournalStats, activeGoals, weeklyStats]) => {
 				// Use statistics data when available, fallback to user profile stats
 				const wellnessScore = todaysStats?.engagementRate
 					? Math.round(todaysStats.engagementRate * 100)
 					: (user?.stats?.weeklyActivityScore || 0);
 
 				const trackerStats = {
-					totalSessions: todaysStats?.totalTrackerEntries || user?.stats?.totalTrackerEntries || 0,
+					// Use cumulative user stats for total, or daily if we want daily
+					// For "Total Sessions" usually means All Time
+					totalSessions: user?.stats?.totalTrackerEntries || 0,
 					weeklyCount: trackerData?.weeklyStats?.totalEntries || 0,
 					streak: todaysStats?.trackerStreak || user?.stats?.currentStreaks || 0
 				};
@@ -722,14 +747,11 @@ export class Tab1Page implements OnInit, OnDestroy {
 					moodData: {
 						average: todaysStats?.overallAverageMood || weeklyMoodData.averageMood || 0
 					},
-					consistencyRate: Math.round(performanceInsights.consistencyScore),
+					consistencyRate: performanceInsights.consistencyScore > 0
+						? Math.round(performanceInsights.consistencyScore)
+						: this.getTodayCompletionPercentage(),
 					currentStreak: todaysStats?.overallStreak || user?.stats?.currentStreaks || 0,
-					categoryPerformance: {
-						mind: Math.round((performanceInsights.categoryEngagement.mind || 0) * 20), // Scale to 0-100
-						body: Math.round((performanceInsights.categoryEngagement.body || 0) * 20),
-						soul: Math.round((performanceInsights.categoryEngagement.soul || 0) * 20),
-						beauty: Math.round((performanceInsights.categoryEngagement.beauty || 0) * 20)
-					},
+					categoryPerformance: this.calculateCategoryPerformance(activeGoals, trackerData?.activeTrackers || []),
 					// Enhanced insights from statistics
 					peakPerformanceHour: performanceInsights.bestPerformanceHour,
 					peakPerformanceBoost: Math.round(performanceInsights.energyProductivityIndex / 4), // Scale down
@@ -749,6 +771,7 @@ export class Tab1Page implements OnInit, OnDestroy {
 					activeTrackers: trackerData?.activeTrackers || [],
 					todaysEntries: trackerData?.todaysEntries || [],
 					activeGoals: activeGoals || [],
+					weeklyActivityStats: weeklyStats || [],
 					expandedSuggestions: {},
 					analytics,
 					trackerSuggestions: null,
@@ -769,6 +792,7 @@ export class Tab1Page implements OnInit, OnDestroy {
 					activeTrackers: [],
 					todaysEntries: [],
 					activeGoals: [],
+					weeklyActivityStats: [],
 					expandedSuggestions: {},
 					analytics: {
 						wellnessScore: 0,
@@ -798,6 +822,7 @@ export class Tab1Page implements OnInit, OnDestroy {
 					this.dashboardData = data;
 					this.updateProfileImageUrl();
 					this.isDeveloperMode = data.user?.preferences?.developerMode || false;
+					this.isLoading = false; // Stop loading spinner
 
 					// Load tracker-specific suggestions
 					this.loadSuggestionsForActiveTrackers();
@@ -1101,29 +1126,41 @@ export class Tab1Page implements OnInit, OnDestroy {
 	// Quick Actions
 	async logMood() {
 		try {
-			// Navigate to mood tracker or open mood logging modal
-			this.router.navigate(['/tabs/tracker']);
-			// Could also implement a quick mood logging modal here
+			// Open mood logging modal via WriteEntryModal
+			const modal = await this.modalCtrl.create({
+				component: WriteEntryModalComponent,
+				// Optional: Pass specific props if needed
+			});
+
+			await modal.present();
+
+			const { data } = await modal.onDidDismiss();
+			if (data?.saved) {
+				this.toastService.showSuccess('Mood logged successfully!');
+				this.loadEnhancedDashboardData(); // Refresh stats
+			}
 		} catch (error) {
-			this.logging.error('Error navigating to mood tracker', { error });
-			this.toastService.showError('Error opening mood tracker');
+			this.logging.error('Error opening mood logging', { error });
+			this.toastService.showError('Error opening mood logger');
 		}
 	}
 
 	async openBreathe() {
 		try {
-			// Navigate to breathing exercise or meditation
-			// For now, just show a message
-			this.toastService.showInfo('Breathing exercise coming soon! 🧘‍♀️');
+			const modal = await this.modalCtrl.create({
+				component: BreatheModalComponent
+			});
+			await modal.present();
 		} catch (error) {
 			this.logging.error('Error opening breathing exercise', { error });
+			this.toastService.showError('Unable to open breathing exercise');
 		}
 	}
 
 	async addNewTracker() {
 		try {
 			// Navigate to add tracker page
-			this.router.navigate(['/add-tracker']);
+			this.router.navigate(['/tabs/add-tracker']);
 		} catch (error) {
 			this.logging.error('Error navigating to add tracker', { error });
 			this.toastService.showError('Error opening tracker creation');
@@ -1133,7 +1170,7 @@ export class Tab1Page implements OnInit, OnDestroy {
 	async openJournalEntry() {
 		try {
 			// Navigate to journal entry page
-			this.router.navigate(['/journal-entry']);
+			this.router.navigate(['/journal-entry', 'new']);
 		} catch (error) {
 			this.logging.error('Error navigating to journal entry', { error });
 			this.toastService.showError('Error opening journal entry');
@@ -1142,8 +1179,8 @@ export class Tab1Page implements OnInit, OnDestroy {
 
 	// View all activities
 	viewAllActivities() {
-		// Navigate to full activity history
-		this.router.navigate(['/activity-history']);
+		// Navigate to the full activity history page
+		this.router.navigate(['/activities']);
 	}
 
 	// Image error handling - simplified
@@ -1171,7 +1208,7 @@ export class Tab1Page implements OnInit, OnDestroy {
 			case 'MIND': return 'fa-solid fa-brain';
 			case 'BODY': return 'fa-solid fa-dumbbell';
 			case 'SOUL': return 'fa-solid fa-heart';
-			case 'BEAUTY': return 'fa-solid fa-sparkles';
+			case 'BEAUTY': return 'fa-solid fa-wand-magic-sparkles';
 			default: return 'fa-solid fa-circle';
 		}
 	}
@@ -1673,6 +1710,216 @@ export class Tab1Page implements OnInit, OnDestroy {
 		}
 
 		return quotes;
+	}
+
+	// ==================== Quote Slideshow Methods ====================
+
+	/**
+	 * Get the current quote based on slideshow index
+	 */
+	getCurrentQuote(): any {
+		const quotes = this.getAllMotivationalQuotes();
+		if (quotes.length === 0) return null;
+
+		// Ensure index is within bounds
+		if (this.currentQuoteIndex >= quotes.length) {
+			this.currentQuoteIndex = 0;
+		}
+		return quotes[this.currentQuoteIndex];
+	}
+
+	/**
+	 * Start the quote auto-rotation slideshow
+	 */
+	startQuoteSlideshow(): void {
+		this.stopQuoteSlideshow(); // Clear any existing interval
+		this.quoteIntervalId = setInterval(() => {
+			this.nextQuote();
+		}, this.QUOTE_INTERVAL_MS);
+	}
+
+	/**
+	 * Stop the quote auto-rotation slideshow
+	 */
+	stopQuoteSlideshow(): void {
+		if (this.quoteIntervalId) {
+			clearInterval(this.quoteIntervalId);
+			this.quoteIntervalId = null;
+		}
+	}
+
+	/**
+	 * Go to the next quote with fade transition
+	 */
+	nextQuote(): void {
+		const quotes = this.getAllMotivationalQuotes();
+		if (quotes.length <= 1) return;
+
+		// Trigger fade out
+		this.isQuoteTransitioning = true;
+
+		setTimeout(() => {
+			this.currentQuoteIndex = (this.currentQuoteIndex + 1) % quotes.length;
+			// Trigger fade in
+			this.isQuoteTransitioning = false;
+		}, 250); // Half of the CSS transition duration
+	}
+
+	/**
+	 * Go to the previous quote with fade transition
+	 */
+	previousQuote(): void {
+		const quotes = this.getAllMotivationalQuotes();
+		if (quotes.length <= 1) return;
+
+		// Reset the interval when manually navigating
+		this.startQuoteSlideshow();
+
+		// Trigger fade out
+		this.isQuoteTransitioning = true;
+
+		setTimeout(() => {
+			this.currentQuoteIndex = (this.currentQuoteIndex - 1 + quotes.length) % quotes.length;
+			// Trigger fade in
+			this.isQuoteTransitioning = false;
+		}, 250);
+	}
+
+	/**
+	 * Go to a specific quote by index
+	 */
+	goToQuote(index: number): void {
+		const quotes = this.getAllMotivationalQuotes();
+		if (index < 0 || index >= quotes.length) return;
+		if (index === this.currentQuoteIndex) return;
+
+		// Reset the interval when manually navigating
+		this.startQuoteSlideshow();
+
+		// Trigger fade out
+		this.isQuoteTransitioning = true;
+
+		setTimeout(() => {
+			this.currentQuoteIndex = index;
+			// Trigger fade in
+			this.isQuoteTransitioning = false;
+		}, 250);
+	}
+
+	// Mood Chart Methods
+	setMoodChartTimeframe(timeframe: 'week' | 'month') {
+		this.moodChartTimeframe = timeframe;
+		// In a real implementation, you would fetch different data here
+		// For now we'll just stick with the weekly data but update the view state
+	}
+
+	getMoodTrendLabel(): string {
+		const trend = this.dashboardData.weeklyMoodData.trend;
+		switch (trend) {
+			case 'improving': return 'Uplifting ↗';
+			case 'declining': return 'Declining ↘';
+			default: return 'Stable →';
+		}
+	}
+
+	getMoodInsightText(): string {
+		const trend = this.dashboardData.weeklyMoodData.trend;
+		const avg = this.dashboardData.weeklyMoodData.averageMood;
+
+		// Check for specific insights based on data
+		// This mirrors the hardcoded "peaks mid-week" logic but dynamic
+		if (avg >= 4) return "Your mood is radiating positivity! Keep honoring your rhythms.";
+		if (trend === 'improving') return "Your energy is shifting upward. Great consistency.";
+		if (trend === 'declining') return "You're facing some resistance. Consider a gentle check-in.";
+		return "Your mood is stable. You're finding your balance.";
+	}
+
+	// Top Trackers
+	getTopTrackers(): any[] {
+		if (!this.dashboardData.activeTrackers) return [];
+		// Sort by streak descending
+		return [...this.dashboardData.activeTrackers]
+			.sort((a, b) => (b.streak || 0) - (a.streak || 0))
+			.slice(0, 3);
+	}
+
+	getTrackerConsistency(tracker: any): number {
+		if (!tracker) return 0;
+		// Use real consistency score if available, otherwise calculate from streak/history
+		// Avoid defaulting to 85% which creates false data
+		return tracker.consistencyScore || 0;
+	}
+
+	hasMoodData(): boolean {
+		return this.dashboardData.weeklyMoodData.dailyMoods.some(m => m !== null);
+	}
+
+	private calculateCategoryPerformance(goals: Goal[], trackers: any[]) {
+		const categories = ['mind', 'body', 'soul', 'beauty'];
+		const performance: any = {};
+
+		categories.forEach(cat => {
+			const catGoals = (goals || []).filter(g => (g.category || '').toLowerCase() === cat);
+			const catTrackers = (trackers || []).filter(t => (t.category || '').toLowerCase() === cat);
+
+			let score = 0;
+			let count = 0;
+
+			if (catGoals.length > 0) {
+				score += catGoals.reduce((sum, g) => sum + (g.progress || 0), 0);
+				count += catGoals.length;
+			}
+
+			if (catTrackers.length > 0) {
+				score += catTrackers.reduce((sum, t) => {
+					const trackerScore = t.progress || t.stats?.completionRate || (t.streak > 0 ? Math.min(100, t.streak * 10) : 0);
+					return sum + trackerScore;
+				}, 0);
+				count += catTrackers.length;
+			}
+
+			performance[cat] = count > 0 ? Math.round(score / count) : 0;
+		});
+		return performance;
+	}
+
+	getCategoryGoalCount(category: string): number {
+		if (!this.dashboardData?.activeGoals) return 0;
+		return this.dashboardData.activeGoals.filter(g => (g.category || '').toLowerCase() === category.toLowerCase()).length;
+	}
+
+	// Engagement Chart Methods
+	getWeeklyEngagementCount(): number {
+		return this.dashboardData.weeklyActivityStats.filter(s => s.totalActivities > 0).length;
+	}
+
+	getWeeklyEngagementRate(): string {
+		const count = this.dashboardData.weeklyActivityStats.filter(s => s.totalActivities > 0).length;
+		const rate = Math.round((count / 7) * 100);
+		return `${rate}% rate`;
+	}
+
+	getDailyEngagementHeight(dayIndex: number): string {
+		// Map 0 (Mon) - 6 (Sun) to available stats
+		// Need to align stats with days. Assuming weeklyActivityStats is sorted date desc or asc?
+		// Ensure we map correctly to Mon-Sun visual
+		// For simplicity, let's just map index to index if we have 7 days
+		const stat = this.dashboardData.weeklyActivityStats[dayIndex];
+		if (!stat || !stat.totalActivities) return '4px'; // Minimal height for 0
+
+		// Scale 0-10 activities to 10-100%
+		const height = Math.min(100, Math.max(10, stat.totalActivities * 10));
+		return `${height}%`;
+	}
+
+	// Button Handlers
+	openNotifications() {
+		this.toastService.showInfo('Notifications coming soon!');
+	}
+
+	viewCategories() {
+		// Navigate to the Tracker tab for a detailed view of ritual progress in each category
+		this.router.navigate(['/tabs/tracker']);
 	}
 
 	viewAllGoals() {

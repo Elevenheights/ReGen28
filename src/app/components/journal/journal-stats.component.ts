@@ -4,19 +4,23 @@ import { CommonModule } from '@angular/common';
 // Models
 import { JournalStats } from '../../models/journal.interface';
 
+import { CountUpDirective } from '../../directives/count-up.directive';
+
 @Component({
 	selector: 'app-journal-stats',
 	templateUrl: './journal-stats.component.html',
 	styleUrls: ['./journal-stats.component.scss'],
 	standalone: true,
 	imports: [
-		CommonModule
+		CommonModule,
+		CountUpDirective
 	]
 })
 export class JournalStatsComponent {
 	@Input() stats: JournalStats | null = null;
 	@Input() isLoading = false;
 	@Input() showDetailedStats = false;
+	@Input() useGlassStyles = false; // When true, uses transparent/glass styling for gradient backgrounds
 
 	getMoodTrendIcon(): string {
 		if (!this.stats) return 'fa-minus';

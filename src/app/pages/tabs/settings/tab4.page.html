@@ -1,248 +1,247 @@
-<!-- Header -->
-<header class="bg-white border-b border-neutral-200 px-4 py-3">
-	<div class="flex items-center justify-between">
-		<div class="flex items-center space-x-3">
-			<img [src]="profileImageUrl" [alt]="userDisplayName + ' profile'" class="w-8 h-8 rounded-full object-cover"
-				(error)="onImageError($event)" (load)="onImageLoad($event)">
-			<div>
-				<h1 class="text-lg text-neutral-900">Settings</h1>
-				<p class="text-xs text-neutral-500">Customize your wellness experience</p>
-			</div>
-		</div>
-		<button class="p-2">
-			<i class="fa-regular fa-bell text-neutral-600"></i>
-		</button>
-	</div>
-</header>
-
-<ion-content class="bg-neutral-50">
+<ion-content class="bg-neutral-50" [fullscreen]="true">
 	<!-- Main Content -->
-	<main class="px-4 py-6 pb-24">
-		<!-- Profile Section -->
-		<section class="mb-6" *ngIf="user">
-			<div class="bg-white rounded-2xl p-4 border border-neutral-100">
-				<div class="flex items-center space-x-4 mb-4">
-					<img [src]="profileImageUrl" [alt]="userDisplayName" class="w-16 h-16 rounded-full object-cover">
-					<div class="flex-1">
-						<h2 class="text-base text-neutral-900">{{ userDisplayName }}</h2>
-						<p class="text-sm text-neutral-500">{{ user.email }}</p>
-						<p class="text-xs text-neutral-400 capitalize">{{ user.subscriptionType || 'Free' }} Member</p>
-					</div>
-					<button class="p-2" (click)="onEditProfile()">
-						<i class="fa-solid fa-chevron-right text-neutral-400"></i>
-					</button>
-				</div>
-				<div class="grid grid-cols-3 gap-3 pt-3 border-t border-neutral-100">
-					<div class="text-center">
-						<p class="text-lg text-neutral-900">{{ user.currentDay || 0 }}</p>
-						<p class="text-xs text-neutral-500">Days</p>
-					</div>
-					<div class="text-center">
-						<p class="text-lg text-neutral-900">{{ user.stats?.totalTrackerEntries || 0 }}</p>
-						<p class="text-xs text-neutral-500">Practices</p>
-					</div>
-					<div class="text-center">
-						<p class="text-lg text-neutral-900">{{ user.stats?.totalJournalEntries || 0 }}</p>
-						<p class="text-xs text-neutral-500">Entries</p>
-					</div>
-				</div>
-			</div>
-		</section>
+	<main class="pb-32">
 
-		<!-- Account Settings -->
-		<section class="mb-6">
-			<h2 class="text-base text-neutral-900 mb-3">Account</h2>
-			<div class="bg-white rounded-2xl border border-neutral-100">
-				<button class="w-full flex items-center justify-between p-4 border-b border-neutral-100"
-					(click)="onEditProfile()">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-user text-neutral-600 text-sm"></i>
-						</div>
-						<span class="text-sm text-neutral-900">Edit Profile</span>
-					</div>
-					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
-				</button>
-				<button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-lock text-neutral-600 text-sm"></i>
-						</div>
-						<span class="text-sm text-neutral-900">Privacy & Security</span>
-					</div>
-					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
-				</button>
-				<button class="w-full flex items-center justify-between p-4">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-crown text-neutral-600 text-sm"></i>
-						</div>
-						<div class="flex-1 text-left">
-							<span class="text-sm text-neutral-900">Premium Plan</span>
-							<p class="text-xs text-neutral-500" *ngIf="user?.trialEndsAt">Trial ends {{
-								user?.trialEndsAt
-								| date }}</p>
-						</div>
-					</div>
-					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
-				</button>
-			</div>
-		</section>
+		<!-- 1. Premium Profile Header -->
+		<section class="relative pt-20 pb-12 px-6 overflow-hidden animate-entry">
+			<!-- Dynamic Gradient Background -->
+			<div class="absolute inset-0 bg-gradient-to-br from-neutral-900 via-indigo-950 to-purple-950"></div>
 
-		<!-- App Preferences -->
-		<section class="mb-6">
-			<h2 class="text-base text-neutral-900 mb-3">Wellness Preferences</h2>
-			<div class="bg-white rounded-2xl border border-neutral-100">
-				<div class="flex items-center justify-between p-4 border-b border-neutral-100">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-bell text-neutral-600 text-sm"></i>
-						</div>
-						<span class="text-sm text-neutral-900">Daily Reminders</span>
+			<!-- Decorative Orbs -->
+			<div class="absolute -top-24 -right-24 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse-slow">
+			</div>
+			<div class="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/10 rounded-full blur-2xl"></div>
+
+			<!-- Profile Content -->
+			<div class="relative z-10 flex flex-col items-center text-center">
+				<!-- Avatar with Glow -->
+				<div class="relative mb-8 group cursor-pointer animate-entry delay-100" (click)="onEditProfile()">
+					<div
+						class="absolute inset-0 bg-white/20 rounded-full blur-xl scale-110 group-hover:scale-125 transition-transform duration-700">
 					</div>
-					<label class="relative inline-flex items-center cursor-pointer">
-						<input type="checkbox" [checked]="user?.preferences?.dailyReminders" class="sr-only peer"
-							(change)="onToggleSetting('Reminders', $event)">
+					<div
+						class="relative w-32 h-32 rounded-[2.5rem] p-1.5 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 shadow-2xl transition-transform group-hover:rotate-3">
+						<img [src]="profileImageUrl" [alt]="userDisplayName"
+							class="w-full h-full rounded-[2.2rem] object-cover border-4 border-neutral-900 bg-neutral-800"
+							(error)="onImageError($event)">
+
+						<!-- Level Badge -->
 						<div
-							class="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neutral-800">
-						</div>
-					</label>
-				</div>
-				<div class="flex items-center justify-between p-4 border-b border-neutral-100">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-moon text-neutral-600 text-sm"></i>
-						</div>
-						<span class="text-sm text-neutral-900">Dark Mode</span>
-					</div>
-					<label class="relative inline-flex items-center cursor-pointer">
-						<input type="checkbox" [checked]="user?.preferences?.darkMode" class="sr-only peer"
-							(change)="onToggleSetting('Dark Mode', $event)">
-						<div
-							class="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-neutral-800">
-						</div>
-					</label>
-				</div>
-				<button class="w-full flex items-center justify-between p-4">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-language text-neutral-600 text-sm"></i>
-						</div>
-						<div class="flex-1 text-left">
-							<span class="text-sm text-neutral-900">Language</span>
-							<p class="text-xs text-neutral-500">{{ user?.preferences?.language === 'en' ? 'English' :
-								user?.preferences?.language }}</p>
+							class="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-white flex items-center justify-center shadow-xl border-2 border-neutral-900">
+							<i class="fa-solid fa-crown text-indigo-600 text-sm"></i>
 						</div>
 					</div>
-					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
-				</button>
+				</div>
+
+				<!-- User Info -->
+				<div class="space-y-2 mb-10 animate-entry delay-200" *ngIf="user">
+					<h2 class="text-3xl font-black text-white tracking-tighter leading-none">{{ userDisplayName }}</h2>
+					<div class="flex items-center justify-center gap-2">
+						<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+						<p class="text-xs text-purple-200 font-bold uppercase tracking-widest opacity-80">{{
+							achievementLevel?.title || 'Beginner' }} • Level {{ achievementLevel?.level || 1 }}</p>
+					</div>
+				</div>
+
+				<!-- Shared Stats Panel -->
+				<div class="w-full grid grid-cols-3 gap-px bg-white/5 backdrop-blur-md rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl animate-entry delay-300"
+					*ngIf="user">
+					<div class="py-6 px-2 hover:bg-white/5 transition-colors">
+						<p class="text-2xl font-black text-white tracking-tighter" [appCountUp]="user.currentDay || 0">
+						</p>
+						<p class="text-[9px] text-purple-200 font-black uppercase tracking-widest mt-1">Journey</p>
+					</div>
+					<div class="py-6 px-2 hover:bg-white/5 transition-colors border-x border-white/5">
+						<p class="text-2xl font-black text-white tracking-tighter"
+							[appCountUp]="user.stats.totalTrackerEntries || 0"></p>
+						<p class="text-[9px] text-purple-200 font-black uppercase tracking-widest mt-1">Rhythms</p>
+					</div>
+					<div class="py-6 px-2 hover:bg-white/5 transition-colors">
+						<p class="text-2xl font-black text-white tracking-tighter"
+							[appCountUp]="user.stats.totalJournalEntries || 0"></p>
+						<p class="text-[9px] text-purple-200 font-black uppercase tracking-widest mt-1">Reflections</p>
+					</div>
+				</div>
 			</div>
 		</section>
 
-		<!-- Data & Backup -->
-		<section class="mb-6">
-			<h2 class="text-base text-neutral-900 mb-3">Data & Privacy</h2>
-			<div class="bg-white rounded-2xl border border-neutral-100">
-				<button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-cloud text-neutral-600 text-sm"></i>
+		<!-- 2. Settings Sections -->
+		<div class="px-6 -mt-8 relative z-20 space-y-10">
+
+			<!-- Achievements Preview -->
+			<section class="space-y-4 animate-entry delay-300" *ngIf="achievements.length > 0">
+				<div class="flex items-center justify-between px-1">
+					<div class="flex items-center gap-3">
+						<div
+							class="w-10 h-10 rounded-2xl bg-white border border-neutral-100 shadow-sm flex items-center justify-center text-amber-500">
+							<i class="fa-solid fa-trophy text-sm"></i>
 						</div>
-						<div class="flex-1 text-left">
-							<span class="text-sm text-neutral-900">Backup Data</span>
-							<p class="text-xs text-neutral-500">Last backup: {{ user?.updatedAt | date:'mediumDate' }}
+						<div>
+							<h3
+								class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em] leading-none mb-1.5">
+								Your Legacy</h3>
+							<p class="text-xs font-bold text-neutral-900 leading-none"><span
+									[appCountUp]="achievements.length"></span> Earned
 							</p>
 						</div>
 					</div>
-					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
-				</button>
-				<button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-download text-neutral-600 text-sm"></i>
-						</div>
-						<span class="text-sm text-neutral-900">Export Journal</span>
-					</div>
-					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
-				</button>
-				<button class="w-full flex items-center justify-between p-4">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-shield text-neutral-600 text-sm"></i>
-						</div>
-						<span class="text-sm text-neutral-900">Encryption Settings</span>
-					</div>
-					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
-				</button>
-			</div>
-		</section>
-
-		<!-- Developer Mode -->
-		<section class="mb-6">
-			<h2 class="text-base text-neutral-900 mb-3">Development</h2>
-			<div class="bg-white rounded-2xl border border-neutral-100">
-				<div class="flex items-center justify-between p-4">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-amber-50 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-code text-amber-600 text-sm"></i>
-						</div>
-						<div>
-							<span class="text-sm text-neutral-900">Developer Mode</span>
-							<p class="text-xs text-neutral-500">Enable advanced debugging tools</p>
-						</div>
-					</div>
-					<label class="relative inline-flex items-center cursor-pointer">
-						<input type="checkbox" [checked]="user?.preferences?.developerMode" class="sr-only peer"
-							(change)="onToggleSetting('Developer Mode', $event)">
-						<div
-							class="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500">
-						</div>
-					</label>
+					<button
+						class="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:translate-x-1 transition-transform">View
+						All</button>
 				</div>
-			</div>
-		</section>
 
-		<!-- Support -->
-		<section class="mb-6">
-			<h2 class="text-base text-neutral-900 mb-3">Support & Resources</h2>
-			<div class="bg-white rounded-2xl border border-neutral-100">
-				<button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-heart text-neutral-600 text-sm"></i>
-						</div>
-						<span class="text-sm text-neutral-900">Crisis Resources</span>
-					</div>
-					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
-				</button>
-				<button class="w-full flex items-center justify-between p-4 border-b border-neutral-100">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-envelope text-neutral-600 text-sm"></i>
-						</div>
-						<span class="text-sm text-neutral-900">Contact Support</span>
-					</div>
-					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
-				</button>
-				<button class="w-full flex items-center justify-between p-4">
-					<div class="flex items-center space-x-3">
-						<div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center">
-							<i class="fa-solid fa-star text-neutral-600 text-sm"></i>
-						</div>
-						<span class="text-sm text-neutral-900">Rate App</span>
-					</div>
-					<i class="fa-solid fa-chevron-right text-neutral-400"></i>
-				</button>
-			</div>
-		</section>
+				<div class="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-6 px-6">
+					<div *ngFor="let item of achievements.slice(0, 5)"
+						class="flex-shrink-0 w-40 p-5 bg-white rounded-[2.2rem] border border-neutral-100 shadow-sm text-center space-y-4 group active:scale-95 transition-all relative overflow-hidden"
+						[class.opacity-60]="item.status === 'locked'">
 
-		<!-- Sign Out -->
-		<section>
-			<button
-				class="w-full bg-white rounded-2xl p-4 border border-neutral-100 text-center active:bg-neutral-50 transition-colors"
-				(click)="onSignOut()">
-				<span class="text-sm text-red-500 font-medium">Sign Out</span>
-			</button>
-		</section>
+						<!-- Status Badge -->
+						<div class="absolute top-3 right-3" *ngIf="item.status === 'locked'">
+							<i class="fa-solid fa-lock text-[8px] text-neutral-300"></i>
+						</div>
+
+						<div class="relative mx-auto w-16 h-16 rounded-3xl flex items-center justify-center transition-transform group-hover:scale-110 group-hover:rotate-6 shadow-inner overflow-hidden"
+							[ngClass]="item.status === 'locked' ? 'bg-neutral-50' : 'bg-gradient-to-br from-amber-50 to-orange-50'">
+
+							<!-- Icon according to status -->
+							<i *ngIf="item.status !== 'locked'"
+								[class]="'fa-solid ' + item.achievement.icon + ' text-3xl'"
+								[style.color]="item.achievement.color"></i>
+							<i *ngIf="item.status === 'locked'" class="fa-solid fa-medal text-neutral-200 text-2xl"></i>
+
+							<!-- Progress overlay for in-progress items -->
+							<div *ngIf="item.status === 'in_progress'"
+								class="absolute bottom-0 left-0 h-1 bg-indigo-500 transition-all duration-1000"
+								[style.width.%]="item.progress"></div>
+						</div>
+
+						<div class="space-y-1.5">
+							<p
+								class="text-[11px] font-black text-neutral-900 truncate uppercase tracking-tight leading-tight">
+								{{ item.achievement.title }}
+							</p>
+							<div class="flex items-center justify-center gap-1">
+								<span
+									[class]="'w-1 h-1 rounded-full ' + (item.status === 'locked' ? 'bg-neutral-300' : 'bg-amber-400')"></span>
+								<p class="text-[8px] text-neutral-400 font-bold uppercase tracking-widest leading-none">
+									{{ item.status === 'earned' ? 'Achieved' : (item.status === 'in_progress' ?
+									item.progress + '%' : 'Locked') }}
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Account Group -->
+			<section class="space-y-4 animate-entry delay-500">
+				<div class="flex items-center gap-3 px-1">
+					<div
+						class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm">
+						<i class="fa-solid fa-user-shield text-xs"></i>
+					</div>
+					<h3 class="text-xs font-black text-neutral-400 uppercase tracking-widest">Authentication</h3>
+				</div>
+
+				<div class="bg-white rounded-[2.5rem] border border-neutral-100 shadow-sm overflow-hidden">
+					<button (click)="onEditProfile()"
+						class="w-full p-6 flex items-center justify-between hover:bg-neutral-50 active:bg-neutral-100 transition-colors border-b border-neutral-50 group">
+						<div class="flex items-center gap-4">
+							<div
+								class="w-11 h-11 rounded-2xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:text-indigo-600 group-hover:bg-indigo-50 transition-all">
+								<i class="fa-solid fa-user"></i>
+							</div>
+							<div class="text-left">
+								<p class="text-sm font-black text-neutral-900 uppercase tracking-tight">Identity
+									Settings</p>
+								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Public
+									profile details</p>
+							</div>
+						</div>
+						<i
+							class="fa-solid fa-chevron-right text-neutral-200 text-[10px] group-hover:translate-x-1 transition-transform"></i>
+					</button>
+
+					<button
+						class="w-full p-6 flex items-center justify-between hover:bg-neutral-50 active:bg-neutral-100 transition-colors group">
+						<div class="flex items-center gap-4">
+							<div
+								class="w-11 h-11 rounded-2xl bg-neutral-50 flex items-center justify-center text-neutral-400 group-hover:text-emerald-600 group-hover:bg-emerald-50 transition-all">
+								<i class="fa-solid fa-shield-check"></i>
+							</div>
+							<div class="text-left">
+								<p class="text-sm font-black text-neutral-900 uppercase tracking-tight">Access &
+									Security</p>
+								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Email,
+									Password, MFA</p>
+							</div>
+						</div>
+						<i
+							class="fa-solid fa-chevron-right text-neutral-200 text-[10px] group-hover:translate-x-1 transition-transform"></i>
+					</button>
+				</div>
+			</section>
+
+			<!-- Preferences Group -->
+			<section class="space-y-4 animate-entry delay-500">
+				<div class="flex items-center gap-3 px-1">
+					<div
+						class="w-8 h-8 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600 shadow-sm">
+						<i class="fa-solid fa-sliders text-xs"></i>
+					</div>
+					<h3 class="text-xs font-black text-neutral-400 uppercase tracking-widest">Experience</h3>
+				</div>
+
+				<div class="bg-white rounded-[2.5rem] border border-neutral-100 shadow-sm overflow-hidden text-left">
+					<div class="p-6 flex items-center justify-between border-b border-neutral-50">
+						<div class="flex items-center gap-4">
+							<div
+								class="w-11 h-11 rounded-2xl bg-neutral-50 flex items-center justify-center text-neutral-400">
+								<i class="fa-solid fa-bell"></i>
+							</div>
+							<div>
+								<p class="text-sm font-black text-neutral-900 uppercase tracking-tight">Nudges</p>
+								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">In-app
+									notifications</p>
+							</div>
+						</div>
+						<ion-toggle color="dark" [checked]="user?.preferences?.dailyReminders"
+							(ionChange)="onToggleSetting('Reminders', $event)"></ion-toggle>
+					</div>
+
+					<div class="p-6 flex items-center justify-between">
+						<div class="flex items-center gap-4">
+							<div
+								class="w-11 h-11 rounded-2xl bg-neutral-50 flex items-center justify-center text-neutral-400">
+								<i class="fa-solid fa-moon"></i>
+							</div>
+							<div>
+								<p class="text-sm font-black text-neutral-900 uppercase tracking-tight">Obsidian Flow
+								</p>
+								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Dark mode
+									experience</p>
+							</div>
+						</div>
+						<ion-toggle color="dark" [checked]="user?.preferences?.darkMode"
+							(ionChange)="onToggleSetting('Dark Mode', $event)"></ion-toggle>
+					</div>
+				</div>
+			</section>
+
+			<!-- Sign Out -->
+			<section class="pt-10 animate-entry delay-500">
+				<button (click)="onSignOut()"
+					class="w-full p-6 bg-red-50 text-red-600 rounded-[2.5rem] border border-red-100 font-black text-xs uppercase tracking-[0.2em] shadow-sm active:scale-95 transition-all flex items-center justify-center gap-4 group">
+					<i class="fa-solid fa-arrow-right-from-bracket group-hover:-translate-x-1 transition-transform"></i>
+					<span>Disconnect Service</span>
+				</button>
+				<p class="text-center text-[10px] text-neutral-300 font-bold uppercase tracking-[0.3em] mt-12">System
+					v2.8.0 • Regen Infinite</p>
+			</section>
+		</div>
+
+		<!-- Bottom Spacer -->
+		<div class="h-24"></div>
+
 	</main>
 </ion-content>

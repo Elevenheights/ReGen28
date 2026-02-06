@@ -20,6 +20,13 @@ import {
 	IonInput,
 	IonNote,
 	IonButtons,
+	IonRefresher,
+	IonRefresherContent,
+	IonList,
+	IonListHeader,
+	IonGrid,
+	IonRow,
+	IonCol,
 	ModalController
 } from '@ionic/angular/standalone';
 import { Subject, takeUntil } from 'rxjs';
@@ -43,6 +50,10 @@ import { MoodTrackerComponent } from '../../../components/journal/mood-tracker/m
 import { JournalPromptsComponent } from '../../../components/journal/journal-prompts/journal-prompts.component'; // Added
 import { WriteEntryModalComponent } from '../../../components/journal/write-entry-modal/write-entry-modal.component';
 
+import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
+import { SectionSeparatorComponent } from '../../../components/section-separator/section-separator.component';
+import { CountUpDirective } from '../../../directives/count-up.directive';
+
 @Component({
 	selector: 'app-tab2',
 	templateUrl: 'tab2.page.html',
@@ -50,29 +61,11 @@ import { WriteEntryModalComponent } from '../../../components/journal/write-entr
 	standalone: true,
 	imports: [
 		CommonModule,
-		IonHeader,
-		IonToolbar,
-		IonTitle,
 		IonContent,
-		IonCard,
-		IonCardContent,
-		IonCardHeader,
-		IonCardTitle,
-		IonCardSubtitle,
-		IonTextarea,
-		IonButton,
-		IonIcon,
-		IonSpinner,
-		IonItem,
-		IonLabel,
-		IonInput,
-		IonNote,
-		IonButtons,
-		JournalEntryCardComponent,
-		JournalStatsComponent,
-		MoodTrackerComponent,
-		JournalPromptsComponent,
-		WriteEntryModalComponent
+		IonRefresher,
+		IonRefresherContent,
+		PageHeaderComponent,
+		CountUpDirective
 	]
 })
 export class Tab2Page implements OnInit, OnDestroy {
@@ -95,10 +88,15 @@ export class Tab2Page implements OnInit, OnDestroy {
 	// Loading states
 	isLoadingStats = true;
 	isLoadingEntries = true;
-	isLoadingTrends = true; // Added
-	isLoadingPrompts = true;
 	isLoadingDailyPrompt = true;
+	isLoadingPrompts = true;
 	isRefreshingPrompts = false;
+
+	get isLoading(): boolean {
+		return this.isLoadingStats && this.isLoadingEntries;
+	}
+	isLoadingTrends = true;
+
 
 	// AI prompts status
 	aiPromptsAvailable = false;
@@ -378,6 +376,39 @@ export class Tab2Page implements OnInit, OnDestroy {
 		return content.substring(0, maxLength) + '...';
 	}
 
+	// Strip HTML tags from content
+	stripHtml(content: string): string {
+		if (!content) return '';
+		return content
+			.replace(/<[^>]*>/g, '') // Remove HTML tags
+			.replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
+			.replace(/&amp;/g, '&')
+			.replace(/&lt;/g, '<')
+			.replace(/&gt;/g, '>')
+			.replace(/&quot;/g, '"')
+			.replace(/&#39;/g, "'")
+			.trim();
+	}
+
+	// Get greeting based on time of day
+	getTodayGreeting(): string {
+		const hour = new Date().getHours();
+		if (hour < 12) return 'Good morning';
+		if (hour < 17) return 'Good afternoon';
+		return 'Good evening';
+	}
+
+	// Get dynamic subtext for journal stats
+	getJourneySubtext(): string {
+		if (!this.journalStats || this.journalStats.totalEntries === 0) {
+			return 'Start your reflection practice';
+		}
+		if (this.journalStats.currentStreak > 0) {
+			return `${this.journalStats.currentStreak} day streak 🔥`;
+		}
+		return 'Keep the momentum going';
+	}
+
 	getMoodEmoji(mood?: number): string {
 		if (!mood || mood < 1) return '😊';
 
@@ -420,6 +451,8 @@ export class Tab2Page implements OnInit, OnDestroy {
 			this.loadJournalData();
 		}
 	}
+
+
 
 	async onPromptSelected(prompt: JournalPrompt) {
 		const modal = await this.modalCtrl.create({
@@ -479,6 +512,42 @@ export class Tab2Page implements OnInit, OnDestroy {
 		this.router.navigate(['/journal-entry', entry.id], {
 			queryParams: { edit: 'true' }
 		});
+	}
+
+	// Pull to refresh handler
+	async handleRefresh(event: any) {
+		try {
+			// Reload all journal data
+			this.loadJournalData();
+
+			// Small delay to allow loading to start
+			await new Promise(resolve => setTimeout(resolve, 800));
+		} catch (error) {
+			this.logging.error('Error refreshing journal', { error });
+		} finally {
+			event.target.complete();
+		}
+	}
+
+	// Handle stats interactions
+	onStatClick(type: 'week' | 'streak' | 'mood' | 'total') {
+		let msg = '';
+		switch (type) {
+			case 'week':
+				msg = `You've made ${this.journalStats?.weeklyCount || 0} entries this week. Keep it up!`;
+				break;
+			case 'streak':
+				msg = `You're on a ${this.journalStats?.currentStreak || 0}-day streak! Consistency is key.`;
+				break;
+			case 'mood':
+				msg = `Your average mood is ${this.getMoodEmoji(this.journalStats?.averageMood)}.`;
+				break;
+			case 'total':
+				msg = `Total Lifetime Entries: ${this.journalStats?.totalEntries || 0}`;
+				break;
+		}
+		// Use showSuccess as generic feedback since user is checking positive stats
+		this.toastService.showSuccess(msg);
 	}
 
 	// Refresh AI prompts (force refresh)

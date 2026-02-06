@@ -17,6 +17,7 @@ import {
 	IonSelectOption,
 	IonRange,
 	IonSpinner,
+	IonFooter,
 	ModalController
 } from '@ionic/angular/standalone';
 
@@ -51,11 +52,16 @@ import { JournalCategory, JournalPrompt } from '../../../models/journal.interfac
 		IonSelect,
 		IonSelectOption,
 		IonRange,
-		IonSpinner
+		IonSpinner,
+		IonFooter
 	]
 })
 export class WriteEntryModalComponent implements OnInit {
 	@Input() prompt?: JournalPrompt;
+
+	getCurrentDate(): Date {
+		return new Date();
+	}
 
 	entryForm: FormGroup;
 	isSaving = false;

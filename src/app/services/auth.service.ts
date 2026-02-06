@@ -34,6 +34,8 @@ export interface AuthError {
 	message: string;
 }
 
+import { ToastService } from './toast.service';
+
 @Injectable({
 	providedIn: 'root'
 })
@@ -50,7 +52,10 @@ export class AuthService {
 
 	private userService?: UserService; // Lazy injection to avoid circular dependency
 
-	constructor(private auth: Auth) {
+	constructor(
+		private auth: Auth,
+		private toastService: ToastService
+	) {
 		this.user$ = user(this.auth);
 
 		// Initialize auth state
@@ -67,6 +72,7 @@ export class AuthService {
 			this.initializeUserServiceConnection();
 		}, 100);
 	}
+
 
 	private async initializeUserServiceConnection(): Promise<void> {
 		try {
@@ -187,11 +193,20 @@ export class AuthService {
 			} else {
 				// User is signed out
 				console.log('User signed out');
-				this.authStateSubject.next({
-					user: null,
-					loading: false,
-					error: null
-				});
+
+				// If we are waiting for a redirect, DON'T set loading to false yet
+				// Let handleRedirectResult finish its work
+				const isPendingRedirect = sessionStorage.getItem('pendingOAuthRedirect') === 'true';
+
+				if (!isPendingRedirect) {
+					this.authStateSubject.next({
+						user: null,
+						loading: false,
+						error: null
+					});
+				} else {
+					console.log('User is null but waiting for OAuth redirect resolution...');
+				}
 			}
 		});
 	}
@@ -420,18 +435,11 @@ export class AuthService {
 					this.setLoading(false);
 					return userCredential.user;
 				} catch (nativeError: any) {
-					console.warn('⚠️ Native Google login failed, falling back to redirect flow:', nativeError);
-
-					const provider = new GoogleAuthProvider();
-					provider.addScope('profile');
-					provider.addScope('email');
-
-					// Use redirect instead of popup to avoid the white screen issue in mobile browsers
-					sessionStorage.setItem('pendingOAuthRedirect', 'true');
-					await signInWithRedirect(this.auth, provider);
-					return null; // The app will reload and handle the result
+					console.warn('⚠️ Native Google login failed:', nativeError);
+					await this.toastService.showError(`Google Sign-In failed: ${nativeError.message || 'Configuration error'}`);
+					throw nativeError;
 				}
-			} else if (this.isMobile()) {
+			} else if (this.isMobile() && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
 				console.log('🔑 Using mobile redirect flow for Google login (web mobile)');
 				// Set a flag to indicate we're expecting a redirect result
 				sessionStorage.setItem('pendingOAuthRedirect', 'true');

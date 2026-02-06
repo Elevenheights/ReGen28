@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
 	IonContent,
-	IonHeader,
-	IonTitle,
-	IonToolbar
+	IonToggle
 } from '@ionic/angular/standalone';
 import { ModalController } from '@ionic/angular/standalone';
 import { Subject, takeUntil } from 'rxjs';
@@ -22,6 +20,10 @@ import { Router } from '@angular/router';
 
 // Models
 import { User } from '../../../models/user.interface';
+import { UserAchievement, Achievement, AchievementStats } from '../../../models/achievements.interface';
+import { AchievementService } from '../../../services/achievement.service';
+
+import { CountUpDirective } from '../../../directives/count-up.directive';
 
 @Component({
 	selector: 'app-tab4',
@@ -30,11 +32,10 @@ import { User } from '../../../models/user.interface';
 	standalone: true,
 	imports: [
 		IonContent,
-		IonHeader,
-		IonTitle,
-		IonToolbar,
+		IonToggle,
 		CommonModule,
-		FormsModule
+		FormsModule,
+		CountUpDirective
 	]
 })
 export class Tab4Page implements OnInit, OnDestroy {
@@ -42,6 +43,9 @@ export class Tab4Page implements OnInit, OnDestroy {
 
 	// User data
 	user: User | null = null;
+	achievements: Array<UserAchievement & { achievement: Achievement }> = [];
+	achievementStats: AchievementStats | null = null;
+	achievementLevel: { level: number; title: string; pointsToNext: number } | null = null;
 
 	// Profile image
 	profileImageUrl = 'https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=42';
@@ -53,11 +57,13 @@ export class Tab4Page implements OnInit, OnDestroy {
 		private logging: LoggingService,
 		private toastService: ToastService,
 		private router: Router,
-		private modalCtrl: ModalController
+		private modalCtrl: ModalController,
+		private achievementService: AchievementService
 	) { }
 
 	ngOnInit() {
 		this.loadUserProfile();
+		this.loadAchievements();
 	}
 
 	ngOnDestroy() {
@@ -75,6 +81,21 @@ export class Tab4Page implements OnInit, OnDestroy {
 			},
 			error: (error) => {
 				this.logging.error('Failed to load user profile', { error });
+			}
+		});
+	}
+
+	private loadAchievements() {
+		this.achievementService.getUserAchievementsWithDetails().pipe(
+			takeUntil(this.destroy$)
+		).subscribe({
+			next: async (achievements) => {
+				this.achievements = achievements;
+				this.achievementStats = await this.achievementService.getAchievementStats();
+				this.achievementLevel = await this.achievementService.getUserAchievementLevel();
+			},
+			error: (error) => {
+				this.logging.error('Failed to load achievements', { error });
 			}
 		});
 	}

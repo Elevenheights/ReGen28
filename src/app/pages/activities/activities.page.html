@@ -1,0 +1,72 @@
+<ion-header class="ion-no-border">
+	<ion-toolbar class="px-2 py-4 shadow-none border-none">
+		<ion-buttons slot="start">
+			<ion-back-button defaultHref="/tabs/dashboard" text="" class="text-neutral-900"></ion-back-button>
+		</ion-buttons>
+		<ion-title class="text-xl font-bold text-neutral-900">Activity History</ion-title>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding-bottom">
+	<ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+		<ion-refresher-content></ion-refresher-content>
+	</ion-refresher>
+
+	<div class="px-4 py-4">
+		<!-- Loading State -->
+		<div *ngIf="isLoading" class="flex flex-col items-center justify-center py-20">
+			<ion-spinner name="crescent" color="primary"></ion-spinner>
+			<p class="mt-4 text-neutral-500 font-medium">Loading your journey...</p>
+		</div>
+
+		<!-- Empty State -->
+		<div *ngIf="!isLoading && activities.length === 0"
+			class="bg-gradient-to-br from-emerald-50 to-teal-100 rounded-3xl p-10 text-center shadow-sm">
+			<div class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+				<i class="fa-solid fa-seedling text-4xl text-emerald-600"></i>
+			</div>
+			<h3 class="text-xl font-bold text-emerald-900 mb-2">The Garden is Ready</h3>
+			<p class="text-neutral-600 mb-6">Start tracking your rituals and writing in your journal to grow your
+				activity history.</p>
+		</div>
+
+		<!-- Activities List -->
+		<div *ngIf="!isLoading && activities.length > 0" class="space-y-4">
+			<div *ngFor="let activity of activities; trackBy: trackActivity"
+				class="bg-white rounded-3xl p-5 shadow-md border border-neutral-50 active:scale-[0.98] transition-transform flex items-center space-x-4">
+
+				<!-- Activity Icon -->
+				<div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-md flex-shrink-0"
+					[ngClass]="getActivityGradientClass(activity.type)">
+					<i [class]="getActivityIcon(activity.type)" class="text-white text-xl"></i>
+				</div>
+
+				<!-- Activity Info -->
+				<div class="flex-1 min-w-0">
+					<div class="flex items-center justify-between mb-1">
+						<span class="text-xs font-bold text-neutral-500 tracking-wider uppercase">
+							{{ getActivityTypeLabel(activity.type) }}
+						</span>
+						<span class="text-[10px] text-neutral-400 font-medium">
+							{{ formatActivityTime(activity.createdAt) }}
+						</span>
+					</div>
+					<h3 class="text-base font-bold text-neutral-900 truncate mb-1">
+						{{ activity.title }}
+					</h3>
+					<p class="text-sm text-neutral-500 font-medium line-clamp-1">
+						{{ activity.description || 'Activity logged successfully' }}
+					</p>
+				</div>
+
+				<!-- Decorator -->
+				<div class="w-2 h-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200"></div>
+			</div>
+		</div>
+	</div>
+
+	<ion-infinite-scroll *ngIf="activities.length >= limit" threshold="100px" (ionInfinite)="loadActivities($event)">
+		<ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Loading more activities...">
+		</ion-infinite-scroll-content>
+	</ion-infinite-scroll>
+</ion-content>

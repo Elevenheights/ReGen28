@@ -1,104 +1,176 @@
-<ion-header class="ion-no-border">
-	<ion-toolbar class="px-2">
-		<ion-buttons slot="start">
-			<ion-button (click)="dismiss()" [disabled]="isSaving || isUploading">
-				Cancel
-			</ion-button>
-		</ion-buttons>
-		<ion-title>Edit Profile</ion-title>
-		<ion-buttons slot="end">
-			<ion-button (click)="save()" [disabled]="profileForm.invalid || isSaving || isUploading" color="primary"
-				class="font-bold">
-				Done
-			</ion-button>
-		</ion-buttons>
-	</ion-toolbar>
+<!-- Premium Edit Profile Modal -->
+<ion-header class="ion-no-border shadow-none">
+	<div
+		class="px-6 pt-6 pb-4 bg-white/80 backdrop-blur-md sticky top-0 z-50 flex justify-between items-center border-b border-neutral-100/50">
+		<div class="flex items-center gap-3">
+			<div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+				<i class="fa-solid fa-user-gear text-lg"></i>
+			</div>
+			<div>
+				<h2 class="text-2xl font-bold text-neutral-900 tracking-tight">Edit Profile</h2>
+				<p class="text-xs text-neutral-500 font-medium">Customize your presence</p>
+			</div>
+		</div>
+		<button (click)="dismiss()" [disabled]="isSaving || isUploading"
+			class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 active:scale-90 transition-transform hover:bg-neutral-200">
+			<i class="fa-solid fa-times text-lg"></i>
+		</button>
+	</div>
 </ion-header>
 
-<ion-content class="ion-padding bg-neutral-50">
-	<div class="max-w-md mx-auto py-8">
-		<!-- Avatar Upload Section -->
-		<div class="flex flex-col items-center mb-8">
-			<div class="relative group">
-				<div class="w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-neutral-200">
-					<img [src]="profileImageUrl" alt="Profile avatar" class="w-full h-full object-cover">
-					<div *ngIf="isUploading" class="absolute inset-0 flex items-center justify-center bg-black/30">
-						<ion-spinner name="crescent" color="light"></ion-spinner>
+<ion-content class="ion-padding-bottom" [fullscreen]="true" [style.--background]="'transparent'">
+	<div class="h-full flex flex-col bg-neutral-50 relative min-h-screen">
+		<div class="px-5 pt-8 pb-32 space-y-8">
+
+			<!-- Avatar Upload Section (Premium) -->
+			<div class="flex flex-col items-center animate-entry">
+				<div class="relative group">
+					<!-- Hero Avatar Glow -->
+					<div
+						class="absolute -inset-1 bg-gradient-to-tr from-amber-500 to-orange-400 rounded-full blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200">
 					</div>
+
+					<div
+						class="relative w-36 h-36 rounded-full overflow-hidden border-4 border-white shadow-2xl bg-neutral-100">
+						<img [src]="profileImageUrl" alt="Profile avatar"
+							class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+
+						<!-- Loading Overlay -->
+						<div *ngIf="isUploading"
+							class="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+							<ion-spinner name="crescent" color="light"></ion-spinner>
+						</div>
+
+						<!-- Hover Overlay (Desktop) -->
+						<div
+							class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+							<i class="fa-solid fa-camera text-white text-2xl"></i>
+						</div>
+					</div>
+
+					<label for="avatar-input"
+						class="absolute bottom-1 right-1 w-11 h-11 bg-neutral-900 rounded-full flex items-center justify-center text-white border-4 border-white cursor-pointer hover:bg-neutral-800 transition-all shadow-xl active:scale-90 z-10">
+						<i class="fa-solid fa-plus text-sm"></i>
+						<input id="avatar-input" type="file" class="hidden" (change)="onFileSelected($event)"
+							accept="image/*">
+					</label>
 				</div>
-
-				<label for="avatar-input"
-					class="absolute bottom-0 right-0 w-10 h-10 bg-neutral-900 rounded-full flex items-center justify-center text-white border-2 border-white cursor-pointer hover:bg-neutral-800 transition-colors shadow-md">
-					<i class="fa-solid fa-camera text-sm"></i>
-					<input id="avatar-input" type="file" class="hidden" (change)="onFileSelected($event)"
-						accept="image/*">
-				</label>
+				<p class="text-[11px] font-bold text-neutral-400 uppercase tracking-widest mt-6">Profile Image</p>
 			</div>
-			<p class="text-xs text-neutral-500 mt-3">Tap camera to change photo</p>
-		</div>
 
-		<!-- Profile Form -->
-		<form [formGroup]="profileForm" class="space-y-6">
-			<div class="bg-white rounded-2xl p-4 border border-neutral-200 shadow-sm">
-				<div class="space-y-4">
-					<div>
+			<!-- Profile Form -->
+			<form [formGroup]="profileForm" class="space-y-6">
+
+				<!-- Main Info Group -->
+				<div class="space-y-4 animate-entry delay-100">
+					<div class="flex items-center gap-3">
+						<div class="h-px bg-neutral-200 flex-1"></div>
+						<span class="text-xs font-bold text-neutral-400 uppercase tracking-widest">Public Profile</span>
+						<div class="h-px bg-neutral-200 flex-1"></div>
+					</div>
+
+					<!-- Name Input Card -->
+					<div
+						class="bg-white rounded-3xl p-5 border border-neutral-100 shadow-sm focus-within:ring-2 focus-within:ring-amber-100 transition-all">
 						<label
-							class="block text-xs font-medium text-neutral-500 mb-1 ml-1 uppercase tracking-wider">Full
+							class="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">Display
 							Name</label>
-						<div class="relative">
+						<div class="flex items-center gap-3">
+							<i class="fa-solid fa-signature text-neutral-300"></i>
 							<input type="text" formControlName="displayName" placeholder="Enter your name"
-								class="w-full bg-neutral-50 border border-neutral-100 rounded-xl px-4 py-3 text-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-200 transition-all font-medium">
+								class="w-full bg-transparent text-lg font-bold text-neutral-900 placeholder-neutral-300 focus:outline-none border-none p-0">
 						</div>
 						<p *ngIf="profileForm.get('displayName')?.touched && profileForm.get('displayName')?.errors?.['required']"
-							class="text-xs text-red-500 mt-1 ml-1">
-							Name is required
+							class="text-[10px] text-red-500 mt-2 font-bold px-1">
+							<i class="fa-solid fa-circle-exclamation mr-1"></i> Name is required
 						</p>
 					</div>
 
-					<div>
-						<label
-							class="block text-xs font-medium text-neutral-500 mb-1 ml-1 uppercase tracking-wider">Email
-							Address</label>
-						<div class="relative">
-							<input type="email" formControlName="email" placeholder="email@example.com"
-								class="w-full bg-neutral-100 border border-neutral-100 rounded-xl px-4 py-3 text-neutral-400 cursor-not-allowed font-medium">
-							<div class="absolute right-4 top-1/2 -translate-y-1/2">
-								<i class="fa-solid fa-lock text-neutral-300 text-xs"></i>
+					<!-- Email Card (Read Only) -->
+					<div class="bg-neutral-100/50 rounded-3xl p-5 border border-neutral-200/50">
+						<div class="flex justify-between items-start mb-1">
+							<label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Email
+								Address</label>
+							<i class="fa-solid fa-lock text-[10px] text-neutral-300"></i>
+						</div>
+						<div class="flex items-center gap-3">
+							<i class="fa-solid fa-envelope text-neutral-300"></i>
+							<input type="email" formControlName="email"
+								class="w-full bg-transparent text-base font-medium text-neutral-400 cursor-not-allowed border-none p-0">
+						</div>
+					</div>
+				</div>
+
+				<!-- Stats/Account Info Group -->
+				<div class="space-y-4 animate-entry delay-200">
+					<div class="flex items-center gap-3">
+						<div class="h-px bg-neutral-200 flex-1"></div>
+						<span class="text-xs font-bold text-neutral-400 uppercase tracking-widest">Journey Stats</span>
+						<div class="h-px bg-neutral-200 flex-1"></div>
+					</div>
+
+					<div class="bg-white rounded-3xl p-6 border border-neutral-100 shadow-sm">
+						<div class="grid grid-cols-2 gap-6">
+							<div class="space-y-1">
+								<span
+									class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest block">Member
+									Since</span>
+								<span class="text-sm font-bold text-neutral-900 block">{{ user?.joinDate | date:'MMM d,
+									yyyy' }}</span>
+							</div>
+							<div class="space-y-1">
+								<span
+									class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest block">Journey
+									Day</span>
+								<div class="flex items-center gap-2">
+									<span class="text-sm font-bold text-neutral-900 block">{{ user?.currentDay || 0 }} /
+										28</span>
+									<div class="h-1 w-10 bg-neutral-100 rounded-full overflow-hidden">
+										<div class="h-full bg-amber-500 rounded-full"
+											[style.width.%]="((user?.currentDay || 0) / 28) * 100"></div>
+									</div>
+								</div>
+							</div>
+							<div class="col-span-2 pt-2 border-t border-neutral-50 flex items-center justify-between">
+								<div class="flex items-center gap-3">
+									<div
+										class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+										<i class="fa-solid fa-crown text-sm"></i>
+									</div>
+									<span
+										class="text-xs font-bold text-neutral-500 uppercase tracking-widest">Subscription</span>
+								</div>
+								<span
+									class="text-xs font-black text-white bg-emerald-500 px-3 py-1 rounded-full uppercase tracking-widest">
+									{{ user?.subscriptionType || 'TRIAL' }}
+								</span>
 							</div>
 						</div>
-						<p class="text-[10px] text-neutral-400 mt-1 ml-1">Email cannot be changed here</p>
 					</div>
 				</div>
-			</div>
 
-			<!-- Additional Info Group -->
-			<div class="bg-white rounded-2xl p-4 border border-neutral-200 shadow-sm">
-				<h3 class="text-sm font-semibold text-neutral-900 mb-4">Account Information</h3>
-
-				<div class="space-y-3">
-					<div class="flex items-center justify-between py-2 border-b border-neutral-50">
-						<span class="text-sm text-neutral-500">Joined</span>
-						<span class="text-sm font-medium text-neutral-900">{{ user?.joinDate | date:'longDate' }}</span>
-					</div>
-					<div class="flex items-center justify-between py-2 border-b border-neutral-50">
-						<span class="text-sm text-neutral-500">Days in Journey</span>
-						<span class="text-sm font-medium text-neutral-900">{{ user?.currentDay || 0 }} / 28</span>
-					</div>
-					<div class="flex items-center justify-between py-2">
-						<span class="text-sm text-neutral-500">Subscription Status</span>
-						<span
-							class="text-sm font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full capitalize">{{
-							user?.subscriptionType || 'Trial' }}</span>
-					</div>
+				<div class="px-4 text-center animate-entry delay-300">
+					<p class="text-[11px] text-neutral-400 leading-relaxed max-w-xs mx-auto">
+						Your information helps us personalize your wellness journey. We value your privacy and data
+						security.
+					</p>
 				</div>
-			</div>
-		</form>
 
-		<div class="mt-8 px-4 text-center">
-			<p class="text-xs text-neutral-400">
-				Your profile information is used to personalize your dashboard and wellness suggestions. We respect your
-				privacy.
-			</p>
+			</form>
 		</div>
 	</div>
 </ion-content>
+
+<!-- Floating Footer -->
+<ion-footer class="ion-no-border bg-transparent shadow-none">
+	<div class="px-6 pb-6 pt-2">
+		<button (click)="save()" [disabled]="profileForm.invalid || isSaving || isUploading"
+			class="w-full bg-neutral-900 text-white rounded-2xl py-4 font-bold shadow-xl shadow-neutral-900/20 active:scale-95 transition-transform flex items-center justify-center gap-2 border border-white/10 relative overflow-hidden group">
+			<div *ngIf="isSaving" class="absolute inset-0 flex items-center justify-center bg-neutral-900 z-10">
+				<div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+			</div>
+			<span>Update Profile</span>
+			<i class="fa-solid fa-check text-sm group-hover:scale-125 transition-transform"></i>
+		</button>
+	</div>
+</ion-footer>

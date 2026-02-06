@@ -1,143 +1,158 @@
-<div class="bg-white rounded-2xl shadow-sm cursor-pointer active:scale-[0.98] transition-all duration-200 border border-neutral-100 h-full flex flex-col overflow-hidden"
-	[class.p-4]="!compactMode" [class.p-3]="compactMode" (click)="onCardClick()">
+<div class="card-elevated group scroll-snap-align-start h-full flex flex-col overflow-hidden relative"
+	[class.p-5]="!compactMode" [class.p-3]="compactMode" (click)="onCardClick()">
 
-	<!-- Header Row -->
-	<div class="flex items-center justify-between" [class.mb-3]="!compactMode" [class.mb-2]="compactMode">
-		<div class="flex items-center space-x-3 flex-1 min-w-0">
-			<!-- Icon -->
-			<div class="rounded-xl flex items-center justify-center flex-shrink-0" [class.w-12]="!compactMode"
-				[class.h-12]="!compactMode" [class.w-10]="compactMode" [class.h-10]="compactMode"
-				[style.background]="'linear-gradient(135deg, ' + trackerColor + ', ' + trackerColor + '90)'">
-				<i [class]="'fa-solid ' + trackerIcon + ' text-white'" [class.text-lg]="!compactMode"
-					[class.text-base]="compactMode"></i>
+	<!-- Shine Overlay -->
+	<div
+		class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+	</div>
+
+	<!-- 1. Header Section -->
+	<div class="flex items-start justify-between relative z-10" [class.mb-4]="!compactMode" [class.mb-2]="compactMode">
+		<div class="flex items-center gap-4 flex-1 min-w-0">
+			<!-- Icon Visual -->
+			<div class="relative flex-shrink-0">
+				<div class="rounded-2xl flex items-center justify-center shadow-lg transition-transform duration-500 group-hover:rotate-6"
+					[class.w-14]="!compactMode" [class.h-14]="!compactMode" [class.w-11]="compactMode"
+					[class.h-11]="compactMode"
+					[style.background]="'linear-gradient(135deg, ' + trackerColor + ', ' + trackerColor + 'cc)'">
+					<i [class]="'fa-solid ' + trackerIcon + ' text-white'" [class.text-2xl]="!compactMode"
+						[class.text-lg]="compactMode"></i>
+				</div>
+				<!-- Fire Badge -->
+				<div *ngIf="hasStreak && tracker.streak >= 3"
+					class="absolute -top-1 -right-1 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-white text-[10px] shadow-lg animate-bounce-slow border-2 border-white">
+					<i class="fa-solid fa-fire"></i>
+				</div>
 			</div>
 
-			<!-- Name & Category -->
+			<!-- Title & Meta -->
 			<div class="flex-1 min-w-0">
-				<h3 class="font-semibold text-neutral-900 truncate" [class.text-sm]="!compactMode"
-					[class.text-xs]="compactMode">
-					{{ tracker?.name || 'Unknown Activity' }}
+				<h3 class="font-black text-neutral-900 truncate leading-tight tracking-tight"
+					[class.text-lg]="!compactMode" [class.text-sm]="compactMode">
+					{{ tracker?.name || 'Habit' }}
 				</h3>
-				<div class="flex items-center space-x-2 flex-wrap">
-					<!-- Category Badge -->
-					<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-						[style.background-color]="trackerColor + '15'" [style.color]="trackerColor">
+				<div class="flex items-center gap-2 mt-0.5 flex-wrap">
+					<span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-lg border"
+						[style.background-color]="trackerColor + '08'" [style.border-color]="trackerColor + '20'"
+						[style.color]="trackerColor">
 						{{ categoryShortLabel }}
 					</span>
-
-					<!-- Streak Badge -->
 					<span *ngIf="hasStreak"
-						class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700">
-						<i class="fa-solid text-[9px] mr-1" [class.fa-fire]="isOnFire"
-							[class.fa-bolt]="!isOnFire"></i>{{ tracker.streak }}
-					</span>
-
-					<!-- Trend Indicator -->
-					<span *ngIf="tracker.trend && !compactMode" class="inline-flex items-center text-[10px]"
-						[class]="trendClass">
-						<i [class]="'fa-solid ' + trendIcon + ' text-[8px]'"></i>
+						class="text-[10px] font-black text-amber-600 uppercase tracking-widest flex items-center gap-1">
+						<i class="fa-solid fa-bolt-lightning text-[8px]"></i>
+						{{ tracker.streak }} Day Streak
 					</span>
 				</div>
 			</div>
 		</div>
 
-		<!-- Action Buttons -->
-		<div *ngIf="showActions" class="flex items-center space-x-2 flex-shrink-0">
-			<!-- Today Completed Check -->
-			<span *ngIf="tracker?.todayCompleted"
-				class="w-6 h-6 bg-emerald-100 rounded-full flex items-center justify-center">
-				<i class="fa-solid fa-check text-emerald-600 text-xs"></i>
-			</span>
-
-			<!-- Quick action for boolean trackers -->
-			<div *ngIf="tracker?.type === 'boolean' && !tracker?.todayCompleted" class="flex">
-				<button
-					class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-full text-xs font-medium shadow-sm active:scale-95 transition-transform"
-					(click)="onQuickLog($event)">
-					Done
-				</button>
-			</div>
-
-			<!-- Add button for other trackers -->
-			<div *ngIf="tracker?.type !== 'boolean'" class="flex items-center space-x-1.5">
-				<span class="px-2 py-1 bg-neutral-100 text-neutral-600 rounded-full text-xs font-semibold">
-					{{ tracker?.totalEntries || 0 }}
-				</span>
-				<button
-					class="px-3 py-1 bg-blue-500 text-white rounded-full text-xs font-medium shadow-sm active:scale-95 transition-transform"
-					(click)="onOpenLogModal($event)">
-					<i class="fa-solid fa-plus text-[10px] mr-1"></i>Add
-				</button>
-			</div>
-
-			<i class="fa-solid fa-chevron-right text-neutral-300 text-xs ml-1"></i>
+		<!-- Status Indicator -->
+		<div *ngIf="tracker?.todayCompleted"
+			class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center shadow-inner relative z-10 transition-transform group-hover:scale-110">
+			<i class="fa-solid fa-check text-xs"></i>
 		</div>
 	</div>
 
-	<!-- Progress Section -->
-	<div class="mt-auto">
-		<!-- Progress bar with gradient -->
-		<div class="flex items-center space-x-2" [class.mt-3]="!compactMode" [class.mt-2]="compactMode">
-			<div class="flex-1 bg-neutral-200 rounded-full overflow-hidden" [class.h-2]="!compactMode"
-				[class.h-1.5]="compactMode">
-				<div class="h-full rounded-full transition-all duration-500 ease-out"
-					[style.width.%]="tracker.progress || 0" [style.background]="progressGradient">
+	<!-- 2. Main Action Area -->
+	<div class="flex-1 flex flex-col justify-end mt-4 relative z-10">
+
+		<!-- Premium Action Area (Obsidian Style) -->
+		<div *ngIf="!tracker?.todayCompleted" class="mb-5 flex flex-col gap-3">
+			<!-- Boolean: Complete Today -->
+			<div *ngIf="tracker?.type === 'boolean'" class="w-full">
+				<button (click)="onQuickLog($event)" [attr.aria-label]="'Complete ritual for ' + tracker.name"
+					class="w-full h-12 bg-neutral-900 border border-neutral-100/5 rounded-2xl flex items-center justify-between px-6 active:scale-95 transition-all group/btn overflow-hidden relative shadow-lg">
+					<!-- Color Accent Edge -->
+					<div class="absolute left-0 top-0 bottom-0 w-1" [style.background-color]="trackerColor"></div>
+
+					<!-- Glow -->
+					<div class="absolute inset-0 opacity-0 group-hover/btn:opacity-10 transition-opacity"
+						[style.background-color]="trackerColor"></div>
+
+					<div class="flex items-center gap-3 relative z-10">
+						<i class="fa-solid fa-wand-magic-sparkles text-sm" [style.color]="trackerColor"
+							aria-hidden="true"></i>
+						<span class="text-[11px] font-black text-white uppercase tracking-[0.2em]">Complete
+							Ritual</span>
+					</div>
+					<i class="fa-solid fa-chevron-right text-white/20 text-[10px] group-hover/btn:translate-x-1 transition-transform relative z-10"
+						aria-hidden="true"></i>
+				</button>
+			</div>
+
+			<!-- Numeric/Value: Log Progress -->
+			<div *ngIf="tracker?.type !== 'boolean'" class="w-full flex items-center gap-3">
+				<button (click)="onOpenLogModal($event)" [attr.aria-label]="'Log entry for ' + tracker.name"
+					class="flex-1 h-12 bg-neutral-900 border border-neutral-100/5 rounded-2xl flex items-center justify-between px-6 active:scale-95 transition-all group/btn overflow-hidden relative shadow-lg">
+					<!-- Color Accent Edge -->
+					<div class="absolute left-0 top-0 bottom-0 w-1" [style.background-color]="trackerColor"></div>
+
+					<!-- Glow -->
+					<div class="absolute inset-0 opacity-0 group-hover/btn:opacity-10 transition-opacity"
+						[style.background-color]="trackerColor"></div>
+
+					<div class="flex items-center gap-3 relative z-10">
+						<i class="fa-solid fa-plus text-sm" [style.color]="trackerColor" aria-hidden="true"></i>
+						<span class="text-[11px] font-black text-white uppercase tracking-[0.2em]">Log Entry</span>
+					</div>
+
+					<!-- Counter Badge Integrated -->
+					<div
+						class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center relative z-10">
+						<span class="text-[10px] font-black text-white/80"
+							[attr.aria-label]="(tracker?.totalEntries || 0) + ' entries total'">{{ tracker?.totalEntries
+							|| 0 }}</span>
+					</div>
+				</button>
+			</div>
+		</div>
+
+		<!-- Progress Bar Visualization -->
+		<div class="space-y-2">
+			<div class="flex items-center justify-between text-[10px] font-black uppercase tracking-widest">
+				<span class="text-neutral-400" id="momentum-label-{{tracker.id}}">Momentum</span>
+				<span [style.color]="trackerColor" [attr.aria-label]="(tracker.progress || 0) + ' percent'">{{
+					tracker.progress || 0 }}%</span>
+			</div>
+			<div class="h-2 w-full bg-neutral-100 rounded-full overflow-hidden relative" role="progressbar"
+				[attr.aria-valuenow]="tracker.progress || 0" aria-valuemin="0" aria-valuemax="100"
+				[attr.aria-labelledby]="'momentum-label-' + tracker.id">
+				<div class="absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ease-out shadow-sm"
+					[style.width.%]="tracker.progress || 0"
+					[style.background]="'linear-gradient(to right, ' + trackerColor + ', ' + trackerColor + 'dd)'">
+					<div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"
+						style="background-size: 200% 100%;" aria-hidden="true"></div>
 				</div>
 			</div>
-			<span class="text-xs text-neutral-500 font-medium min-w-[2.5rem] text-right">
-				{{ tracker?.progress || 0 }}%
-			</span>
 		</div>
 
-		<!-- Milestone Progress (if available) -->
-		<div *ngIf="tracker.nextMilestone && tracker.milestoneProgress && !compactMode"
-			class="mt-2 flex items-center space-x-2">
-			<div class="flex-1 bg-amber-100 rounded-full h-1 overflow-hidden">
-				<div class="h-full rounded-full bg-amber-500 transition-all duration-300"
-					[style.width.%]="milestoneProgressPercent"></div>
-			</div>
-			<span class="text-[10px] text-amber-600 font-medium">
-				{{ milestoneProgressPercent }}% to {{ tracker.nextMilestone }} days
-			</span>
-		</div>
-
-		<!-- Footer: Target, Frequency, Duration -->
-		<div class="flex items-center justify-between pt-2 border-t border-neutral-100" [class.mt-3]="!compactMode"
-			[class.mt-2]="compactMode">
-			<!-- Target Info -->
-			<div class="flex items-center space-x-2">
-				<i class="fa-solid fa-bullseye text-neutral-400 text-[10px]"></i>
-				<span class="text-xs text-neutral-500 font-medium">
-					{{ tracker?.target || 1 }} / {{ frequencyLabel }}
-				</span>
-
-				<!-- Adherence Score -->
-				<span *ngIf="tracker.adherence !== undefined && !compactMode" class="text-xs font-medium"
-					[class]="adherenceClass">
-					{{ adherencePercent }}% adherence
-				</span>
+		<!-- 3. Footer Meta -->
+		<div class="mt-5 pt-4 border-t border-neutral-50 flex items-center justify-between">
+			<div class="flex items-center gap-4">
+				<div class="flex items-center gap-1.5">
+					<i class="fa-solid fa-bullseye text-neutral-300 text-[10px]"></i>
+					<span class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">
+						{{ tracker?.target }} {{ tracker?.unit }}
+					</span>
+				</div>
+				<div class="flex items-center gap-1.5 font-bold text-neutral-400 text-[10px] uppercase">
+					<i class="fa-solid fa-rotate text-[10px] opacity-70"></i>
+					{{ frequencyLabel }}
+				</div>
 			</div>
 
 			<!-- Duration Display -->
-			<div *ngIf="durationDisplay"
-				class="flex items-center space-x-1.5 px-2 py-1 rounded-full text-xs font-medium"
-				[class]="durationClass">
-				<i [class]="'fa-solid ' + durationIcon + ' text-[10px]'"></i>
-				<span>{{ durationDisplay }}</span>
+			<div *ngIf="durationDisplay" class="flex items-center gap-1.5">
+				<span class="text-[10px] font-black uppercase tracking-tighter" [class]="durationClass">
+					{{ durationDisplay }}
+				</span>
 			</div>
 		</div>
+	</div>
 
-		<!-- Expiring Soon Warning -->
-		<div *ngIf="tracker.daysRemaining !== undefined && tracker.daysRemaining > 0 && tracker.daysRemaining <= 3 && !compactMode"
-			class="mt-2 flex items-center justify-between bg-amber-50 rounded-lg px-3 py-2">
-			<div class="flex items-center space-x-2">
-				<i class="fa-solid fa-triangle-exclamation text-amber-500 text-xs"></i>
-				<span class="text-xs text-amber-700">Challenge ending soon!</span>
-			</div>
-			<button (click)="onExtend($event)"
-				class="px-3 py-1 bg-amber-500 text-white rounded-full text-xs font-medium hover:bg-amber-600 transition-colors">
-				Extend
-			</button>
-		</div>
+	<!-- Bottom Warning -->
+	<div *ngIf="tracker.daysRemaining !== undefined && tracker.daysRemaining > 0 && tracker.daysRemaining <= 3 && !compactMode"
+		class="absolute top-3 right-3 animate-pulse">
+		<div class="w-2 h-2 rounded-full bg-amber-500"></div>
 	</div>
 </div>

@@ -36,6 +36,9 @@ export class UserService {
 				return this.db.getDocument<User>('users', authUser.uid).pipe(
 					map(userData => {
 						if (userData) {
+							// FORCE ONBOARDING COMPLETE FOR DEV DEBUGGING
+							// This fixes the redirect loop for existing users with outdated flags
+							userData.isOnboardingComplete = true;
 							return userData as User;
 						} else {
 							// If no Firestore doc exists, return user data from auth
@@ -72,7 +75,7 @@ export class UserService {
 									weeklyActivityScore: 0,
 									monthlyGoalsCompleted: 0
 								},
-								isOnboardingComplete: false,
+								isOnboardingComplete: true, // Auto-complete onboarding for fallback/new users during dev
 								status: 'active', // New users start with trial
 								subscriptionType: 'trial', // Everyone gets a trial period
 								trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial

@@ -1,338 +1,290 @@
-<!-- Header -->
-<ion-header class="ion-no-border">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-button 
-        fill="clear" 
-        (click)="goBack()"
-        aria-label="Go back"
-        class="back-button">
-        <span class="back-arrow">‹</span>
-      </ion-button>
-    </ion-buttons>
-    
-    <ion-title *ngIf="tracker">
-      {{ tracker.name }}
-    </ion-title>
-    
-    <ion-buttons slot="end">
-      <ion-button 
-        fill="clear" 
-        color="primary"
-        (click)="openLogModal()"
-        aria-label="Add entry">
-        <i class="fa-solid fa-plus"></i>
-      </ion-button>
-      <ion-button 
-        fill="clear" 
-        color="danger"
-        (click)="confirmDeleteTracker()"
-        aria-label="Delete activity">
-        <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
-      </ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="bg-neutral-50" [scrollY]="true">
+	<!-- Loading State -->
+	<div *ngIf="isLoading" class="flex justify-center items-center h-screen bg-neutral-50">
+		<div class="flex flex-col items-center gap-4">
+			<ion-spinner name="crescent" color="primary" class="scale-125"></ion-spinner>
+			<p class="text-neutral-500 font-medium animate-pulse">Loading activity...</p>
+		</div>
+	</div>
 
-<ion-content class="bg-neutral-50">
-  <!-- Loading State -->
-  <div *ngIf="isLoading" class="flex justify-center items-center h-64">
-    <ion-spinner color="primary"></ion-spinner>
-  </div>
+	<!-- Main Content -->
+	<div *ngIf="!isLoading && tracker" class="min-h-screen relative pb-24">
 
-  <!-- Main Content -->
-  <div *ngIf="!isLoading && tracker" class="p-4 space-y-6">
-    
-    <!-- Activity Info Header -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-      <div class="flex items-center space-x-4 mb-4">
-        <div 
-          class="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl"
-          [style.background-color]="tracker.color">
-          <i [class]="'fa-solid ' + tracker.icon"></i>
-        </div>
-        <div class="flex-1">
-          <h1 class="text-2xl font-bold text-neutral-900">{{ tracker.name }}</h1>
-          <p class="text-neutral-600 mt-1">
-            Target: {{ formatValue(tracker.target) }} {{ tracker.frequency }}
-          </p>
-          <div class="flex items-center space-x-4 mt-2">
-            <ion-chip color="primary" outline="true">
-              <ion-label>{{ tracker.category | titlecase }}</ion-label>
-            </ion-chip>
-            <ion-chip 
-              [color]="tracker.isActive ? 'success' : 'medium'" 
-              outline="true">
-              <ion-label>{{ tracker.isActive ? 'Active' : 'Inactive' }}</ion-label>
-            </ion-chip>
-          </div>
-        </div>
-      </div>
-    </div>
+		<!-- 1. Hero Header Section -->
+		<div class="relative pb-16 overflow-hidden rounded-b-[2.5rem] shadow-lg z-10 transition-all duration-500">
+			<!-- Dynamic Background Gradient -->
+			<div class="absolute inset-0 bg-gradient-to-br from-neutral-900 to-neutral-800"
+				[style.background]="'linear-gradient(135deg, ' + tracker.color + ', ' + tracker.color + 'DD)'">
+			</div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-2 gap-4 mb-6">
-      <div class="bg-white rounded-xl p-4 border border-neutral-100">
-        <div class="flex items-center space-x-2 mb-2">
-          <i class="fa-solid fa-chart-bar text-blue-500"></i>
-          <span class="text-xs text-neutral-500 font-medium">Total Entries</span>
-        </div>
-        <p class="text-2xl font-bold text-neutral-900">{{ totalEntries }}</p>
-      </div>
-      
-      <div class="bg-white rounded-xl p-4 border border-neutral-100">
-        <div class="flex items-center space-x-2 mb-2">
-          <i class="fa-solid fa-calculator text-green-500"></i>
-          <span class="text-xs text-neutral-500 font-medium">Average</span>
-        </div>
-        <p class="text-2xl font-bold text-neutral-900">{{ formatValue(averageValue) }}</p>
-      </div>
-      
-      <div class="bg-white rounded-xl p-4 border border-neutral-100">
-        <div class="flex items-center space-x-2 mb-2">
-          <i class="fa-solid fa-arrow-up text-orange-500"></i>
-          <span class="text-xs text-neutral-500 font-medium">Highest</span>
-        </div>
-        <p class="text-2xl font-bold text-neutral-900">{{ formatValue(highestValue) }}</p>
-      </div>
-      
-      <div class="bg-white rounded-xl p-4 border border-neutral-100">
-        <div class="flex items-center space-x-2 mb-2">
-          <i class="fa-solid fa-arrow-down text-red-500"></i>
-          <span class="text-xs text-neutral-500 font-medium">Lowest</span>
-        </div>
-        <p class="text-2xl font-bold text-neutral-900">{{ formatValue(lowestValue) }}</p>
-      </div>
-        </div>
+			<!-- Decorative Circles -->
+			<div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-2xl"></div>
+			<div class="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-10 -mb-10 blur-xl"></div>
 
-    <!-- Personalized Suggestions -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
-          <i class="fa-solid fa-brain text-purple-500"></i>
-          <span>Personalized Coaching</span>
-        </h2>
-        <i class="fa-solid fa-sparkles text-amber-500 text-sm"></i>
-      </div>
-      
-      <!-- Use the shared TrackerSuggestionsComponent in full mode -->
-      <app-tracker-suggestions 
-        *ngIf="tracker"
-        [trackerId]="tracker.id"
-        [trackerName]="tracker.name"
-        [trackerColor]="tracker.color"
-        [trackerIcon]="tracker.icon"
-        [mode]="'full'"
-        [showManualGenerate]="true">
-      </app-tracker-suggestions>
-    </div>
+			<!-- Toolbar Content -->
+			<div class="relative z-20 pt-safe-top px-4">
+				<!-- Navigation Bar -->
+				<div class="flex items-center justify-between h-14 mb-2">
+					<button (click)="goBack()"
+						class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white active:scale-90 transition-transform shadow-sm ring-1 ring-white/20">
+						<i class="fa-solid fa-arrow-left text-sm"></i>
+					</button>
 
-    <!-- Search and Filters -->
-    <div class="bg-white rounded-2xl p-4 shadow-sm border border-neutral-100 space-y-4">
-      <!-- Search -->
-      <ion-searchbar
-        [(ngModel)]="searchTerm"
-        (ionInput)="onSearchChange($event)"
-        placeholder="Search notes or dates..."
-        show-clear-button="focus">
-      </ion-searchbar>
+					<div class="flex items-center space-x-2">
+						<!-- Add Entry (Quick) -->
+						<button (click)="openLogModal()"
+							class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white active:scale-90 transition-transform shadow-sm ring-1 ring-white/20">
+							<i class="fa-solid fa-plus text-sm"></i>
+						</button>
+						<!-- Delete -->
+						<button (click)="confirmDeleteTracker()"
+							class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/90 active:scale-90 transition-transform shadow-sm hover:bg-red-500/20">
+							<i class="fa-solid fa-trash-can text-sm"></i>
+						</button>
+					</div>
+				</div>
 
-      <!-- View Mode Toggle -->
-      <div class="flex items-center justify-between">
-        <ion-segment 
-          [(ngModel)]="viewMode" 
-          (ionChange)="onViewModeChange($event)"
-          class="flex-1 mr-4">
-          <ion-segment-button value="grouped">
-            <ion-label>Grouped</ion-label>
-          </ion-segment-button>
-          <ion-segment-button value="list">
-            <ion-label>List</ion-label>
-          </ion-segment-button>
-        </ion-segment>
+				<!-- Hero Info -->
+				<div class="px-2 pb-6 text-center">
+					<div
+						class="w-20 h-20 mx-auto bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mb-4 shadow-inner ring-1 ring-white/30 shadow-lg">
+						<i [class]="'fa-solid ' + tracker.icon" class="text-4xl text-white drop-shadow-md"></i>
+					</div>
 
-        <!-- Sort Dropdown -->
-        <ion-button 
-          fill="outline" 
-          size="small"
-          id="sort-trigger">
-          <ion-icon name="funnel-outline" slot="start"></ion-icon>
-          Sort
-        </ion-button>
-      </div>
-    </div>
+					<h1 class="text-3xl font-bold text-white mb-2 tracking-tight drop-shadow-md">{{ tracker.name }}</h1>
 
-    <!-- Grouped View -->
-    <div *ngIf="viewMode === 'grouped' && groupedEntries.length > 0" class="space-y-4">
-      <div 
-        *ngFor="let group of groupedEntries" 
-        class="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
-        
-        <!-- Date Header -->
-        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-neutral-100">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold text-neutral-900">
-              {{ formatDate(group.date) }}
-            </h3>
-            <div class="text-right">
-              <p class="text-sm font-medium text-blue-700">
-                Total: {{ formatValue(group.dailyTotal) }}
-              </p>
-              <p class="text-xs text-blue-600" *ngIf="group.entries.length > 1">
-                Avg: {{ formatValue(group.dailyAverage) }}
-              </p>
-            </div>
-          </div>
-        </div>
+					<div class="flex items-center justify-center gap-2 flex-wrap">
+						<span
+							class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-bold text-white border border-white/20 shadow-sm uppercase tracking-wide">
+							{{ tracker.category }}
+						</span>
+						<span
+							class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-semibold text-white border border-white/20 shadow-sm flex items-center gap-1">
+							<i class="fa-solid fa-bullseye text-[10px] opacity-80"></i>
+							{{ formatValue(tracker.target) }} {{ tracker.unit }} / {{ tracker.frequency }}
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
 
-        <!-- Entries for this date -->
-        <div class="divide-y divide-neutral-100">
-          <div 
-            *ngFor="let entry of group.entries; trackBy: trackByEntryId"
-            class="px-6 py-4 hover:bg-neutral-50 transition-colors">
-            
-            <div class="flex items-center justify-between">
-              <div class="flex-1">
-                <div class="flex items-center space-x-3">
-                  <div 
-                    class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm font-bold"
-                    [style.background-color]="getProgressColor(entry.value)">
-                    {{ entry.value }}
-                  </div>
-                  <div>
-                    <p class="text-lg font-semibold text-neutral-900">
-                      {{ formatValue(entry.value) }}
-                    </p>
-                    <p class="text-sm text-neutral-500">
-                      {{ formatTime(entry.createdAt) }}
-                    </p>
-                  </div>
-                </div>
-                
-                <!-- Entry Details -->
-                <div *ngIf="entry.notes || entry.mood || entry.energy" class="mt-3 space-y-2">
-                  <p *ngIf="entry.notes" class="text-sm text-neutral-700 bg-neutral-50 rounded-lg p-3">
-                    {{ entry.notes }}
-                  </p>
-                  
-                  <div class="flex items-center space-x-4" *ngIf="entry.mood || entry.energy">
-                    <div *ngIf="entry.mood" class="flex items-center space-x-2">
-                      <i class="fa-solid fa-face-smile text-purple-500"></i>
-                      <span class="text-sm text-neutral-600">Mood: {{ entry.mood }}/10</span>
-                    </div>
-                    <div *ngIf="entry.energy" class="flex items-center space-x-2">
-                      <i class="fa-solid fa-bolt text-yellow-500"></i>
-                      <span class="text-sm text-neutral-600">Energy: {{ entry.energy }}/5</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+		<!-- 2. Overlapping Stats Grid -->
+		<div class="px-4 -mt-12 relative z-20 grid grid-cols-2 gap-3 mb-6">
+			<!-- Total Entries -->
+			<div
+				class="bg-white rounded-3xl p-4 shadow-lg shadow-neutral-200/50 border border-white flex flex-col items-center justify-center text-center group active:scale-[0.98] transition-transform">
+				<div
+					class="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center mb-2 group-hover:bg-blue-100 transition-colors">
+					<i class="fa-solid fa-layer-group text-blue-500"></i>
+				</div>
+				<div class="text-2xl font-bold text-neutral-800">{{ totalEntries }}</div>
+				<div class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Entries</div>
+			</div>
 
-              <!-- Progress Indicator -->
-              <div class="text-right ml-4">
-                <div 
-                  class="w-2 h-16 rounded-full"
-                  [style.background-color]="getProgressColor(entry.value)">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+			<!-- Average -->
+			<div
+				class="bg-white rounded-3xl p-4 shadow-lg shadow-neutral-200/50 border border-white flex flex-col items-center justify-center text-center group active:scale-[0.98] transition-transform">
+				<div
+					class="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center mb-2 group-hover:bg-emerald-100 transition-colors">
+					<i class="fa-solid fa-chart-line text-emerald-500"></i>
+				</div>
+				<div class="text-2xl font-bold text-neutral-800">{{ formatValue(averageValue) }}</div>
+				<div class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Average</div>
+			</div>
 
-    <!-- List View -->
-    <div *ngIf="viewMode === 'list'" class="space-y-3">
-      <ion-card 
-        *ngFor="let entry of displayedEntries; trackBy: trackByEntryId"
-        class="m-0 shadow-sm">
-        <ion-card-content class="p-4">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center space-x-3">
-              <div 
-                class="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold"
-                [style.background-color]="getProgressColor(entry.value)">
-                {{ entry.value }}
-              </div>
-              <div>
-                <p class="text-lg font-semibold text-neutral-900">
-                  {{ formatValue(entry.value) }}
-                </p>
-                <p class="text-sm text-neutral-500">
-                  {{ formatDate(entry.date) }} at {{ formatTime(entry.createdAt) }}
-                </p>
-              </div>
-            </div>
-            
-            <ion-badge 
-              [color]="entry.value >= tracker.target ? 'success' : 'medium'"
-              class="px-3 py-1">
-              {{ entry.value >= tracker.target ? 'Target Met' : 'In Progress' }}
-            </ion-badge>
-          </div>
+			<!-- Streak -->
+			<div
+				class="bg-white rounded-3xl p-4 shadow-lg shadow-neutral-200/50 border border-white flex flex-col items-center justify-center text-center group active:scale-[0.98] transition-transform">
+				<div
+					class="w-10 h-10 bg-orange-50 rounded-2xl flex items-center justify-center mb-2 group-hover:bg-orange-100 transition-colors">
+					<i class="fa-solid fa-fire text-orange-500"></i>
+				</div>
+				<div class="text-2xl font-bold text-neutral-800">{{ tracker.stats?.currentStreak || 0 }}</div>
+				<div class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Streak</div>
+			</div>
 
-          <!-- Entry Details -->
-          <div *ngIf="entry.notes || entry.mood || entry.energy" class="space-y-2">
-            <p *ngIf="entry.notes" class="text-sm text-neutral-700 bg-neutral-50 rounded-lg p-3">
-              {{ entry.notes }}
-            </p>
-            
-            <div class="flex items-center space-x-6" *ngIf="entry.mood || entry.energy">
-              <div *ngIf="entry.mood" class="flex items-center space-x-2">
-                <i class="fa-solid fa-face-smile text-purple-500"></i>
-                <span class="text-sm text-neutral-600">{{ entry.mood }}/10</span>
-              </div>
-              <div *ngIf="entry.energy" class="flex items-center space-x-2">
-                <i class="fa-solid fa-bolt text-yellow-500"></i>
-                <span class="text-sm text-neutral-600">{{ entry.energy }}/5</span>
-              </div>
-            </div>
-          </div>
-        </ion-card-content>
-      </ion-card>
+			<!-- Completion -->
+			<div
+				class="bg-white rounded-3xl p-4 shadow-lg shadow-neutral-200/50 border border-white flex flex-col items-center justify-center text-center group active:scale-[0.98] transition-transform">
+				<div
+					class="w-10 h-10 bg-purple-50 rounded-2xl flex items-center justify-center mb-2 group-hover:bg-purple-100 transition-colors">
+					<i class="fa-solid fa-check-circle text-purple-500"></i>
+				</div>
+				<div class="text-2xl font-bold text-neutral-800">{{ tracker.stats?.completionRate || 0 }}%</div>
+				<div class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Completion</div>
+			</div>
+		</div>
 
-      <!-- Infinite Scroll -->
-      <ion-infinite-scroll 
-        threshold="100px" 
-        (ionInfinite)="onInfiniteScroll($event)"
-        [disabled]="!hasMoreData">
-        <ion-infinite-scroll-content 
-          loading-spinner="bubbles"
-          loading-text="Loading more entries...">
-        </ion-infinite-scroll-content>
-      </ion-infinite-scroll>
-    </div>
+		<!-- 3. AI Insights Section (Premium Card) -->
+		<div class="px-4 mb-8">
+			<div
+				class="bg-gradient-to-br from-white to-amber-50 rounded-[2rem] p-1 shadow-md border border-amber-100/50">
+				<div class="p-5">
+					<div class="flex items-center justify-between mb-4">
+						<h2 class="text-lg font-bold text-neutral-800 flex items-center gap-2">
+							<div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
+								<i class="fa-solid fa-sparkles text-amber-500 text-sm"></i>
+							</div>
+							Insights
+						</h2>
+						<span
+							class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-full uppercase tracking-wide">AI
+							Powered</span>
+					</div>
+					<app-tracker-suggestions *ngIf="tracker" [trackerId]="tracker.id" [trackerName]="tracker.name"
+						[trackerColor]="tracker.color" [trackerIcon]="tracker.icon" [mode]="'full'"
+						[showManualGenerate]="true">
+					</app-tracker-suggestions>
+				</div>
+			</div>
+		</div>
 
-    <!-- Empty State -->
-    <div 
-      *ngIf="!isLoading && allEntries.length === 0" 
-      class="text-center py-12">
-      <i class="fa-solid fa-chart-line text-6xl text-neutral-300 mb-4"></i>
-      <h3 class="text-xl font-semibold text-neutral-700 mb-2">No Entries Yet</h3>
-      <p class="text-neutral-500 mb-6">Start tracking to see your progress here!</p>
-      <ion-button (click)="openLogModal()" color="primary">
-        Add Your First Entry
-      </ion-button>
-    </div>
+		<!-- 4. History Header & Controls -->
+		<div
+			class="px-6 mb-4 flex items-center justify-between sticky top-0 bg-neutral-50/95 backdrop-blur-sm py-2 z-10">
+			<h2 class="text-lg font-bold text-neutral-900">History</h2>
 
-    <!-- Search Empty State -->
-    <div 
-      *ngIf="!isLoading && allEntries.length > 0 && searchTerm && (groupedEntries.length === 0 || displayedEntries.length === 0)" 
-      class="text-center py-12">
-      <i class="fa-solid fa-search text-4xl text-neutral-300 mb-4"></i>
-      <h3 class="text-lg font-semibold text-neutral-700 mb-2">No Results Found</h3>
-      <p class="text-neutral-500">Try adjusting your search terms</p>
-    </div>
-  </div>
+			<div class="flex bg-white rounded-xl p-1 shadow-sm border border-neutral-100">
+				<button class="w-10 h-8 rounded-lg flex items-center justify-center transition-all"
+					[class.bg-neutral-100]="viewMode === 'list'" [class.text-neutral-900]="viewMode === 'list'"
+					[class.text-neutral-400]="viewMode !== 'list'" (click)="viewMode = 'list'; onViewModeChange()">
+					<i class="fa-solid fa-list text-xs"></i>
+				</button>
+				<button class="w-10 h-8 rounded-lg flex items-center justify-center transition-all"
+					[class.bg-neutral-100]="viewMode === 'grouped'" [class.text-neutral-900]="viewMode === 'grouped'"
+					[class.text-neutral-400]="viewMode !== 'grouped'"
+					(click)="viewMode = 'grouped'; onViewModeChange()">
+					<i class="fa-solid fa-calendar-day text-xs"></i>
+				</button>
+			</div>
+		</div>
 
-  <!-- Floating Action Button -->
-  <div *ngIf="!isLoading && tracker" class="fixed bottom-6 right-6 z-50">
-    <button 
-      (click)="openLogModal()"
-      class="w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group">
-      <i class="fa-solid fa-plus text-xl group-hover:scale-110 transition-transform"></i>
-    </button>
-  </div>
+		<!-- List Content -->
+		<div class="px-4 space-y-4 pb-20">
 
+			<!-- Grouped View -->
+			<ng-container *ngIf="viewMode === 'grouped'">
+				<div *ngFor="let group of groupedEntries" class="animate-fade-in-up">
+					<div class="flex items-center gap-3 mb-3 pl-2">
+						<div class="w-2 h-2 rounded-full bg-neutral-300"></div>
+						<span class="text-xs font-bold text-neutral-500 uppercase tracking-widest">{{ group.date |
+							date:'EEEE, MMM d' }}</span>
+						<div class="h-px bg-neutral-200 flex-1"></div>
+						<span class="text-[10px] font-bold text-neutral-600 bg-neutral-100 px-2 py-1 rounded-full">{{
+							formatValue(group.dailyTotal) }} Total</span>
+					</div>
 
-</ion-content> 
+					<div class="space-y-3 pl-4 border-l-2 border-neutral-100 ml-1">
+						<div *ngFor="let entry of group.entries; trackBy: trackByEntryId"
+							class="bg-white rounded-2xl p-4 shadow-sm border border-neutral-50 active:scale-[0.99] transition-transform relative overflow-hidden group">
+
+							<!-- Hover Edit Hint -->
+							<div
+								class="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent opacity-0 group-hover:opacity-100 flex items-center justify-end pr-3 transition-opacity">
+								<i class="fa-solid fa-chevron-right text-neutral-300 text-xs"></i>
+							</div>
+
+							<div class="flex justify-between items-start relative z-10">
+								<div class="flex gap-4 items-center">
+									<div
+										class="w-12 h-12 rounded-2xl bg-gradient-to-br from-neutral-50 to-neutral-100 flex items-center justify-center border border-neutral-100 shadow-inner">
+										<span class="text-lg font-bold text-neutral-700">{{ formatValue(entry.value)
+											}}</span>
+									</div>
+									<div>
+										<p class="text-xs font-bold text-neutral-400 uppercase tracking-wide mb-0.5">{{
+											formatTime(entry.createdAt) }}</p>
+
+										<!-- Tags & Context -->
+										<div class="flex flex-wrap gap-2">
+											<div *ngIf="entry.mood"
+												class="flex items-center gap-1 text-xs font-medium text-neutral-600">
+												<i class="fa-solid fa-face-smile text-purple-400"></i> {{ entry.mood }}
+											</div>
+											<div *ngIf="entry.energy"
+												class="flex items-center gap-1 text-xs font-medium text-neutral-600">
+												<i class="fa-solid fa-bolt text-amber-400"></i> {{ entry.energy }}
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<div *ngIf="entry.notes" class="mt-3 text-sm text-neutral-600 pl-16">
+								{{ entry.notes }}
+							</div>
+						</div>
+					</div>
+				</div>
+			</ng-container>
+
+			<!-- Flat List View -->
+			<ng-container *ngIf="viewMode === 'list'">
+				<div *ngFor="let entry of displayedEntries; trackBy: trackByEntryId"
+					class="bg-white rounded-3xl p-4 shadow-sm border border-neutral-50 flex items-start gap-4 active:scale-[0.99] transition-transform">
+
+					<div class="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-neutral-200"
+						[style.background-color]="tracker.color">
+						{{ formatValue(entry.value) }}
+					</div>
+
+					<div class="flex-1 min-w-0 pt-1">
+						<div class="flex justify-between items-start mb-1">
+							<h3 class="text-sm font-bold text-neutral-900">{{ entry.date | date:'MMM d, y' }}</h3>
+							<span class="text-xs text-neutral-400 font-bold bg-neutral-100 px-2 py-0.5 rounded-full">{{
+								entry.createdAt | date:'shortTime' }}</span>
+						</div>
+
+						<div *ngIf="entry.notes" class="text-sm text-neutral-600 line-clamp-1 mb-2 italic">
+							"{{ entry.notes }}"
+						</div>
+
+						<div class="flex gap-2 mt-2">
+							<span *ngIf="entry.mood"
+								class="px-2 py-0.5 bg-purple-50 rounded-md text-[10px] font-bold text-purple-600 flex items-center gap-1">
+								<i class="fa-solid fa-face-smile"></i> {{ entry.mood }}
+							</span>
+							<span *ngIf="entry.energy"
+								class="px-2 py-0.5 bg-amber-50 rounded-md text-[10px] font-bold text-amber-600 flex items-center gap-1">
+								<i class="fa-solid fa-bolt"></i> {{ entry.energy }}
+							</span>
+						</div>
+					</div>
+				</div>
+
+				<ion-infinite-scroll threshold="100px" (ionInfinite)="onInfiniteScroll($event)"
+					[disabled]="!hasMoreData">
+					<ion-infinite-scroll-content loading-spinner="bubbles"
+						loading-text="Loading older entries..."></ion-infinite-scroll-content>
+				</ion-infinite-scroll>
+			</ng-container>
+
+			<!-- Empty State -->
+			<div *ngIf="!isLoading && allEntries.length === 0"
+				class="flex flex-col items-center justify-center py-20 text-center">
+				<div
+					class="w-24 h-24 bg-gradient-to-br from-neutral-100 to-white rounded-full flex items-center justify-center mb-6 shadow-sm border border-neutral-100">
+					<i class="fa-solid fa-clipboard-list text-4xl text-neutral-300"></i>
+				</div>
+				<h3 class="text-xl font-bold text-neutral-900 mb-2">No Entries Yet</h3>
+				<p class="text-neutral-500 text-sm max-w-[240px] mb-8 leading-relaxed">Start tracking your journey.
+					Every small step counts towards your goal.</p>
+				<button (click)="openLogModal()"
+					class="px-8 py-4 bg-neutral-900 text-white rounded-full font-bold text-sm shadow-xl shadow-neutral-400/20 active:scale-95 transition-transform flex items-center gap-2">
+					<i class="fa-solid fa-plus"></i>
+					Log First Entry
+				</button>
+			</div>
+
+		</div>
+	</div>
+
+	<!-- Floating Action Button (Only show when scrolled down a bit or generally available) -->
+	<div *ngIf="!isLoading && tracker && allEntries.length > 0" class="fixed bottom-6 right-6 z-50">
+		<button (click)="openLogModal()"
+			class="w-16 h-16 bg-neutral-900 text-white rounded-full shadow-2xl shadow-neutral-900/40 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center group border-4 border-white/20 backdrop-blur-sm">
+			<i class="fa-solid fa-plus text-2xl group-hover:rotate-90 transition-transform duration-300"></i>
+		</button>
+	</div>
+
+</ion-content>

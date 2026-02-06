@@ -8,7 +8,6 @@
  * For more information on global stylesheets, visit the documentation:
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
-
 /* Tailwind CSS */
 @tailwind base;
 @tailwind components;
@@ -49,26 +48,32 @@
 
 /* Scrollbar hide utility class for horizontal scrolling */
 .scrollbar-hide {
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  &::-webkit-scrollbar {
-    display: none;
-  }
-  
-  /* Hide scrollbar for IE, Edge and Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+
+	/* Hide scrollbar for Chrome, Safari and Opera */
+	&::-webkit-scrollbar {
+		display: none;
+	}
+
+	/* Hide scrollbar for IE, Edge and Firefox */
+	-ms-overflow-style: none;
+	/* IE and Edge */
+	scrollbar-width: none;
+	/* Firefox */
 }
 
 /* Horizontal card spacing */
 .first-card {
-  margin-left: 1rem; /* Add left margin to first card */
+	margin-left: 1rem;
+	/* Add left margin to first card */
 }
 
 .last-card {
-  margin-right: 1rem; /* Add right margin to last card */
+	margin-right: 1rem;
+	/* Add right margin to last card */
 }
 
-html, body {
+html,
+body {
 	-ms-overflow-style: none;
 	scrollbar-width: none;
 }
@@ -83,9 +88,9 @@ html, body {
 	--color-base-300: #d1d5db;
 	--color-base-400: #9ca3af;
 	--color-base-500: #6b7280;
-	--color-base-600: #4b5563;  
+	--color-base-600: #4b5563;
 	--color-base-700: #374151;
-	--color-base-800: #1f2937;  
+	--color-base-800: #1f2937;
 	--color-base-900: #111827;
 	--color-base-content: #1f2937;
 
@@ -152,7 +157,7 @@ html, body {
 	/* Override Ionic colors to match our design system */
 	--ion-background-color: var(--color-neutral-50);
 	--ion-text-color: var(--color-base-content);
-	
+
 	--ion-color-primary: var(--color-primary);
 	--ion-color-primary-rgb: 59, 130, 246;
 	--ion-color-primary-contrast: var(--color-primary-content);
@@ -193,99 +198,99 @@ html, body {
 
 /* Rooted Radiance Color Palette */
 :root {
-  /* Base (Foundational / Backgrounds) */
-  --color-alabaster: #FAF8F5;
-  --color-oatmilk: #F5EFE6;
-  --color-stone-mist: #E7E5DF;
-  
-  /* Primary (Mind-Body-Soul Anchors) */
-  --color-eucalyptus: #A8C3A0;
-  --color-lavender-smoke: #D6CDEA;
-  --color-sienna-clay: #DFAF84;
-  --color-dusty-rose: #D8A39D;
-  
-  /* Accent (Focus / Action) */
-  --color-amber-gold: #FFC26F;
-  --color-midnight-plum: #4F3B57;
-  --color-ocean-ink: #3A506B;
-  
-  /* Text Colors */
-  --color-dark-mocha: #3B2F2F;
+	/* Base (Foundational / Backgrounds) */
+	--color-alabaster: #FAF8F5;
+	--color-oatmilk: #F5EFE6;
+	--color-stone-mist: #E7E5DF;
+
+	/* Primary (Mind-Body-Soul Anchors) */
+	--color-eucalyptus: #A8C3A0;
+	--color-lavender-smoke: #D6CDEA;
+	--color-sienna-clay: #DFAF84;
+	--color-dusty-rose: #D8A39D;
+
+	/* Accent (Focus / Action) */
+	--color-amber-gold: #FFC26F;
+	--color-midnight-plum: #4F3B57;
+	--color-ocean-ink: #3A506B;
+
+	/* Text Colors */
+	--color-dark-mocha: #3B2F2F;
 }
 
 /* Apply base colors to body and main backgrounds */
 body {
-  background-color: var(--color-alabaster) !important;
-  color: var(--color-dark-mocha) !important;
+	background-color: var(--color-alabaster) !important;
+	color: var(--color-dark-mocha) !important;
 }
 
 /* Update neutral backgrounds to use warm palette */
 .bg-neutral-50 {
-  background-color: var(--color-alabaster) !important;
+	background-color: var(--color-alabaster) !important;
 }
 
 .bg-neutral-100 {
-  background-color: var(--color-oatmilk) !important;
+	background-color: var(--color-oatmilk) !important;
 }
 
 .bg-neutral-200 {
-  background-color: var(--color-stone-mist) !important;
+	background-color: var(--color-stone-mist) !important;
 }
 
 /* Sacred text colors */
 .text-neutral-900 {
-  color: var(--color-midnight-plum) !important;
+	color: var(--color-midnight-plum) !important;
 }
 
 .text-neutral-700 {
-  color: var(--color-dark-mocha) !important;
+	color: var(--color-dark-mocha) !important;
 }
 
 /* Spiritual accent colors */
 .text-amber-600 {
-  color: var(--color-amber-gold) !important;
+	color: var(--color-amber-gold) !important;
 }
 
 .text-dusty-rose {
-  color: var(--color-dusty-rose) !important;
+	color: var(--color-dusty-rose) !important;
 }
 
 .text-eucalyptus {
-  color: var(--color-eucalyptus) !important;
+	color: var(--color-eucalyptus) !important;
 }
 
 .text-sienna-clay {
-  color: var(--color-sienna-clay) !important;
+	color: var(--color-sienna-clay) !important;
 }
 
 .text-ocean-ink {
-  color: var(--color-ocean-ink) !important;
+	color: var(--color-ocean-ink) !important;
 }
 
 .text-midnight-plum {
-  color: var(--color-midnight-plum) !important;
+	color: var(--color-midnight-plum) !important;
 }
 
 /* Background color utilities for the new palette */
 .from-lavender-100 {
-  --tw-gradient-from: var(--color-lavender-smoke) !important;
+	--tw-gradient-from: var(--color-lavender-smoke) !important;
 }
 
 .to-purple-100 {
-  --tw-gradient-to: var(--color-lavender-smoke) !important;
+	--tw-gradient-to: var(--color-lavender-smoke) !important;
 }
 
 .text-purple-600 {
-  color: var(--color-midnight-plum) !important;
+	color: var(--color-midnight-plum) !important;
 }
 
 .text-purple-700 {
-  color: var(--color-midnight-plum) !important;
+	color: var(--color-midnight-plum) !important;
 }
 
 /* Spiritual gradient backgrounds for cards */
 .bg-gradient-spiritual {
-  background: linear-gradient(135deg, var(--color-lavender-smoke), var(--color-eucalyptus)) !important;
+	background: linear-gradient(135deg, var(--color-lavender-smoke), var(--color-eucalyptus)) !important;
 }
 
 /* Font Styles */
@@ -295,7 +300,8 @@ body {
 
 /* Header Spacing - Match sample exactly */
 header {
-	padding: 12px 16px !important; /* Compact py-3 */
+	padding: 12px 16px !important;
+	/* Compact py-3 */
 	min-height: auto !important;
 	height: auto !important;
 	line-height: 1 !important;
@@ -319,7 +325,7 @@ header p {
 }
 
 /* Header image sizing - only for actual header elements */
-ion-header img, 
+ion-header img,
 .header img,
 header .w-8 img {
 	width: 32px !important;
@@ -329,32 +335,39 @@ header .w-8 img {
 
 /* Exception for dashboard profile images which should be larger */
 .bg-gradient-to-br img[alt*="profile"] {
-	width: 56px !important; /* w-14 */
-	height: 56px !important; /* h-14 */
+	width: 56px !important;
+	/* w-14 */
+	height: 56px !important;
+	/* h-14 */
 }
 
 /* Section and Component Spacing - Match sample exactly */
 section {
-	margin-bottom: 24px !important; /* mb-6 */
+	margin-bottom: 24px !important;
+	/* mb-6 */
 }
 
 section h2 {
-	margin: 0 0 12px 0 !important; /* mb-3 */
+	margin: 0 0 12px 0 !important;
+	/* mb-3 */
 	padding: 0 !important;
 	line-height: 1.4 !important;
 }
 
 /* Card Spacing - Compact like sample */
 .bg-white {
-	padding: 16px !important; /* p-4 */
+	padding: 16px !important;
+	/* p-4 */
 	line-height: 1.2 !important;
 }
 
 .bg-white.p-3 {
-	padding: 12px !important; /* p-3 for smaller cards */
+	padding: 12px !important;
+	/* p-3 for smaller cards */
 }
 
-.bg-white h2, .bg-white h3 {
+.bg-white h2,
+.bg-white h3 {
 	margin: 0 !important;
 	padding: 0 !important;
 	line-height: 1.3 !important;
@@ -368,7 +381,8 @@ section h2 {
 
 /* Progress Overview Card */
 .bg-white .flex.items-center.justify-between {
-	margin-bottom: 12px !important; /* mb-3 */
+	margin-bottom: 12px !important;
+	/* mb-3 */
 	align-items: center !important;
 }
 
@@ -377,12 +391,14 @@ section h2 {
 }
 
 /* Quick Stats Cards */
-.grid.grid-cols-2 > div {
-	padding: 16px !important; /* p-4 */
+.grid.grid-cols-2>div {
+	padding: 16px !important;
+	/* p-4 */
 }
 
 .grid.grid-cols-2 .flex.items-center {
-	margin-bottom: 8px !important; /* mb-2 */
+	margin-bottom: 8px !important;
+	/* mb-2 */
 	align-items: center !important;
 	gap: 8px !important;
 }
@@ -393,8 +409,9 @@ section h2 {
 }
 
 /* Recent Activity Items */
-.space-y-3 > div {
-	padding: 16px !important; /* p-4 */
+.space-y-3>div {
+	padding: 16px !important;
+	/* p-4 */
 }
 
 .space-y-3 .flex.items-start {
@@ -414,8 +431,9 @@ section h2 {
 }
 
 /* Today's Intentions Items */
-.space-y-2 > div {
-	padding: 12px !important; /* p-3 */
+.space-y-2>div {
+	padding: 12px !important;
+	/* p-3 */
 	align-items: center !important;
 	gap: 12px !important;
 }
@@ -433,13 +451,15 @@ section h2 {
 
 /* Quick Actions Buttons */
 .grid.grid-cols-2 button {
-	padding: 16px !important; /* p-4 */
+	padding: 16px !important;
+	/* p-4 */
 	line-height: 1.2 !important;
 }
 
 .grid.grid-cols-2 button i {
 	display: block !important;
-	margin-bottom: 8px !important; /* mb-2 */
+	margin-bottom: 8px !important;
+	/* mb-2 */
 }
 
 .grid.grid-cols-2 button p {
@@ -456,84 +476,164 @@ ion-content {
 ion-tab-bar {
 	--background: #ffffff !important;
 	--border: none !important;
-	border-top: 1px solid #f3f4f6 !important; /* subtle border */
+	border-top: 1px solid #f3f4f6 !important;
+	/* subtle border */
 	background: #ffffff !important;
 	padding: 16px 20px 20px 20px !important;
-	border-top-left-radius: 24px !important; /* rounded-3xl top corners */
+	border-top-left-radius: 24px !important;
+	/* rounded-3xl top corners */
 	border-top-right-radius: 24px !important;
-	box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06) !important; /* shadow-md upward */
+	box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+	/* shadow-md upward */
 }
 
 ion-tab-button {
-	--color: #9ca3af !important; /* text-neutral-400 */
-	--color-selected: #111827 !important; /* text-neutral-900 */
+	--color: #9ca3af !important;
+	/* text-neutral-400 */
+	--color-selected: #111827 !important;
+	/* text-neutral-900 */
 	padding: 8px 12px !important;
 	flex-direction: column !important;
 	justify-content: center !important;
 	align-items: center !important;
-	border-radius: 16px !important; /* rounded-2xl */
+	border-radius: 16px !important;
+	/* rounded-2xl */
 	transition: all 0.2s ease !important;
 	margin: 0 4px !important;
 }
 
 /* Active tab styling - simple and clean */
 ion-tab-button.tab-selected {
-	color: #111827 !important; /* text-neutral-900 */
-	background: #f3f4f6 !important; /* bg-neutral-100 */
+	color: #111827 !important;
+	/* text-neutral-900 */
+	background: #f3f4f6 !important;
+	/* bg-neutral-100 */
 }
 
 ion-tab-button.tab-selected i {
-	color: #10b981 !important; /* text-emerald-600 */
+	color: #10b981 !important;
+	/* text-emerald-600 */
 }
 
 ion-tab-button.tab-selected ion-label {
-	color: #111827 !important; /* text-neutral-900 */
-	font-weight: 600 !important; /* font-semibold */
+	color: #111827 !important;
+	/* text-neutral-900 */
+	font-weight: 600 !important;
+	/* font-semibold */
 }
 
 /* Inactive tab styling */
 ion-tab-button:not(.tab-selected) {
-	color: #9ca3af !important; /* text-neutral-400 */
+	color: #9ca3af !important;
+	/* text-neutral-400 */
 }
 
 ion-tab-button i {
-	font-size: 20px !important; /* text-xl */
+	font-size: 20px !important;
+	/* text-xl */
 	margin-bottom: 4px !important;
 	color: inherit !important;
 	transition: color 0.2s ease !important;
 }
 
 ion-tab-button ion-label {
-	font-size: 12px !important; /* text-xs */
-	font-weight: 500 !important; /* font-medium */
+	font-size: 12px !important;
+	/* text-xs */
+	font-weight: 500 !important;
+	/* font-medium */
 	margin: 0 !important;
 	text-transform: none !important;
 	color: inherit !important;
 }
 
 /* Ensure Tailwind spacing utilities work correctly */
-.mb-1 { margin-bottom: 4px !important; }
-.mb-2 { margin-bottom: 8px !important; }
-.mb-3 { margin-bottom: 12px !important; }
-.py-3 { padding-top: 12px !important; padding-bottom: 12px !important; }
-.px-4 { padding-left: 16px !important; padding-right: 16px !important; }
-.p-2 { padding: 8px !important; }
-.p-3 { padding: 12px !important; }
-.p-4 { padding: 16px !important; }
-.space-x-2 > * + * { margin-left: 8px !important; }
-.space-x-3 > * + * { margin-left: 12px !important; }
-.space-y-3 > * + * { margin-top: 12px !important; }
-.space-y-2 > * + * { margin-top: 8px !important; }
-.items-start { align-items: flex-start !important; }
-.items-center { align-items: center !important; }
-.text-center { text-align: center !important; }
+.mb-1 {
+	margin-bottom: 4px !important;
+}
+
+.mb-2 {
+	margin-bottom: 8px !important;
+}
+
+.mb-3 {
+	margin-bottom: 12px !important;
+}
+
+.py-3 {
+	padding-top: 12px !important;
+	padding-bottom: 12px !important;
+}
+
+.px-4 {
+	padding-left: 16px !important;
+	padding-right: 16px !important;
+}
+
+.p-2 {
+	padding: 8px !important;
+}
+
+.p-3 {
+	padding: 12px !important;
+}
+
+.p-4 {
+	padding: 16px !important;
+}
+
+.space-x-2>*+* {
+	margin-left: 8px !important;
+}
+
+.space-x-3>*+* {
+	margin-left: 12px !important;
+}
+
+.space-y-3>*+* {
+	margin-top: 12px !important;
+}
+
+.space-y-2>*+* {
+	margin-top: 8px !important;
+}
+
+.items-start {
+	align-items: flex-start !important;
+}
+
+.items-center {
+	align-items: center !important;
+}
+
+.text-center {
+	text-align: center !important;
+}
 
 /* Text sizing to match samples exactly */
-.text-xs { font-size: 12px !important; line-height: 16px !important; }
-.text-sm { font-size: 14px !important; line-height: 20px !important; }
-.text-base { font-size: 16px !important; line-height: 24px !important; }
-.text-lg { font-size: 18px !important; line-height: 28px !important; }
-.text-xl { font-size: 20px !important; line-height: 28px !important; }
+.text-xs {
+	font-size: 12px !important;
+	line-height: 16px !important;
+}
+
+.text-sm {
+	font-size: 14px !important;
+	line-height: 20px !important;
+}
+
+.text-base {
+	font-size: 16px !important;
+	line-height: 24px !important;
+}
+
+.text-lg {
+	font-size: 18px !important;
+	line-height: 28px !important;
+}
+
+.text-xl {
+	font-size: 20px !important;
+	line-height: 28px !important;
+}
 
 /* Quick Actions button styling */
 button i.mb-2 {
@@ -558,243 +658,467 @@ ion-item {
 
 /* Toast Styling */
 .toast-custom {
-  --border-radius: 12px;
-  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  --max-width: 90%;
-  font-family: 'Inter', sans-serif;
+	--border-radius: 12px;
+	--box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	--max-width: 90%;
+	font-family: 'Inter', sans-serif;
 }
 
 .toast-loading {
-  --border-radius: 12px;
-  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  --max-width: 90%;
-  font-family: 'Inter', sans-serif;
+	--border-radius: 12px;
+	--box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	--max-width: 90%;
+	font-family: 'Inter', sans-serif;
 }
 
 .toast-with-action {
-  --border-radius: 12px;
-  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  --max-width: 95%;
-  font-family: 'Inter', sans-serif;
+	--border-radius: 12px;
+	--box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	--max-width: 95%;
+	font-family: 'Inter', sans-serif;
 }
 
 ion-toast {
-  --color: white;
-  font-weight: 500;
+	--color: white;
+	font-weight: 500;
 }
 
 ion-toast.toast-position-bottom {
-  --start: 16px;
-  --end: 16px;
-  --bottom: 20px;
+	--start: 16px;
+	--end: 16px;
+	--bottom: 20px;
 }
 
 ion-toast.toast-position-top {
-  --start: 16px;
-  --end: 16px;
-  --top: 20px;
+	--start: 16px;
+	--end: 16px;
+	--top: 20px;
 }
 
 /* Mobile App Enhancements */
 ion-content {
-  --background: #f9fafb;
+	--background: #f9fafb;
 }
 
 /* Native-like tap feedback */
 .active\:scale-95:active {
-  transform: scale(0.95);
+	transform: scale(0.95);
 }
 
 .active\:scale-\[0\.98\]:active {
-  transform: scale(0.98);
+	transform: scale(0.98);
 }
 
 /* Smooth transitions for interactive elements */
 .transition-transform {
-  transition-property: transform;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
+	transition-property: transform;
+	transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+	transition-duration: 150ms;
 }
 
 /* iOS-style backdrop blur effects */
 .backdrop-blur-sm {
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
 }
 
 /* Enhanced shadows for depth */
 .shadow-md {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 /* Prevent text selection for app-like feel */
 .no-select {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 /* Smooth scrolling */
 ion-content {
-  scroll-behavior: smooth;
+	scroll-behavior: smooth;
 }
 
 /* Remove tap highlight on mobile */
 * {
-  -webkit-tap-highlight-color: transparent;
+	-webkit-tap-highlight-color: transparent;
 }
 
 /* Line clamp utilities */
 .line-clamp-1 {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 1;
 }
 
 .line-clamp-2 {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
 }
 
 .line-clamp-3 {
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
 }
 
 /* Ensure proper safe area handling */
 ion-header {
-  padding-top: env(safe-area-inset-top);
+	padding-top: env(safe-area-inset-top);
 }
 
 ion-content {
-  padding-bottom: env(safe-area-inset-bottom);
+	padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Sacred Typography - Serif for elegance, Sans-serif for clarity */
 @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
 
-/* Apply serif to main headers for elegance */
-h1, h2, .header-serif {
-  font-family: 'Crimson Text', serif !important;
-  font-weight: 600 !important;
-  letter-spacing: -0.025em !important;
+/* Apply sans-serif to main headers for consistency */
+h1,
+h2,
+.header-serif {
+	font-family: 'Inter', sans-serif !important;
+	font-weight: 700 !important;
+	letter-spacing: -0.01em !important;
 }
 
 /* Keep body text clean with Inter */
-body, p, span, button, ion-label {
-  font-family: 'Inter', sans-serif !important;
+body,
+p,
+span,
+button,
+ion-label {
+	font-family: 'Inter', sans-serif !important;
 }
 
 /* Softer font weights throughout */
 .font-semibold {
-  font-weight: 500 !important; /* Lighter than default semibold */
+	font-weight: 500 !important;
+	/* Lighter than default semibold */
 }
 
 .font-medium {
-  font-weight: 400 !important; /* Lighter medium weight */
+	font-weight: 400 !important;
+	/* Lighter medium weight */
 }
 
 /* Spiritual section header styling */
 h2 {
-  color: var(--color-midnight-plum) !important;
-  margin-bottom: 1rem !important;
+	color: var(--color-midnight-plum) !important;
+	margin-bottom: 1rem !important;
 }
 
 /* Additional utility classes for Activities page */
 .bg-eucalyptus-100 {
-  background-color: rgba(168, 195, 160, 0.2) !important;
+	background-color: rgba(168, 195, 160, 0.2) !important;
 }
 
 .bg-eucalyptus-500 {
-  background-color: var(--color-eucalyptus) !important;
+	background-color: var(--color-eucalyptus) !important;
 }
 
 .text-eucalyptus-600 {
-  color: #7FA275 !important;
+	color: #7FA275 !important;
 }
 
 .from-eucalyptus-100 {
-  --tw-gradient-from: rgba(168, 195, 160, 0.2) !important;
+	--tw-gradient-from: rgba(168, 195, 160, 0.2) !important;
 }
 
 .to-eucalyptus-100 {
-  --tw-gradient-to: rgba(168, 195, 160, 0.2) !important;
+	--tw-gradient-to: rgba(168, 195, 160, 0.2) !important;
 }
 
 .from-eucalyptus-500 {
-  --tw-gradient-from: var(--color-eucalyptus) !important;
+	--tw-gradient-from: var(--color-eucalyptus) !important;
 }
 
 .bg-lavender-50 {
-  background-color: rgba(214, 205, 234, 0.2) !important;
+	background-color: rgba(214, 205, 234, 0.2) !important;
 }
 
 .bg-lavender-200 {
-  background-color: rgba(214, 205, 234, 0.5) !important;
+	background-color: rgba(214, 205, 234, 0.5) !important;
 }
 
 .from-lavender-50 {
-  --tw-gradient-from: rgba(214, 205, 234, 0.2) !important;
+	--tw-gradient-from: rgba(214, 205, 234, 0.2) !important;
 }
 
 .to-lavender-50 {
-  --tw-gradient-to: rgba(214, 205, 234, 0.2) !important;
+	--tw-gradient-to: rgba(214, 205, 234, 0.2) !important;
 }
 
 .from-lavender-200 {
-  --tw-gradient-from: rgba(214, 205, 234, 0.5) !important;
+	--tw-gradient-from: rgba(214, 205, 234, 0.5) !important;
 }
 
 .bg-dusty-rose-50 {
-  background-color: rgba(216, 163, 157, 0.2) !important;
+	background-color: rgba(216, 163, 157, 0.2) !important;
 }
 
 .bg-dusty-rose-100 {
-  background-color: rgba(216, 163, 157, 0.3) !important;
+	background-color: rgba(216, 163, 157, 0.3) !important;
 }
 
 .bg-dusty-rose-200 {
-  background-color: rgba(216, 163, 157, 0.5) !important;
+	background-color: rgba(216, 163, 157, 0.5) !important;
 }
 
 .from-dusty-rose-50 {
-  --tw-gradient-from: rgba(216, 163, 157, 0.2) !important;
+	--tw-gradient-from: rgba(216, 163, 157, 0.2) !important;
 }
 
 .to-dusty-rose-50 {
-  --tw-gradient-to: rgba(216, 163, 157, 0.2) !important;
+	--tw-gradient-to: rgba(216, 163, 157, 0.2) !important;
 }
 
 .to-dusty-rose-100 {
-  --tw-gradient-to: rgba(216, 163, 157, 0.3) !important;
+	--tw-gradient-to: rgba(216, 163, 157, 0.3) !important;
 }
 
 .to-dusty-rose-200 {
-  --tw-gradient-to: rgba(216, 163, 157, 0.5) !important;
+	--tw-gradient-to: rgba(216, 163, 157, 0.5) !important;
 }
 
 .from-dusty-rose-200 {
-  --tw-gradient-from: rgba(216, 163, 157, 0.5) !important;
+	--tw-gradient-from: rgba(216, 163, 157, 0.5) !important;
 }
 
 .from-midnight-plum {
-  --tw-gradient-from: var(--color-midnight-plum) !important;
+	--tw-gradient-from: var(--color-midnight-plum) !important;
 }
 
 .to-dusty-rose {
-  --tw-gradient-to: var(--color-dusty-rose) !important;
+	--tw-gradient-to: var(--color-dusty-rose) !important;
 }
 
 .bg-midnight-plum\/10 {
-  background-color: rgba(79, 59, 87, 0.1) !important;
+	background-color: rgba(79, 59, 87, 0.1) !important;
+}
+
+/* --- Premium Animations --- */
+
+@keyframes shimmer {
+	0% {
+		background-position: -200% 0;
+	}
+
+	100% {
+		background-position: 200% 0;
+	}
+}
+
+.animate-shimmer {
+	animation: shimmer 2.5s infinite linear;
+}
+
+@keyframes float {
+
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+
+	50% {
+		transform: translateY(-10px);
+	}
+}
+
+.animate-float {
+	animation: float 4s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+
+	0%,
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	50% {
+		opacity: 0.7;
+		transform: scale(0.98);
+	}
+}
+
+.animate-pulse-slow {
+	animation: pulse-slow 3s ease-in-out infinite;
+}
+
+@keyframes entry {
+	0% {
+		opacity: 0;
+		transform: translateY(20px) scale(0.98);
+	}
+
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+.animate-entry {
+	animation: entry 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delay-100 {
+	animation-delay: 100ms;
+}
+
+.delay-200 {
+	animation-delay: 200ms;
+}
+
+.delay-300 {
+	animation-delay: 300ms;
+}
+
+.delay-500 {
+	animation-delay: 500ms;
+}
+
+/* Custom Glassmorphism Classes */
+.glass-header {
+	background: rgba(255, 255, 255, 0.7) !important;
+	backdrop-filter: blur(20px) saturate(180%) !important;
+	-webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+.glass-card {
+	background: rgba(255, 255, 255, 0.8) !important;
+	backdrop-filter: blur(12px) !important;
+	-webkit-backdrop-filter: blur(12px) !important;
+	border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
+.no-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════ */
+/* PREMIUM DESIGN SYSTEM CLASSES                                       */
+/* ═══════════════════════════════════════════════════════════════════ */
+
+/* Professional Elevations */
+.card-elevated {
+	background: white;
+	border-radius: 2rem;
+	padding: 1.5rem;
+	box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+	border: 1px solid rgba(0, 0, 0, 0.03);
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+	&:active {
+		transform: scale(0.98);
+	}
+}
+
+/* Glassmorphism Surface */
+.card-glass {
+	background: rgba(255, 255, 255, 0.7);
+	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(12px);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 2.5rem;
+	box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}
+
+/* Obsidian Glass (Dark) */
+.card-obsidian {
+	background: rgba(17, 24, 39, 0.85);
+	backdrop-filter: blur(16px);
+	-webkit-backdrop-filter: blur(16px);
+	border: 1px solid rgba(255, 255, 255, 0.05);
+	border-radius: 2.5rem;
+	color: white;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.animate-entry {
+	animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.delay-100 {
+	animation-delay: 100ms;
+}
+
+.delay-200 {
+	animation-delay: 200ms;
+}
+
+.delay-300 {
+	animation-delay: 300ms;
+}
+
+.delay-400 {
+	animation-delay: 400ms;
+}
+
+.delay-500 {
+	animation-delay: 500ms;
+}
+
+@keyframes pulse-slow {
+
+	0%,
+	100% {
+		transform: scale(1);
+		opacity: 0.1;
+	}
+
+	50% {
+		transform: scale(1.1);
+		opacity: 0.15;
+	}
+}
+
+.animate-pulse-slow {
+	animation: pulse-slow 8s ease-in-out infinite;
+}
+
+/* Shimmer Loading */
+@keyframes shimmer {
+	0% {
+		background-position: -200% 0;
+	}
+
+	100% {
+		background-position: 200% 0;
+	}
+}
+
+.skeleton-shimmer {
+	background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+	background-size: 200% 100%;
+	animation: shimmer 1.5s infinite linear;
 }

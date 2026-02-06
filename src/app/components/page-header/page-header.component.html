@@ -1,0 +1,50 @@
+<section class="relative px-6 pt-16 pb-12 overflow-hidden animate-entry rounded-b-[3rem] shadow-2xl">
+	<!-- Background Gradient -->
+	<div class="absolute inset-0 bg-gradient-to-br" [ngClass]="gradientClass"></div>
+
+	<!-- Texture Overlay -->
+	<div class="absolute inset-0 opacity-20 mix-blend-overlay"
+		style="background-image: url('assets/texture/noise.png'), radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15), transparent 50%);">
+	</div>
+
+	<!-- Glows -->
+	<div class="absolute -top-24 -right-24 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse-slow"></div>
+	<div class="absolute -bottom-24 -left-24 w-64 h-64 bg-white/5 rounded-full blur-2xl"></div>
+
+	<!-- Content -->
+	<div class="relative z-10">
+		<div class="flex items-center justify-between">
+			<div class="space-y-1">
+				<p *ngIf="subtitle" class="text-[10px] font-black uppercase tracking-[0.3em] opacity-80"
+					[ngClass]="accentColor">
+					{{ subtitle }}
+				</p>
+				<h1 class="text-4xl font-black text-white tracking-tighter leading-none">{{ title }}</h1>
+			</div>
+
+			<div class="flex items-center gap-4">
+				<!-- Action Button -->
+				<div *ngIf="actionIcon"
+					class="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/10 group active:scale-95 transition-all cursor-pointer shadow-lg"
+					(click)="onActionClick()" role="button" [attr.aria-label]="'Action: ' + (title || 'button')">
+					<i [class]="'fa-solid ' + actionIcon + ' text-white text-2xl group-hover:rotate-90 transition-transform'"
+						aria-hidden="true"></i>
+				</div>
+
+				<!-- Profile Mini Card -->
+				<div *ngIf="showProfile"
+					class="flex items-center gap-3 bg-white/10 backdrop-blur-md px-1.5 py-1.5 rounded-2xl border border-white/10 shadow-inner">
+					<div class="w-11 h-11 rounded-xl overflow-hidden border border-white/20 shadow-sm">
+						<img [src]="profileUrl || 'https://api.dicebear.com/7.x/notionists/svg?seed=' + userName"
+							[alt]="userName + '\'s profile picture'" class="w-full h-full object-cover">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Optional projection area (e.g. for progress bars) -->
+		<div class="mt-8">
+			<ng-content></ng-content>
+		</div>
+	</div>
+</section>

@@ -173,7 +173,7 @@ export class CompletedChallengesComponent implements OnInit, OnDestroy {
 			'mind': 'fa-brain',
 			'body': 'fa-heart-pulse',
 			'soul': 'fa-spa',
-			'beauty': 'fa-sparkles',
+			'beauty': 'fa-wand-magic-sparkles',
 			'mood': 'fa-face-smile',
 			'custom': 'fa-circle'
 		};

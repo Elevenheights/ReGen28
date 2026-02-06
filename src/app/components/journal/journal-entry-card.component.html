@@ -1,109 +1,93 @@
-<div class="bg-white rounded-xl p-4 border border-neutral-100 cursor-pointer hover:bg-neutral-50 transition-colors group"
-     (click)="onEntryClick($event)">
-  
-  <!-- Header -->
-  <div class="flex items-start justify-between mb-3">
-    <div class="flex items-center space-x-3 flex-1 min-w-0">
-      <!-- Category Icon -->
-      <div class="w-8 h-8 bg-neutral-100 rounded-full flex items-center justify-center flex-shrink-0">
-        <i class="fa-solid {{ getCategoryIcon(entry.category) }} text-neutral-600 text-sm"></i>
-      </div>
-      
-      <!-- Title and Category -->
-      <div class="flex-1 min-w-0">
-        <h3 class="text-sm text-neutral-900 font-medium truncate">
-          {{ entry.title || 'Untitled Entry' }}
-        </h3>
-        <div class="flex items-center space-x-2 mt-1">
-          <span class="text-xs text-neutral-500">{{ getCategoryDisplayName(entry.category) }}</span>
-          <span class="text-xs text-neutral-300">•</span>
-          <span class="text-xs text-neutral-500">{{ formatDate(entry.date) }}</span>
-        </div>
-      </div>
-    </div>
+<div class="card-elevated rounded-[2rem] p-5 cursor-pointer" (click)="onEntryClick($event)" role="button"
+	[attr.aria-label]="'Read journal entry: ' + (entry.title || 'Sacred Reflection') + ' from ' + formatDate(entry.date)">
 
-    <!-- Action Buttons -->
-    <div class="entry-actions flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-      <button 
-        (click)="onEditClick($event)"
-        class="p-1.5 rounded-lg hover:bg-neutral-100 transition-colors"
-        title="Edit entry">
-        <i class="fa-solid fa-edit text-neutral-400 text-sm"></i>
-      </button>
-      <button 
-        (click)="onDeleteClick($event)"
-        class="p-1.5 rounded-lg hover:bg-red-50 transition-colors"
-        title="Delete entry">
-        <i class="fa-solid fa-trash text-red-400 text-sm"></i>
-      </button>
-    </div>
-  </div>
+	<!-- Header Row -->
+	<div class="flex items-start justify-between mb-3">
+		<div class="flex items-center space-x-3 flex-1 min-w-0">
+			<!-- Mood Emoji or Category Icon -->
+			<div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+				[ngClass]="getMoodBackground(entry.mood)" aria-hidden="true">
+				<span class="text-xl">{{ getMoodEmoji(entry.mood) }}</span>
+			</div>
 
-  <!-- Content -->
-  <div class="mb-3">
-    <p class="text-sm text-neutral-600 leading-relaxed">
-      {{ truncateContent(entry.content) }}
-    </p>
-    
-    <!-- Show full content toggle if truncated -->
-    <div *ngIf="!showFullContent && entry.content.length > maxContentLength" class="mt-2">
-      <button class="text-xs text-blue-600 hover:text-blue-700">
-        Read more
-      </button>
-    </div>
-  </div>
+			<!-- Title and Date -->
+			<div class="flex-1 min-w-0">
+				<h3 class="text-lg font-black text-neutral-900 tracking-tighter truncate leading-tight">
+					{{ entry.title || 'Sacred Reflection' }}
+				</h3>
+				<div class="flex items-center space-x-2 mt-1">
+					<span class="text-[9px] text-neutral-400 font-black uppercase tracking-widest">{{
+						formatDate(entry.date) }}</span>
+					<span *ngIf="entry.category" class="text-[9px] text-neutral-300" aria-hidden="true">•</span>
+					<span *ngIf="entry.category"
+						class="text-[9px] text-purple-600 font-black uppercase tracking-[0.2em]">
+						<span class="sr-only">Category: </span>{{ getCategoryDisplayName(entry.category) }}</span>
+				</div>
+			</div>
+		</div>
 
-  <!-- Prompt Reference -->
-  <div *ngIf="entry.promptText" class="mb-3 p-2 bg-purple-50 rounded-lg border border-purple-100">
-    <div class="flex items-center space-x-2">
-      <i class="fa-solid fa-lightbulb text-purple-600 text-xs"></i>
-      <span class="text-xs text-purple-700 font-medium">Prompt:</span>
-    </div>
-    <p class="text-xs text-purple-600 mt-1">{{ entry.promptText }}</p>
-  </div>
+		<!-- Chevron -->
+		<div class="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center flex-shrink-0"
+			aria-hidden="true">
+			<i class="fa-solid fa-chevron-right text-neutral-400 text-xs"></i>
+		</div>
+	</div>
 
-  <!-- Metadata -->
-  <div class="flex items-center justify-between">
-    <!-- Mood and Energy -->
-    <div class="flex items-center space-x-4">
-      <span *ngIf="entry.mood" class="text-xs text-neutral-400 flex items-center space-x-1">
-        <span>{{ getMoodEmoji(entry.mood) }}</span>
-        <span>{{ entry.mood }}/10</span>
-      </span>
-      
-      <span *ngIf="entry.energy" class="text-xs text-neutral-400">
-        Energy: {{ entry.energy }}/5
-      </span>
-      
-      <span *ngIf="!entry.mood && !entry.energy" class="text-xs text-neutral-300">
-        No mood data
-      </span>
-    </div>
+	<!-- Content Preview -->
+	<div class="mb-3">
+		<p class="text-sm text-neutral-600 leading-relaxed line-clamp-2">
+			{{ truncateContent(entry.content) }}
+		</p>
+	</div>
 
-    <!-- Reading Time -->
-    <div class="flex items-center space-x-2 text-xs text-neutral-400">
-      <i class="fa-solid fa-clock text-neutral-300"></i>
-      <span>{{ getReadingTime(entry.content) }} min read</span>
-    </div>
-  </div>
+	<!-- Prompt Reference -->
+	<div *ngIf="entry.promptText" class="mb-4 p-4 card-glass rounded-2xl border-white/50 bg-amber-50/30">
+		<div class="flex items-center space-x-2">
+			<i class="fa-solid fa-sparkles text-amber-500 text-[10px]" aria-hidden="true"></i>
+			<span class="text-[9px] text-amber-700 font-black uppercase tracking-widest leading-none">Oracle
+				Spark</span>
+		</div>
+		<p class="text-xs text-amber-600/80 mt-2 line-clamp-1 italic font-medium">{{ entry.promptText }}</p>
+	</div>
 
-  <!-- Tags -->
-  <div *ngIf="entry.tags && entry.tags.length > 0" class="mt-3 flex flex-wrap gap-1">
-    <span *ngFor="let tag of entry.tags.slice(0, 4)" 
-          class="px-2 py-1 bg-neutral-100 text-neutral-600 text-xs rounded-full">
-      {{ tag }}
-    </span>
-    <span *ngIf="entry.tags.length > 4" 
-          class="px-2 py-1 bg-neutral-100 text-neutral-500 text-xs rounded-full">
-      +{{ entry.tags.length - 4 }} more
-    </span>
-  </div>
+	<!-- Bottom Row: Metadata -->
+	<div class="flex items-center justify-between pt-2 border-t border-neutral-100">
+		<!-- Mood Score -->
+		<div class="flex items-center space-x-5">
+			<span *ngIf="entry.mood" class="flex flex-col">
+				<span
+					class="text-[8px] font-black text-neutral-400 uppercase tracking-widest leading-none mb-1">Mood</span>
+				<span class="text-xs text-neutral-900 font-black leading-none"
+					[attr.aria-label]="'Mood score: ' + entry.mood + ' out of 10'">{{ entry.mood }}<span
+						class="text-[9px] text-neutral-300">/10</span></span>
+			</span>
 
-  <!-- Word Count (if showing full content) -->
-  <div *ngIf="showFullContent" class="mt-3 pt-3 border-t border-neutral-100">
-    <div class="flex items-center justify-between text-xs text-neutral-400">
-      <span>{{ entry.content.split(' ').length }} words</span>
-      <span>Created {{ entry.createdAt | date:'short' }}</span>
-    </div>
-  </div>
-</div> 
+			<span *ngIf="entry.energy" class="flex flex-col">
+				<span
+					class="text-[8px] font-black text-neutral-400 uppercase tracking-widest leading-none mb-1">Energy</span>
+				<span class="text-xs text-neutral-900 font-black leading-none"
+					[attr.aria-label]="'Energy level: ' + entry.energy + ' out of 5'">{{ entry.energy }}<span
+						class="text-[9px] text-neutral-300">/5</span></span>
+			</span>
+		</div>
+
+		<!-- Reading Time -->
+		<div class="flex items-center space-x-1.5 text-xs text-neutral-400">
+			<i class="fa-solid fa-book-open text-neutral-300" aria-hidden="true"></i>
+			<span [attr.aria-label]="getReadingTime(entry.content) + ' minute read'">{{ getReadingTime(entry.content) }}
+				min</span>
+		</div>
+	</div>
+
+	<!-- Tags -->
+	<div *ngIf="entry.tags && entry.tags.length > 0" class="mt-4 flex flex-wrap gap-2" role="list" aria-label="Tags">
+		<span *ngFor="let tag of entry.tags.slice(0, 3)" role="listitem"
+			class="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-xl border border-indigo-100">
+			#{{ tag }}
+		</span>
+		<span *ngIf="entry.tags.length > 3"
+			class="px-2.5 py-1.5 bg-neutral-100 text-neutral-400 text-[10px] font-black uppercase tracking-widest rounded-xl">
+			+{{ entry.tags.length - 3 }} more
+		</span>
+	</div>
+</div>

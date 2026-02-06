@@ -14,6 +14,7 @@ import {
 	IonIcon,
 	IonAvatar,
 	IonSpinner,
+	IonFooter,
 	ModalController
 } from '@ionic/angular/standalone';
 import { User } from '../../../models/user.interface';
@@ -41,7 +42,8 @@ import { ToastService } from '../../../services/toast.service';
 		IonInput,
 		IonIcon,
 		IonAvatar,
-		IonSpinner
+		IonSpinner,
+		IonFooter
 	]
 })
 export class EditProfileModalComponent implements OnInit {

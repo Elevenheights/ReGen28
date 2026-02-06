@@ -3,6 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
 	IonModal,
+	IonHeader,
+	IonToolbar,
+	IonButtons,
+	IonButton,
+	IonContent,
+	IonFooter,
 	IonInput,
 	IonTextarea,
 	IonToggle,
@@ -41,6 +47,12 @@ interface CategoryOption {
 		CommonModule,
 		FormsModule,
 		IonModal,
+		IonHeader,
+		IonToolbar,
+		IonButtons,
+		IonButton,
+		IonContent,
+		IonFooter,
 		IonInput,
 		IonTextarea,
 		IonToggle,
@@ -89,7 +101,7 @@ export class AddTrackerModalComponent implements OnDestroy {
 		{
 			value: TrackerCategory.BEAUTY,
 			label: 'Beauty',
-			icon: 'fa-sparkles',
+			icon: 'fa-wand-magic-sparkles',
 			color: '#ec4899',
 			description: 'Skincare, self-care, grooming'
 		},
@@ -152,7 +164,7 @@ export class AddTrackerModalComponent implements OnDestroy {
 	// Icon picker state
 	showIconPicker = false;
 	iconOptions = [
-		'fa-brain', 'fa-heart-pulse', 'fa-spa', 'fa-sparkles', 'fa-dumbbell',
+		'fa-brain', 'fa-heart-pulse', 'fa-spa', 'fa-wand-magic-sparkles', 'fa-dumbbell',
 		'fa-bed', 'fa-glass-water', 'fa-utensils', 'fa-book', 'fa-pen',
 		'fa-music', 'fa-running', 'fa-bicycle', 'fa-pray', 'fa-sun',
 		'fa-moon', 'fa-leaf', 'fa-fire', 'fa-bolt', 'fa-star',

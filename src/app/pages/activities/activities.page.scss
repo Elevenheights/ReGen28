@@ -1,0 +1,23 @@
+ion-header {
+	ion-toolbar {
+		--background: transparent;
+		--padding-top: 12px;
+		--padding-bottom: 12px;
+	}
+}
+
+ion-content {
+	--background: #fafafa; // Ultra light neutral background
+}
+
+// Custom scrollbar handling if needed
+.scrollbar-hide::-webkit-scrollbar {
+	display: none;
+}
+
+.scrollbar-hide {
+	-ms-overflow-style: none;
+	/* IE and Edge */
+	scrollbar-width: none;
+	/* Firefox */
+}

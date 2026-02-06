@@ -19,7 +19,10 @@
     "build:android": "npm run build && npx cap sync android",
     "build:android:apk": "npm run build:android && cd android && .\\gradlew assembleDebug && cd ..",
     "open:android": "npx cap open android",
-    "sync:android": "npx cap sync android"
+    "sync:android": "npx cap sync android",
+    "build:ios": "npm run build && npx cap sync ios",
+    "open:ios": "npx cap open ios",
+    "sync:ios": "npx cap sync ios"
   },
   "private": true,
   "dependencies": {
@@ -34,6 +37,7 @@
     "@angular/router": "^20.0.0",
     "@capacitor-firebase/authentication": "^7.2.0",
     "@capacitor/android": "^7.4.1",
+    "@capacitor/ios": "^7.0.1",
     "@capacitor/app": "7.0.1",
     "@capacitor/core": "^7.4.1",
     "@capacitor/device": "^7.0.1",

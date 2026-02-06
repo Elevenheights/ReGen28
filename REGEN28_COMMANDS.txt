@@ -40,7 +40,24 @@ npx cap run android --list
 npx cap run android --target <DEVICE_ID>
 
 
---- 3. FIREBASE FUNCTIONS ---
+--- 3. iOS & APPFLOW (TESTERS) ---
+
+# Full setup guide: docs/IOS_APPFLOW_TESTERS.md
+
+# Build and sync iOS (requires Mac; then commit/push the ios folder for Appflow)
+npm run build:ios
+
+# Open Xcode (Mac only)
+npm run open:ios
+
+# Sync Capacitor changes to iOS
+npm run sync:ios
+
+# iOS builds for testers: use Ionic Appflow (Package → New build → iOS → Deploy to TestFlight).
+# See docs/IOS_APPFLOW_TESTERS.md for credentials, destinations, and TestFlight.
+
+
+--- 4. FIREBASE FUNCTIONS ---
 
 # Build (compile) the functions
 cd functions; npm run build; cd ..
@@ -58,7 +75,7 @@ firebase deploy --only functions:getPerformanceInsights
 firebase functions:log
 
 
---- 4. DATABASE & ENVIRONMENT ---
+--- 5. DATABASE & ENVIRONMENT ---
 
 # Deploy Firestore rules
 firebase deploy --only firestore:rules
@@ -73,7 +90,7 @@ npm install
 cd functions; npm install; cd ..
 
 
---- 5. TROUBLESHOOTING ---
+--- 6. TROUBLESHOOTING ---
 
 # Clear Android build cache
 cd android; .\gradlew clean; cd ..

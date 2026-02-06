@@ -4,10 +4,48 @@
 		<ion-refresher-content></ion-refresher-content>
 	</ion-refresher>
 
-	<!-- Loading state -->
-	<div *ngIf="isLoading" class="flex flex-col justify-center items-center h-screen">
-		<ion-spinner name="crescent" class="scale-150 mb-4"></ion-spinner>
-		<div class="text-neutral-500 font-medium">Loading your wellness dashboard...</div>
+	<!-- Loading state (Skeletons) -->
+	<div *ngIf="isLoading" class="pb-24 px-4 animate-entry">
+		<!-- Header Skeleton -->
+		<div class="mt-4 mb-8">
+			<div class="w-24 h-4 bg-neutral-200 rounded-full animate-pulse mb-2"></div>
+			<div class="w-48 h-8 bg-neutral-200 rounded-full animate-pulse mb-6"></div>
+			<div
+				class="bg-neutral-200/50 backdrop-blur-xl rounded-[2.5rem] h-44 w-full p-6 border border-neutral-100 animate-pulse">
+				<div class="flex items-center justify-between mb-6">
+					<div class="flex items-center space-x-3">
+						<div class="w-12 h-12 bg-neutral-200 rounded-2xl"></div>
+						<div class="space-y-2">
+							<div class="w-20 h-2 bg-neutral-200 rounded-full"></div>
+							<div class="w-32 h-4 bg-neutral-200 rounded-full"></div>
+						</div>
+					</div>
+					<div class="w-16 h-8 bg-neutral-200 rounded-xl"></div>
+				</div>
+				<div class="w-full h-2.5 bg-neutral-200 rounded-full"></div>
+			</div>
+		</div>
+
+		<!-- Guidance Skeleton -->
+		<div class="mb-8">
+			<div class="flex justify-between items-center mb-4">
+				<div class="w-32 h-3 bg-neutral-200 rounded-full animate-pulse"></div>
+				<div class="w-16 h-5 bg-neutral-200 rounded-full animate-pulse"></div>
+			</div>
+			<div class="flex space-x-3 overflow-hidden">
+				<div class="min-w-[300px] h-44 bg-neutral-100 rounded-3xl animate-pulse"></div>
+				<div class="min-w-[100px] h-44 bg-neutral-100 rounded-3xl animate-pulse opacity-50"></div>
+			</div>
+		</div>
+
+		<!-- Wellness Skeleton -->
+		<div class="mb-8">
+			<div class="w-24 h-3 bg-neutral-200 rounded-full animate-pulse mb-4"></div>
+			<div class="w-full h-64 bg-neutral-100 rounded-[2.5rem] animate-pulse mb-4"></div>
+			<div class="grid grid-cols-4 gap-2">
+				<div class="h-20 bg-neutral-50 rounded-2xl animate-pulse" *ngFor="let i of [1,2,3,4]"></div>
+			</div>
+		</div>
 	</div>
 
 	<!-- Error state -->
@@ -28,312 +66,359 @@
 
 	<!-- Main Content -->
 	<main *ngIf="!isLoading && !hasGeneralError" class="pb-24">
-		<!-- Integrated Header -->
-		<section class="bg-gradient-to-br from-white via-blue-50 to-purple-50 px-4 pt-12 pb-4">
-			<!-- User Welcome -->
-			<div class="flex items-center justify-between mb-6">
-				<div class="flex items-center space-x-4">
-					<app-profile-image [photoURL]="profileImageUrl" [displayName]="userDisplayName"
-						[alt]="userDisplayName + ' profile'" size="lg">
-					</app-profile-image>
-					<div>
-						<h1 class="text-2xl font-bold text-neutral-900 leading-tight">{{ getGreeting() }}, {{
-							userDisplayName }}</h1>
-						<p class="text-sm text-neutral-600 font-medium -mt-1">Life starts right now</p>
-					</div>
-				</div>
-				<button
-					class="p-3 bg-white/80 backdrop-blur-sm rounded-2xl shadow-md active:scale-95 transition-transform">
-					<i class="fa-regular fa-bell text-xl text-neutral-600"></i>
-				</button>
-			</div>
 
-			<!-- Today's Renewal -->
-			<div class="bg-white rounded-3xl p-5 shadow-md">
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<!-- SECTION 1: WELCOME HEADER                                           -->
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<app-page-header [title]="getGreeting() + ','" [subtitle]="userDisplayName" theme="indigo" [showProfile]="true"
+			[profileUrl]="profileImageUrl" [userName]="userDisplayName">
+
+			<!-- Today's Renewal (Projected) -->
+			<div
+				class="bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-6 border border-white/10 shadow-2xl animate-entry delay-300">
 				<div class="flex items-center justify-between mb-4">
 					<div class="flex items-center space-x-3">
 						<div
-							class="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-200 rounded-2xl flex items-center justify-center shadow-sm">
-							<i class="fa-solid fa-sunrise text-amber-600 text-lg"></i>
+							class="w-12 h-12 bg-gradient-to-br from-amber-400/20 to-orange-500/20 rounded-2xl flex items-center justify-center border border-amber-500/20 shadow-inner">
+							<i class="fa-solid fa-sunrise text-amber-400 text-lg"></i>
 						</div>
 						<div>
-							<h3 class="text-base font-semibold text-neutral-900">Your Day Begins Here</h3>
-							<p class="text-xs text-neutral-500 font-medium">{{ getTodayRenewalText() }}</p>
+							<h3
+								class="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1.5">
+								Daily Momentum</h3>
+							<p class="text-base font-bold text-white leading-none tracking-tight"><span
+									[appCountUp]="dashboardData.analytics.currentStreak"></span> Day Streak</p>
 						</div>
 					</div>
 					<div class="text-right">
-						<div class="text-2xl font-bold text-neutral-900">{{ getTodayCompletionPercentage() }}%</div>
-						<div class="text-xs text-amber-600 font-semibold">flowing</div>
+						<div class="text-2xl font-black text-white tracking-tighter"><span
+								[appCountUp]="getTodayCompletionPercentage()"></span>%</div>
+						<div class="text-[9px] text-amber-400 font-bold uppercase tracking-widest opacity-80">flowing
+						</div>
 					</div>
 				</div>
-				<div class="w-full bg-neutral-200/60 rounded-full h-3">
-					<div class="bg-gradient-to-r from-amber-500 to-orange-600 h-3 rounded-full transition-all duration-500 ease-out"
+				<div class="w-full bg-white/5 rounded-full h-2.5 overflow-hidden border border-white/5">
+					<div class="bg-gradient-to-r from-amber-400 via-orange-500 to-amber-600 h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(251,191,36,0.5)]"
 						[style.width.%]="getTodayCompletionPercentage()"></div>
+				</div>
+			</div>
+		</app-page-header>
+
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<!-- SECTION SEPARATOR                                                    -->
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<app-section-separator color="emerald"></app-section-separator>
+
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<!-- SECTION 2: TODAY'S GUIDANCE (Merged Intentions + Insights)          -->
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<section *ngIf="hasActiveTrackers()" class="px-4 pb-2 animate-entry delay-500">
+			<!-- Section Header -->
+			<div class="flex items-center justify-between mb-4">
+				<h2 class="text-xs font-black text-neutral-400 uppercase tracking-widest flex items-center space-x-2">
+					<i class="fa-solid fa-compass text-emerald-600"></i>
+					<span>Today's Guidance</span>
+				</h2>
+				<div class="flex items-center space-x-2">
+					<div
+						class="flex items-center bg-gradient-to-r from-emerald-100 to-teal-100 rounded-full px-3 py-1 shadow-sm">
+						<i class="fa-solid fa-wand-magic-sparkles text-emerald-600 text-[10px]"></i>
+						<span class="text-[10px] text-emerald-700 font-extrabold ml-1 uppercase">AI Powered</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Loading Suggestions -->
+			<div *ngIf="isLoadingSuggestions" class="mb-4">
+				<div class="bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-3xl p-6 animate-pulse">
+					<div class="flex items-center space-x-3 mb-4">
+						<div class="w-10 h-10 bg-emerald-200 rounded-xl"></div>
+						<div class="flex-1">
+							<div class="h-4 bg-emerald-200 rounded w-3/4"></div>
+						</div>
+					</div>
+					<div class="h-3 bg-emerald-100 rounded w-full mb-2"></div>
+					<div class="h-3 bg-emerald-100 rounded w-2/3"></div>
+				</div>
+			</div>
+
+			<!-- Horizontal scroll of combined action + insight cards -->
+			<div *ngIf="!isLoadingSuggestions && hasAnySuggestions"
+				class="flex space-x-3 overflow-x-auto scrollbar-hide pb-3"
+				style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
+
+				<!-- Action Cards (Today's Intentions) -->
+				<div *ngFor="let tracker of getTrackersWithSuggestions(); let i = index"
+					class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-5 text-white shadow-lg min-w-[300px] max-w-[340px] flex-shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+					style="scroll-snap-align: start;" (click)="toggleActionExpansion(tracker.id + '-' + i, $event)">
+
+					<!-- Background decoration -->
+					<div class="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12"></div>
+					<div class="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full -ml-10 -mb-10"></div>
+
+					<!-- Content -->
+					<div class="relative z-10">
+						<!-- Tracker header -->
+						<div class="flex items-center space-x-3 mb-3">
+							<div
+								class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
+								<i [class]="'fa-solid ' + tracker.icon" class="text-white text-base"></i>
+							</div>
+							<div class="flex-1">
+								<span class="text-sm font-semibold text-white/90">{{ tracker.name }}</span>
+								<span *ngIf="getTrackerSuggestions(tracker.id)?.todayAction?.icon"
+									class="ml-2 text-xs text-white/60">{{
+									getTrackerSuggestions(tracker.id)?.todayAction?.icon }}</span>
+							</div>
+							<div class="px-2 py-1 bg-white/20 rounded-lg backdrop-blur-sm">
+								<span class="text-xs font-medium text-white/80">Action</span>
+							</div>
+						</div>
+
+						<!-- Action text -->
+						<div *ngIf="getTrackerSuggestions(tracker.id)?.todayAction">
+							<p class="text-base font-semibold text-white leading-snug mb-2"
+								[class.line-clamp-2]="!isReadingMode">
+								{{ getTrackerSuggestions(tracker.id)?.todayAction?.text }}
+							</p>
+							<p *ngIf="getTrackerSuggestions(tracker.id)?.todayAction?.reason && (isReadingMode || (getTrackerSuggestions(tracker.id)?.todayAction?.reason && getTrackerSuggestions(tracker.id)!.todayAction!.reason.length < 60))"
+								class="text-xs text-white/80 leading-relaxed" [class.line-clamp-2]="!isReadingMode">
+								{{ getTrackerSuggestions(tracker.id)?.todayAction?.reason }}
+							</p>
+						</div>
+
+						<!-- Tracker details - shows when expanded -->
+						<div *ngIf="isReadingMode" class="mt-4 pt-3 border-t border-white/20">
+							<div class="flex items-center justify-between text-xs text-white/70">
+								<div class="flex items-center space-x-4">
+									<div class="flex items-center space-x-1">
+										<i class="fa-solid fa-bullseye"></i>
+										<span>Target: {{ tracker.target }} {{ tracker.unit }}</span>
+									</div>
+									<div class="flex items-center space-x-1">
+										<i class="fa-solid fa-calendar-days"></i>
+										<span>{{ tracker.frequency | titlecase }}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Insight Cards (Strategic Suggestions) -->
+				<div *ngFor="let tracker of getTrackersWithSuggestions(); let i = index"
+					class="bg-white rounded-3xl shadow-md border border-neutral-100 overflow-hidden cursor-pointer active:scale-[0.98] transition-transform min-w-[300px] max-w-[340px] flex-shrink-0"
+					style="scroll-snap-align: start;" (click)="toggleInsightExpansion(tracker.id, $event)">
+
+					<div class="p-5">
+						<div class="flex items-center space-x-3 mb-3">
+							<div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-sm"
+								[style.background]="'linear-gradient(135deg, ' + tracker.color + ', ' + tracker.color + '90)'">
+								<i [class]="'fa-solid ' + tracker.icon" class="text-base"></i>
+							</div>
+							<div class="flex-1 min-w-0">
+								<h3 class="text-sm font-semibold text-neutral-900">{{ tracker.name }}</h3>
+								<p class="text-xs text-neutral-600">{{
+									(getTrackerSuggestions(tracker.id)?.suggestions?.length || 0) }} insights</p>
+							</div>
+							<div class="px-2 py-1 bg-amber-100 rounded-lg">
+								<span class="text-xs font-medium text-amber-700">Insight</span>
+							</div>
+						</div>
+
+						<!-- Preview Text (first insight) - only when collapsed -->
+						<div
+							*ngIf="!isInsightExpanded(tracker.id) && getTrackerSuggestions(tracker.id)?.suggestions && (getTrackerSuggestions(tracker.id)?.suggestions?.length || 0) > 0">
+							<p class="text-sm text-neutral-700 leading-relaxed font-medium line-clamp-2">
+								{{ getFirstInsightText(tracker.id) }}
+							</p>
+						</div>
+					</div>
+
+					<!-- Expanded Strategic Suggestions -->
+					<div *ngIf="isInsightExpanded(tracker.id) && getTrackerSuggestions(tracker.id)?.suggestions && (getTrackerSuggestions(tracker.id)?.suggestions?.length || 0) > 0"
+						class="px-5 pb-5 border-t border-neutral-100 pt-4">
+						<div class="space-y-3">
+							<div *ngFor="let suggestion of getTrackerSuggestions(tracker.id)?.suggestions; let i = index"
+								class="bg-gradient-to-r from-white to-blue-50 rounded-xl p-4 border-l-4 border-blue-500 shadow-sm">
+								<p class="text-sm text-neutral-800 leading-relaxed font-medium">{{ suggestion.text }}
+								</p>
+								<div class="flex items-center space-x-3 mt-2">
+									<span *ngIf="suggestion.type"
+										class="inline-block px-2 py-1 bg-white text-neutral-600 text-xs rounded-full border capitalize">
+										{{ suggestion.type }}
+									</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Scroll indicator dots -->
+			<div *ngIf="getTrackersWithSuggestions().length > 0" class="flex justify-center space-x-1.5 mt-2">
+				<div *ngFor="let tracker of getTrackersWithSuggestions(); let i = index"
+					class="w-1.5 h-1.5 rounded-full bg-emerald-300"></div>
+			</div>
+		</section>
+
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<!-- SECTION SEPARATOR                                                    -->
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<app-section-separator color="purple"></app-section-separator>
+
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<!-- SECTION 3: YOUR WELLNESS (Merged Energy Flow + Engagement + Growth) -->
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<section class="px-4 pb-2 animate-entry delay-500">
+			<!-- Section Header -->
+			<div class="flex items-center justify-between mb-4">
+				<h2 class="text-xs font-black text-neutral-400 uppercase tracking-widest flex items-center space-x-2">
+					<i class="fa-solid fa-heart-pulse text-purple-600"></i>
+					<span>Your Wellness</span>
+				</h2>
+			</div>
+
+			<!-- Hero Wellness Score Card -->
+			<div class="bg-gradient-to-br from-purple-500 to-blue-600 rounded-3xl p-6 text-white shadow-lg mb-4">
+				<div class="flex items-center justify-between mb-5">
+					<div>
+						<h3 class="text-base font-medium text-white/90 mb-1">Your Alignment</h3>
+						<div class="text-5xl font-bold"><span
+								[appCountUp]="dashboardData.analytics.wellnessScore"></span><span
+								class="text-2xl font-normal">/100</span></div>
+					</div>
+					<div class="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+						<i class="fa-solid fa-heart text-3xl text-pink-300"></i>
+					</div>
+				</div>
+
+				<!-- Score breakdown - compact row -->
+				<div class="grid grid-cols-3 gap-3">
+					<div class="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-center">
+						<i class="fa-solid fa-face-smile text-lg mb-1"></i>
+						<div class="text-xs font-medium text-white/80">Mood</div>
+						<div class="text-xl font-bold"><span [appCountUp]="dashboardData.analytics.moodData.average"
+								[decimalPlaces]="1"></span>/5</div>
+					</div>
+					<div class="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-center">
+						<i class="fa-solid fa-fire text-lg mb-1"></i>
+						<div class="text-xs font-medium text-white/80">Consistency</div>
+						<div class="text-xl font-bold"><span
+								[appCountUp]="dashboardData.analytics.consistencyRate"></span>%</div>
+					</div>
+					<div class="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-center">
+						<i class="fa-solid fa-bolt text-lg mb-1"></i>
+						<div class="text-xs font-medium text-white/80">Streak</div>
+						<div class="text-xl font-bold" [appCountUp]="dashboardData.analytics.currentStreak"></div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Compact Stats Grid -->
+			<div class="grid grid-cols-4 gap-2 mb-4">
+				<div class="bg-white rounded-2xl p-3 shadow-sm border border-neutral-100 text-center">
+					<div class="text-lg font-bold text-blue-600"
+						[appCountUp]="dashboardData.trackerStats.totalSessions"></div>
+					<div class="text-xs text-neutral-500 font-medium">Sessions</div>
+				</div>
+				<div class="bg-white rounded-2xl p-3 shadow-sm border border-neutral-100 text-center">
+					<div class="text-lg font-bold text-purple-600"
+						[appCountUp]="dashboardData.journalStats.totalEntries"></div>
+					<div class="text-xs text-neutral-500 font-medium">Journal</div>
+				</div>
+				<div class="bg-white rounded-2xl p-3 shadow-sm border border-neutral-100 text-center">
+					<div class="text-lg font-bold text-orange-500">{{ dashboardData.trackerStats.streak }}🔥</div>
+					<div class="text-xs text-neutral-500 font-medium">Days</div>
+				</div>
+				<div class="bg-white rounded-2xl p-3 shadow-sm border border-neutral-100 text-center">
+					<div class="text-lg font-bold text-emerald-600">{{ getWeeklyEngagementCount() }}/7</div>
+					<div class="text-xs text-neutral-500 font-medium">Active</div>
+				</div>
+			</div>
+
+			<!-- Inline Weekly Engagement Chart -->
+			<div class="bg-white rounded-2xl p-4 shadow-sm border border-neutral-100">
+				<div class="flex items-center justify-between mb-3">
+					<span class="text-sm font-semibold text-neutral-700">This Week</span>
+					<span class="text-xs text-emerald-600 font-medium">{{ getWeeklyEngagementRate() }}</span>
+				</div>
+				<div class="flex items-end justify-between h-12 mb-2">
+					<div class="w-8 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-md transition-all"
+						[style.height]="getDailyEngagementHeight(0)"></div>
+					<div class="w-8 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-md transition-all"
+						[style.height]="getDailyEngagementHeight(1)"></div>
+					<div class="w-8 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-md transition-all"
+						[style.height]="getDailyEngagementHeight(2)"></div>
+					<div class="w-8 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-md transition-all"
+						[style.height]="getDailyEngagementHeight(3)"></div>
+					<div class="w-8 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-md transition-all"
+						[style.height]="getDailyEngagementHeight(4)"></div>
+					<div class="w-8 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-md transition-all"
+						[style.height]="getDailyEngagementHeight(5)"></div>
+					<div class="w-8 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-md transition-all"
+						[style.height]="getDailyEngagementHeight(6)"></div>
+				</div>
+				<div class="flex items-center justify-between text-xs text-neutral-500 font-medium">
+					<span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
 				</div>
 			</div>
 		</section>
 
-		<!-- Dashboard Content -->
-		<div class="px-4 pt-3 pb-4 space-y-5">
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<!-- SECTION SEPARATOR                                                    -->
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<app-section-separator color="blue"></app-section-separator>
 
-			<!-- 1. Your Energy Flow -->
-			<section class="mb-5 -mt-2">
-				<h2 class="text-lg font-semibold text-neutral-900 mb-3 flex items-center space-x-2">
-					<i class="fa-solid fa-sparkles text-amber-600"></i>
-					<span>Your Energy Flow</span>
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<!-- SECTION 4: MIND & TRACKERS                                          -->
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<section class="px-4 pb-2">
+			<!-- Section Header -->
+			<div class="flex items-center justify-between mb-4">
+				<h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
+					<i class="fa-solid fa-leaf text-emerald-600"></i>
+					<span>Mind Check-In</span>
 				</h2>
-				<div class="bg-gradient-to-br from-purple-500 to-blue-600 rounded-3xl p-6 text-white shadow-lg">
-					<div class="flex items-center justify-between mb-6">
-						<div>
-							<h3 class="text-base font-medium text-white/90 mb-1">Your Alignment</h3>
-							<div class="text-5xl font-bold">{{ dashboardData.analytics.wellnessScore }}<span
-									class="text-2xl font-normal">/100</span></div>
-						</div>
-						<div
-							class="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-							<i class="fa-solid fa-heart text-3xl text-pink-300"></i>
-						</div>
-					</div>
-
-					<!-- Score breakdown -->
-					<div class="grid grid-cols-3 gap-3">
-						<div class="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-center">
-							<i class="fa-solid fa-face-smile text-lg mb-1"></i>
-							<div class="text-xs font-medium text-white/80">Mood</div>
-							<div class="text-xl font-bold">{{ dashboardData.analytics.moodData.average }}/5</div>
-						</div>
-						<div class="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-center">
-							<i class="fa-solid fa-fire text-lg mb-1"></i>
-							<div class="text-xs font-medium text-white/80">Consistency</div>
-							<div class="text-xl font-bold">{{ dashboardData.analytics.consistencyRate }}%</div>
-						</div>
-						<div class="bg-white/15 backdrop-blur-sm rounded-2xl p-3 text-center">
-							<i class="fa-solid fa-bolt text-lg mb-1"></i>
-							<div class="text-xs font-medium text-white/80">Streak</div>
-							<div class="text-xl font-bold">{{ dashboardData.analytics.currentStreak }}</div>
-						</div>
-					</div>
+				<div class="flex items-center bg-neutral-100 rounded-full p-1">
+					<button class="text-xs px-3 py-1.5 rounded-full font-medium transition-colors"
+						[class.bg-white]="moodChartTimeframe === 'week'"
+						[class.text-neutral-700]="moodChartTimeframe === 'week'"
+						[class.shadow-sm]="moodChartTimeframe === 'week'"
+						[class.text-neutral-500]="moodChartTimeframe !== 'week'"
+						(click)="setMoodChartTimeframe('week')">Week</button>
+					<button class="text-xs px-3 py-1.5 rounded-full font-medium transition-colors"
+						[class.bg-white]="moodChartTimeframe === 'month'"
+						[class.text-neutral-700]="moodChartTimeframe === 'month'"
+						[class.shadow-sm]="moodChartTimeframe === 'month'"
+						[class.text-neutral-500]="moodChartTimeframe !== 'month'"
+						(click)="setMoodChartTimeframe('month')">Month</button>
 				</div>
-			</section>
+			</div>
 
-			<!-- Today's Intentions -->
-			<section *ngIf="hasActiveTrackers()" class="mb-5">
-				<div class="flex items-center justify-between mb-3">
-					<h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
-						<i class="fa-solid fa-heart text-dusty-rose"></i>
-						<span>Today's Intentions</span>
-					</h2>
-					<div
-						class="flex items-center bg-gradient-to-r from-lavender-100 to-purple-100 rounded-full px-3 py-1 shadow-sm">
-						<i class="fa-solid fa-sparkles text-purple-600 text-xs"></i>
-						<span class="text-xs text-purple-700 font-semibold ml-1">Guided</span>
-					</div>
+			<!-- Mood Chart Card -->
+			<div class="bg-white rounded-3xl p-5 shadow-md border border-neutral-100 mb-4">
+				<div class="flex items-center justify-between mb-4">
+					<span class="text-base font-semibold text-neutral-800">This {{ moodChartTimeframe | titlecase }}'s
+						Mood</span>
+					<span class="text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full font-medium">{{
+						getMoodTrendLabel() }}</span>
 				</div>
 
-				<!-- Horizontal scroll of compact action cards -->
-				<div class="flex space-x-3 overflow-x-auto scrollbar-hide pb-2"
-					style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
-					<div *ngFor="let tracker of getTrackersWithSuggestions(); let i = index"
-						class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white shadow-lg min-w-[280px] max-w-[320px] flex-shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
-						style="scroll-snap-align: start;" [class.ml-4]="i === 0"
-						[class.mr-4]="i === getTrackersWithSuggestions().length - 1"
-						(click)="toggleActionExpansion(tracker.id + '-' + i, $event)">
-
-						<!-- Background decoration -->
-						<div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
-						<div class="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full -ml-8 -mb-8"></div>
-
-						<!-- Content -->
-						<div class="relative z-10">
-							<!-- Tracker header - with reading mode indicator -->
-							<div class="flex items-center space-x-2 mb-3">
-								<div
-									class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-									<i [class]="'fa-solid ' + tracker.icon" class="text-white text-sm"></i>
-								</div>
-								<span class="text-sm font-semibold text-white/90">{{ tracker.name }}</span>
-								<div class="flex-1"></div>
-								<div class="flex items-center space-x-2">
-									<span
-										class="text-xs text-white/70 bg-white/20 px-2 py-1 rounded-full backdrop-blur-sm">
-										{{ getTrackerSuggestions(tracker.id)?.todayAction?.icon }}
-									</span>
-									<!-- Reading mode indicator -->
-									<div
-										class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-										<i class="fa-solid text-white/70 text-xs transition-transform duration-200"
-											[class.fa-chevron-down]="!isReadingMode"
-											[class.fa-chevron-up]="isReadingMode"></i>
-									</div>
-								</div>
-							</div>
-
-							<!-- Action text - expandable -->
-							<div *ngIf="getTrackerSuggestions(tracker.id)?.todayAction">
-								<p class="text-base font-semibold text-white leading-snug mb-3"
-									[class.line-clamp-2]="!isReadingMode">
-									{{ getTrackerSuggestions(tracker.id)?.todayAction?.text }}
-								</p>
-
-								<!-- Reasoning - shows when in reading mode or if short -->
-								<p *ngIf="getTrackerSuggestions(tracker.id)?.todayAction?.reason && (isReadingMode || (getTrackerSuggestions(tracker.id)?.todayAction?.reason && getTrackerSuggestions(tracker.id)!.todayAction!.reason.length < 60))"
-									class="text-xs text-white/80 leading-relaxed" [class.line-clamp-2]="!isReadingMode">
-									{{ getTrackerSuggestions(tracker.id)?.todayAction?.reason }}
-								</p>
-
-								<!-- Tap hint for reading mode -->
-								<p *ngIf="!isReadingMode && ((getTrackerSuggestions(tracker.id)?.todayAction?.text && getTrackerSuggestions(tracker.id)!.todayAction!.text.length > 80) || (getTrackerSuggestions(tracker.id)?.todayAction?.reason && getTrackerSuggestions(tracker.id)!.todayAction!.reason.length > 60))"
-									class="text-xs text-white/60 mt-2 italic">
-									Tap to read all actions in full
-								</p>
-
-								<!-- Tracker details - shows when expanded -->
-								<div *ngIf="isReadingMode" class="mt-4 pt-3 border-t border-white/20">
-									<div class="flex items-center justify-between text-xs text-white/70">
-										<div class="flex items-center space-x-4">
-											<div class="flex items-center space-x-1">
-												<i class="fa-solid fa-bullseye"></i>
-												<span>Target: {{ tracker.target }} {{ tracker.unit }}</span>
-											</div>
-											<div class="flex items-center space-x-1">
-												<i class="fa-solid fa-calendar-days"></i>
-												<span>{{ tracker.frequency | titlecase }}</span>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- Scroll indicator dots -->
-				<div *ngIf="getTrackersWithSuggestions().length > 1" class="flex justify-center space-x-2 mt-3">
-					<div *ngFor="let tracker of getTrackersWithSuggestions(); let i = index"
-						class="w-2 h-2 rounded-full bg-emerald-200 opacity-40"></div>
-				</div>
-			</section>
-
-			<!-- Insights -->
-			<section *ngIf="hasActiveTrackers() && hasAnySuggestions && !isLoadingSuggestions" class="mb-5">
-				<div class="flex items-center justify-between mb-3">
-					<h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
-						<i class="fa-solid fa-lightbulb text-amber-500"></i>
-						<span>Insights</span>
-					</h2>
-					<div
-						class="flex items-center bg-gradient-to-r from-amber-100 to-orange-100 rounded-full px-3 py-1 shadow-sm">
-						<i class="fa-solid fa-sparkles text-amber-600 text-xs"></i>
-						<span class="text-xs text-amber-700 font-semibold ml-1">AI</span>
-					</div>
-				</div>
-
-				<!-- Horizontal Scrolling Insights -->
-				<div class="flex space-x-3 overflow-x-auto scrollbar-hide pb-2"
-					style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
-					<div *ngFor="let tracker of getTrackersWithSuggestions(); let i = index"
-						class="bg-white rounded-2xl shadow-md border border-neutral-100 overflow-hidden cursor-pointer active:scale-[0.98] transition-transform min-w-[280px] max-w-[320px] flex-shrink-0"
-						style="scroll-snap-align: start;" [class.ml-4]="i === 0"
-						[class.mr-4]="i === getTrackersWithSuggestions().length - 1"
-						(click)="toggleInsightExpansion(tracker.id, $event)">
-
-						<!-- Inline Header with Preview -->
-						<div class="p-4">
-							<div class="flex items-center space-x-3 mb-3">
-								<div class="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-sm flex-shrink-0"
-									[style.background]="'linear-gradient(135deg, ' + tracker.color + ', ' + tracker.color + '90)'">
-									<i [class]="'fa-solid ' + tracker.icon" class="text-sm"></i>
-								</div>
-								<div class="flex-1 min-w-0">
-									<h3 class="text-sm font-semibold text-neutral-900">{{ tracker.name }}</h3>
-									<p class="text-xs text-neutral-600">{{
-										(getTrackerSuggestions(tracker.id)?.suggestions?.length || 0) }} strategic
-										insights</p>
-								</div>
-								<div class="flex items-center">
-									<!-- Expand indicator -->
-									<div class="w-6 h-6 bg-neutral-100 rounded-full flex items-center justify-center">
-										<i class="fa-solid text-neutral-600 text-xs transition-transform duration-200"
-											[class.fa-chevron-down]="!isInsightExpanded(tracker.id)"
-											[class.fa-chevron-up]="isInsightExpanded(tracker.id)"></i>
-									</div>
-								</div>
-							</div>
-
-							<!-- Preview Text (first insight) - only when collapsed -->
-							<div
-								*ngIf="!isInsightExpanded(tracker.id) && getTrackerSuggestions(tracker.id)?.suggestions && (getTrackerSuggestions(tracker.id)?.suggestions?.length || 0) > 0">
-								<p class="text-sm text-neutral-700 leading-relaxed font-medium line-clamp-2">
-									{{ getFirstInsightText(tracker.id) }}
-								</p>
-								<p *ngIf="(getTrackerSuggestions(tracker.id)?.suggestions?.length || 0) > 1"
-									class="text-xs text-neutral-500 mt-2 italic">
-									Tap to see all {{ (getTrackerSuggestions(tracker.id)?.suggestions?.length || 0) }}
-									insights
-								</p>
-							</div>
-						</div>
-
-						<!-- Expanded Strategic Suggestions -->
-						<div *ngIf="isInsightExpanded(tracker.id) && getTrackerSuggestions(tracker.id)?.suggestions && (getTrackerSuggestions(tracker.id)?.suggestions?.length || 0) > 0"
-							class="px-4 pb-4 border-t border-neutral-100 pt-4">
-							<div class="space-y-3">
-								<div *ngFor="let suggestion of getTrackerSuggestions(tracker.id)?.suggestions; let i = index"
-									class="bg-gradient-to-r from-white to-blue-50 rounded-xl p-4 border-l-4 border-blue-500 shadow-sm">
-									<div class="flex items-start">
-										<div class="w-full">
-											<p class="text-sm text-neutral-800 leading-relaxed font-medium">{{
-												suggestion.text }}</p>
-											<div class="flex items-center space-x-3 mt-2">
-												<span *ngIf="suggestion.type"
-													class="inline-block px-2 py-1 bg-white text-neutral-600 text-xs rounded-full border capitalize">
-													{{ suggestion.type }}
-												</span>
-												<span *ngIf="suggestion.dataPoint" class="text-xs text-neutral-500">
-													Data: {{ suggestion.dataPoint }}
-												</span>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- Scroll indicator dots -->
-				<div *ngIf="getTrackersWithSuggestions().length > 1" class="flex justify-center space-x-2 mt-3">
-					<div *ngFor="let tracker of getTrackersWithSuggestions(); let i = index"
-						class="w-2 h-2 rounded-full bg-amber-200 opacity-40"></div>
-				</div>
-			</section>
-
-			<!-- 2. Mind Check-In -->
-			<section class="mb-5">
-				<div class="flex items-center justify-between mb-3">
-					<h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
-						<i class="fa-solid fa-leaf text-eucalyptus"></i>
-						<span>Mind Check-In</span>
-					</h2>
-					<div class="flex items-center bg-neutral-100 rounded-full p-1">
+				<!-- Mood Chart Visualization -->
+				<div class="relative h-28 mb-4">
+					<!-- Empty State -->
+					<div *ngIf="!hasMoodData()"
+						class="absolute inset-0 flex flex-col items-center justify-center bg-neutral-50 rounded-xl border border-dashed border-neutral-200">
+						<i class="fa-solid fa-cloud text-neutral-300 text-2xl mb-2"></i>
+						<p class="text-xs text-neutral-400 font-medium">No mood data yet</p>
 						<button
-							class="text-xs px-3 py-1.5 bg-white text-neutral-700 rounded-full font-medium shadow-sm">Week</button>
-						<button class="text-xs px-3 py-1.5 text-neutral-500 rounded-full font-medium">Month</button>
-					</div>
-				</div>
-
-				<!-- Weekly Mood Chart -->
-				<div class="bg-white rounded-3xl p-5 shadow-md mb-4">
-					<div class="flex items-center justify-between mb-4">
-						<span class="text-base font-semibold text-neutral-800">This Week's Mood</span>
-						<span
-							class="text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full font-medium">Uplifting
-							↗</span>
+							class="mt-2 text-xs font-semibold text-emerald-600 bg-white border border-emerald-100 px-3 py-1 rounded-full shadow-sm"
+							(click)="logMood()">Log Mood</button>
 					</div>
 
-					<!-- Mood Chart Visualization -->
-					<div class="relative h-32 mb-4">
-						<!-- Grid lines -->
+					<!-- Chart Content -->
+					<ng-container *ngIf="hasMoodData()">
 						<div class="absolute inset-0 flex flex-col justify-between">
 							<div class="border-t border-neutral-100"></div>
 							<div class="border-t border-neutral-100"></div>
@@ -341,8 +426,6 @@
 							<div class="border-t border-neutral-100"></div>
 							<div class="border-t border-neutral-200"></div>
 						</div>
-
-						<!-- Mood line chart -->
 						<svg class="absolute inset-0 w-full h-full" viewBox="0 0 280 120">
 							<defs>
 								<linearGradient id="moodGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -350,686 +433,415 @@
 									<stop offset="100%" style="stop-color:#10b981;stop-opacity:0" />
 								</linearGradient>
 							</defs>
-							<!-- Data area -->
 							<path *ngIf="getMoodAreaPath()" [attr.d]="getMoodAreaPath()" fill="url(#moodGradient)" />
-							<!-- Data line -->
 							<path *ngIf="getMoodPath()" [attr.d]="getMoodPath()" stroke="#10b981" stroke-width="3"
 								fill="none" />
-							<!-- Data points -->
 							<circle *ngFor="let point of getMoodPoints()" [attr.cx]="point.cx" [attr.cy]="point.cy"
 								r="4" fill="#10b981" />
 						</svg>
-					</div>
-
-					<!-- Day labels -->
-					<div class="flex items-center justify-between text-xs text-neutral-500">
-						<span>Mon</span>
-						<span>Tue</span>
-						<span>Wed</span>
-						<span>Thu</span>
-						<span>Fri</span>
-						<span>Sat</span>
-						<span>Sun</span>
-					</div>
-
-					<!-- Mood insights -->
-					<div class="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl">
-						<div class="flex items-start space-x-3">
-							<div
-								class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-								<i class="fa-solid fa-lightbulb text-amber-600"></i>
-							</div>
-							<span class="text-sm text-amber-900 font-medium leading-relaxed">Your mood peaks mid-week!
-								Consider scheduling important tasks for Wednesday-Thursday.</span>
-						</div>
-					</div>
+					</ng-container>
 				</div>
 
-				<!-- Top Performing Trackers -->
-				<div class="bg-white rounded-3xl p-5 shadow-md">
-					<h3 class="text-base font-semibold text-neutral-800 mb-4">Top Performing Trackers</h3>
-					<div class="space-y-4">
-						<div class="flex items-center justify-between active:scale-[0.98] transition-transform">
-							<div class="flex items-center space-x-3">
-								<div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md"
-									style="background: linear-gradient(135deg, #10b981, #10b98190)">
-									<i class="fa-solid fa-dumbbell text-lg"></i>
-								</div>
-								<div>
-									<span class="text-base font-semibold text-neutral-900">Morning Workout</span>
-									<div class="text-xs text-neutral-500 font-medium">7-day streak</div>
-								</div>
-							</div>
-							<div class="text-right">
-								<div class="text-lg font-bold text-emerald-600">100%</div>
-								<div class="text-xs text-neutral-500 font-medium">consistency</div>
-							</div>
-						</div>
+				<!-- Day labels -->
+				<div class="flex items-center justify-between text-xs text-neutral-500">
+					<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+				</div>
 
-						<div class="flex items-center justify-between active:scale-[0.98] transition-transform">
-							<div class="flex items-center space-x-3">
-								<div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md"
-									style="background: linear-gradient(135deg, #3b82f6, #3b82f690)">
-									<i class="fa-solid fa-glass-water text-lg"></i>
-								</div>
-								<div>
-									<span class="text-base font-semibold text-neutral-900">Water Intake</span>
-									<div class="text-xs text-neutral-500 font-medium">5-day streak</div>
-								</div>
-							</div>
-							<div class="text-right">
-								<div class="text-lg font-bold text-blue-600">92%</div>
-								<div class="text-xs text-neutral-500 font-medium">consistency</div>
-							</div>
+				<!-- Mood insights -->
+				<div class="mt-4 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl">
+					<div class="flex items-start space-x-3">
+						<div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+							<i class="fa-solid fa-lightbulb text-amber-600"></i>
 						</div>
-
-						<div class="flex items-center justify-between active:scale-[0.98] transition-transform">
-							<div class="flex items-center space-x-3">
-								<div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md"
-									style="background: linear-gradient(135deg, #8b5cf6, #8b5cf690)">
-									<i class="fa-solid fa-moon text-lg"></i>
-								</div>
-								<div>
-									<span class="text-base font-semibold text-neutral-900">Sleep Quality</span>
-									<div class="text-xs text-neutral-500 font-medium">3-day streak</div>
-								</div>
-							</div>
-							<div class="text-right">
-								<div class="text-lg font-bold text-purple-600">85%</div>
-								<div class="text-xs text-neutral-500 font-medium">consistency</div>
-							</div>
-						</div>
+						<span class="text-sm text-amber-900 font-medium leading-relaxed">{{ getMoodInsightText()
+							}}</span>
 					</div>
 				</div>
-			</section>
+			</div>
 
-			<!-- 3. Categories -->
-			<section class="mb-5">
-				<div class="flex items-center justify-between mb-3">
-					<h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
-						<i class="fa-solid fa-mountain-sun text-sienna-clay"></i>
-						<span>Categories</span>
-					</h2>
-					<button class="text-sm text-neutral-500 font-medium active:scale-95 transition-transform">Explore
-						Deeper</button>
-				</div>
-
-				<div class="bg-white rounded-3xl p-5 shadow-md">
-					<div class="grid grid-cols-2 gap-4">
-						<div
-							class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-4 relative overflow-hidden">
-							<div class="absolute top-0 right-0 w-24 h-24 bg-purple-200/30 rounded-full -mr-12 -mt-12">
+			<!-- Top Performing Trackers -->
+			<div class="bg-white rounded-3xl p-5 shadow-md border border-neutral-100">
+				<h3 class="text-base font-semibold text-neutral-800 mb-4">Top Performing Trackers</h3>
+				<div class="space-y-3">
+					<div *ngFor="let tracker of getTopTrackers()"
+						class="flex items-center justify-between py-2 active:scale-[0.98] transition-transform">
+						<div class="flex items-center space-x-3">
+							<div class="w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-sm"
+								[style.background]="'linear-gradient(135deg, ' + tracker.color + ', ' + tracker.color + '90)'">
+								<i [class]="'fa-solid ' + tracker.icon" class="text-base"></i>
 							</div>
-							<div class="relative">
-								<div class="flex items-center space-x-2 mb-3">
-									<div
-										class="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center shadow">
-										<i class="fa-solid fa-brain text-white"></i>
-									</div>
-									<span class="text-base font-semibold text-purple-900">Mind</span>
+							<div>
+								<span class="text-sm font-semibold text-neutral-900">{{ tracker.name }}</span>
+								<div class="text-xs text-neutral-500 font-medium">{{ tracker.streak || 0 }}-day streak
 								</div>
-								<div class="text-3xl font-bold text-purple-700 mb-1">{{
-									dashboardData.analytics.categoryPerformance.mind }}%</div>
-								<div class="text-xs text-purple-600 font-medium">+5% from last week</div>
 							</div>
 						</div>
-
-						<div
-							class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-4 relative overflow-hidden">
-							<div class="absolute top-0 right-0 w-24 h-24 bg-blue-200/30 rounded-full -mr-12 -mt-12">
-							</div>
-							<div class="relative">
-								<div class="flex items-center space-x-2 mb-3">
-									<div
-										class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center shadow">
-										<i class="fa-solid fa-heart text-white"></i>
-									</div>
-									<span class="text-base font-semibold text-blue-900">Body</span>
-								</div>
-								<div class="text-3xl font-bold text-blue-700 mb-1">{{
-									dashboardData.analytics.categoryPerformance.body }}%</div>
-								<div class="text-xs text-blue-600 font-medium">+8% from last week</div>
-							</div>
-						</div>
-
-						<div
-							class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-4 relative overflow-hidden">
-							<div class="absolute top-0 right-0 w-24 h-24 bg-amber-200/30 rounded-full -mr-12 -mt-12">
-							</div>
-							<div class="relative">
-								<div class="flex items-center space-x-2 mb-3">
-									<div
-										class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center shadow">
-										<i class="fa-solid fa-sparkles text-white"></i>
-									</div>
-									<span class="text-base font-semibold text-amber-900">Soul</span>
-								</div>
-								<div class="text-3xl font-bold text-amber-700 mb-1">{{
-									dashboardData.analytics.categoryPerformance.soul }}%</div>
-								<div class="text-xs text-amber-600 font-medium">+3% from last week</div>
-							</div>
-						</div>
-
-						<div
-							class="bg-gradient-to-br from-rose-50 to-rose-100 rounded-2xl p-4 relative overflow-hidden">
-							<div class="absolute top-0 right-0 w-24 h-24 bg-rose-200/30 rounded-full -mr-12 -mt-12">
-							</div>
-							<div class="relative">
-								<div class="flex items-center space-x-2 mb-3">
-									<div
-										class="w-10 h-10 bg-rose-500 rounded-xl flex items-center justify-center shadow">
-										<i class="fa-solid fa-spa text-white"></i>
-									</div>
-									<span class="text-base font-semibold text-rose-900">Beauty</span>
-								</div>
-								<div class="text-3xl font-bold text-rose-700 mb-1">{{
-									dashboardData.analytics.categoryPerformance.beauty }}%</div>
-								<div class="text-xs text-rose-600 font-medium">+12% from last week</div>
-							</div>
+						<div class="text-right">
+							<div class="text-base font-bold" [style.color]="tracker.color">{{
+								getTrackerConsistency(tracker) }}%</div>
+							<div class="text-xs text-neutral-500 font-medium">consistency</div>
 						</div>
 					</div>
+					<div *ngIf="getTopTrackers().length === 0" class="text-center py-4 text-neutral-500 text-sm">
+						No active trackers yet. Start building your habits!
+					</div>
 				</div>
-			</section>
+			</div>
+		</section>
 
-			<!-- 4. Your Engagement -->
-			<section class="mb-5">
-				<div class="flex items-center justify-between mb-3">
-					<h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
-						<i class="fa-solid fa-circle-dot text-ocean-ink"></i>
-						<span>Your Engagement</span>
-					</h2>
-				</div>
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<!-- SECTION SEPARATOR                                                    -->
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<app-section-separator color="rose"></app-section-separator>
 
-				<div class="grid grid-cols-1 gap-4">
-					<!-- Engagement Rate Card -->
-					<div class="bg-white rounded-3xl p-5 shadow-md">
-						<div class="flex items-center justify-between mb-4">
-							<div class="flex items-center space-x-3">
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<!-- SECTION 5: PROGRESS OVERVIEW (Categories + Active Goals)            -->
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<section class="px-4 pb-2">
+			<!-- Section Header -->
+			<div class="flex items-center justify-between mb-4">
+				<h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
+					<i class="fa-solid fa-mountain-sun text-rose-500"></i>
+					<span>Progress Overview</span>
+				</h2>
+				<button class="text-sm text-neutral-500 font-medium active:scale-95 transition-transform"
+					(click)="viewCategories()">Explore</button>
+			</div>
+
+			<!-- Categories Grid (Compact) -->
+			<div class="bg-white rounded-3xl p-4 shadow-md border border-neutral-100 mb-4">
+				<div class="grid grid-cols-2 gap-3">
+					<div
+						class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-3.5 relative overflow-hidden">
+						<div class="absolute top-0 right-0 w-16 h-16 bg-purple-200/30 rounded-full -mr-8 -mt-8"></div>
+						<div class="relative">
+							<div class="flex items-center space-x-2 mb-2">
 								<div
-									class="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center shadow-sm">
-									<i class="fa-solid fa-seedling text-blue-600 text-lg"></i>
+									class="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center shadow-sm">
+									<i class="fa-solid fa-brain text-white text-sm"></i>
 								</div>
-								<div>
-									<h3 class="text-base font-semibold text-neutral-900">Weekly Engagement</h3>
-									<p class="text-xs text-neutral-500 font-medium">Days active this week</p>
-								</div>
+								<span class="text-sm font-semibold text-purple-900">Mind</span>
 							</div>
-							<div class="text-right">
-								<div class="text-2xl font-bold text-neutral-900">6/7</div>
-								<div class="text-xs text-emerald-600 font-semibold">86% rate</div>
-							</div>
+							<div class="text-2xl font-bold text-purple-700"><span
+									[appCountUp]="dashboardData.analytics.categoryPerformance.mind"></span>%</div>
 						</div>
+					</div>
 
-						<!-- Daily engagement visualization -->
-						<div class="flex items-end justify-between h-16 mb-3 px-2">
-							<div class="w-10 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-lg shadow-sm"
-								style="height: 100%"></div>
-							<div class="w-10 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-lg shadow-sm"
-								style="height: 80%"></div>
-							<div class="w-10 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-lg shadow-sm"
-								style="height: 90%"></div>
-							<div class="w-10 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-lg shadow-sm"
-								style="height: 70%"></div>
-							<div class="w-10 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-lg shadow-sm"
-								style="height: 95%"></div>
-							<div class="w-10 bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-lg shadow-sm"
-								style="height: 85%"></div>
-							<div class="w-10 bg-neutral-200 rounded-t-lg" style="height: 20%"></div>
+					<div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-3.5 relative overflow-hidden">
+						<div class="absolute top-0 right-0 w-16 h-16 bg-blue-200/30 rounded-full -mr-8 -mt-8"></div>
+						<div class="relative">
+							<div class="flex items-center space-x-2 mb-2">
+								<div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shadow-sm">
+									<i class="fa-solid fa-heart text-white text-sm"></i>
+								</div>
+								<span class="text-sm font-semibold text-blue-900">Body</span>
+							</div>
+							<div class="text-2xl font-bold text-blue-700"><span
+									[appCountUp]="dashboardData.analytics.categoryPerformance.body"></span>%</div>
 						</div>
-						<div class="flex items-center justify-between text-xs text-neutral-600 font-medium px-2">
-							<span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+					</div>
+
+					<div
+						class="bg-gradient-to-br from-amber-50 to-amber-100 rounded-2xl p-3.5 relative overflow-hidden">
+						<div class="absolute top-0 right-0 w-16 h-16 bg-amber-200/30 rounded-full -mr-8 -mt-8"></div>
+						<div class="relative">
+							<div class="flex items-center space-x-2 mb-2">
+								<div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center shadow-sm">
+									<i class="fa-solid fa-wand-magic-sparkles text-white text-sm"></i>
+								</div>
+								<span class="text-sm font-semibold text-amber-900">Soul</span>
+							</div>
+							<div class="text-2xl font-bold text-amber-700"><span
+									[appCountUp]="dashboardData.analytics.categoryPerformance.soul"></span>%</div>
+						</div>
+					</div>
+
+					<div class="bg-gradient-to-br from-rose-50 to-rose-100 rounded-2xl p-3.5 relative overflow-hidden">
+						<div class="absolute top-0 right-0 w-16 h-16 bg-rose-200/30 rounded-full -mr-8 -mt-8"></div>
+						<div class="relative">
+							<div class="flex items-center space-x-2 mb-2">
+								<div class="w-8 h-8 bg-rose-500 rounded-lg flex items-center justify-center shadow-sm">
+									<i class="fa-solid fa-spa text-white text-sm"></i>
+								</div>
+								<span class="text-sm font-semibold text-rose-900">Beauty</span>
+							</div>
+							<div class="text-2xl font-bold text-rose-700"><span
+									[appCountUp]="dashboardData.analytics.categoryPerformance.beauty"></span>%</div>
 						</div>
 					</div>
 				</div>
-			</section>
+			</div>
 
 			<!-- Active Goals -->
-			<section class="mb-5 px-4" *ngIf="dashboardData.activeGoals.length > 0">
-				<div class="flex items-center justify-between mb-3">
-					<h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
+			<div *ngIf="dashboardData.activeGoals.length > 0" class="space-y-3">
+				<div class="flex items-center justify-between">
+					<h3 class="text-sm font-semibold text-neutral-700 flex items-center space-x-2">
 						<i class="fa-solid fa-bullseye text-blue-600"></i>
 						<span>Active Goals</span>
-					</h2>
-					<button class="text-sm text-neutral-500 font-medium active:scale-95 transition-transform"
-						(click)="viewAllGoals()">View all</button>
+					</h3>
+					<button class="text-xs text-neutral-500 font-medium" (click)="viewAllGoals()">View all</button>
 				</div>
-
-				<div class="space-y-4">
-					<div *ngFor="let goal of dashboardData.activeGoals.slice(0, 2)"
-						class="bg-white rounded-3xl p-5 shadow-md border border-neutral-50 active:scale-[0.98] transition-transform"
-						(click)="viewAllGoals()">
-						<div class="flex items-center justify-between mb-3">
-							<div class="flex items-center space-x-3">
-								<div class="w-10 h-10 rounded-xl flex items-center justify-center" [ngClass]="{
-									'bg-blue-50 text-blue-600': goal.category === 'mind',
-									'bg-green-50 text-green-600': goal.category === 'body',
-									'bg-purple-50 text-purple-600': goal.category === 'soul',
-									'bg-rose-50 text-rose-600': goal.category === 'beauty',
-									'bg-amber-50 text-amber-600': goal.category === 'custom' || !goal.category
-								}">
-									<i class="fa-solid" [ngClass]="{
-										'fa-brain': goal.category === 'mind',
-										'fa-dumbbell': goal.category === 'body',
-										'fa-heart': goal.category === 'soul',
-										'fa-sparkles': goal.category === 'beauty',
-										'fa-bullseye': goal.category === 'custom' || !goal.category
-									}"></i>
-								</div>
-								<span class="font-bold text-neutral-900 leading-tight">{{ goal.title }}</span>
+				<div *ngFor="let goal of dashboardData.activeGoals.slice(0, 2)"
+					class="bg-white rounded-2xl p-4 shadow-sm border border-neutral-100 active:scale-[0.98] transition-transform"
+					(click)="viewAllGoals()">
+					<div class="flex items-center justify-between mb-2">
+						<div class="flex items-center space-x-3">
+							<div class="w-9 h-9 rounded-xl flex items-center justify-center" [ngClass]="{
+								'bg-blue-50 text-blue-600': goal.category === 'mind',
+								'bg-green-50 text-green-600': goal.category === 'body',
+								'bg-purple-50 text-purple-600': goal.category === 'soul',
+								'bg-rose-50 text-rose-600': goal.category === 'beauty',
+								'bg-amber-50 text-amber-600': goal.category === 'custom' || !goal.category
+							}">
+								<i class="fa-solid text-sm" [ngClass]="{
+									'fa-brain': goal.category === 'mind',
+									'fa-dumbbell': goal.category === 'body',
+									'fa-heart': goal.category === 'soul',
+									'fa-wand-magic-sparkles': goal.category === 'beauty',
+									'fa-bullseye': goal.category === 'custom' || !goal.category
+								}"></i>
 							</div>
-							<span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">{{
-								goal.progress }}%</span>
+							<span class="text-sm font-semibold text-neutral-900">{{ goal.title }}</span>
 						</div>
-						<div class="w-full bg-neutral-100 h-1.5 rounded-full overflow-hidden">
-							<div class="bg-blue-600 h-full rounded-full transition-all duration-500"
-								[style.width.%]="goal.progress"></div>
-						</div>
+						<span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">{{ goal.progress
+							}}%</span>
+					</div>
+					<div class="w-full bg-neutral-100 h-1.5 rounded-full overflow-hidden">
+						<div class="bg-blue-600 h-full rounded-full transition-all duration-500"
+							[style.width.%]="goal.progress"></div>
 					</div>
 				</div>
-			</section>
+			</div>
+		</section>
 
-			<!-- 5. Your Growth -->
-			<section class="mb-5">
-				<h2 class="text-lg font-semibold text-neutral-900 mb-3 px-4 flex items-center space-x-2">
-					<i class="fa-solid fa-seedling text-eucalyptus"></i>
-					<span>Your Growth</span>
-				</h2>
-				<div class="px-4 grid grid-cols-2 gap-4">
-					<div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-3xl p-5 shadow-md active:scale-[0.98] transition-transform"
-						(click)="router.navigate(['/tabs/tracker'])">
-						<div class="flex items-center space-x-3 mb-4">
-							<div
-								class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-sm">
-								<i class="fa-solid fa-brain text-white text-lg"></i>
-							</div>
-							<div>
-								<span class="text-sm font-semibold text-blue-900">Mindfulness</span>
-								<div class="text-xs text-blue-600 font-medium">This month</div>
-							</div>
-						</div>
-						<div class="text-3xl font-bold text-blue-800 mb-1">{{ dashboardData.trackerStats.totalSessions
-							}}</div>
-						<div class="text-xs text-blue-600 font-medium">Sessions completed</div>
-					</div>
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<!-- SECTION SEPARATOR                                                    -->
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<app-section-separator color="amber"></app-section-separator>
 
-					<div class="bg-gradient-to-br from-purple-50 to-pink-100 rounded-3xl p-5 shadow-md active:scale-[0.98] transition-transform"
-						(click)="router.navigate(['/tabs/journal'])">
-						<div class="flex items-center space-x-3 mb-4">
-							<div
-								class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-sm">
-								<i class="fa-solid fa-book text-white text-lg"></i>
-							</div>
-							<div>
-								<span class="text-sm font-semibold text-purple-900">Journal</span>
-								<div class="text-xs text-purple-600 font-medium">All time</div>
-							</div>
-						</div>
-						<div class="text-3xl font-bold text-purple-800 mb-1">{{ dashboardData.journalStats.totalEntries
-							}}</div>
-						<div class="text-xs text-purple-600 font-medium">Entries written</div>
-					</div>
-				</div>
-
-				<!-- Consistency Streak Card -->
-				<div class="mt-4 px-4">
-					<div class="bg-white rounded-3xl p-5 shadow-md">
-						<div class="flex items-center justify-between mb-4">
-							<div class="flex items-center space-x-3">
-								<div
-									class="w-12 h-12 bg-gradient-to-br from-orange-100 to-orange-200 rounded-2xl flex items-center justify-center shadow-sm">
-									<i class="fa-solid fa-fire text-orange-600 text-lg"></i>
-								</div>
-								<div>
-									<h3 class="text-base font-semibold text-neutral-900">Current Streaks</h3>
-									<p class="text-xs text-neutral-500 font-medium">Consecutive active days</p>
-								</div>
-							</div>
-						</div>
-
-						<div class="space-y-4">
-							<div
-								class="flex items-center justify-between p-3 bg-gradient-to-r from-neutral-50 to-neutral-100 rounded-2xl">
-								<span class="text-sm font-medium text-neutral-700">Overall Activity</span>
-								<div class="flex items-center space-x-2">
-									<span class="text-lg font-bold text-neutral-900">15</span>
-									<span class="text-xs text-neutral-500 font-medium">days</span>
-								</div>
-							</div>
-							<div
-								class="flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-2xl">
-								<span class="text-sm font-medium text-purple-700">Journal Writing</span>
-								<div class="flex items-center space-x-2">
-									<span class="text-lg font-bold text-purple-900">8</span>
-									<span class="text-xs text-purple-600 font-medium">days</span>
-								</div>
-							</div>
-							<div
-								class="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-2xl">
-								<span class="text-sm font-medium text-blue-700">Exercise Tracking</span>
-								<div class="flex items-center space-x-2">
-									<span class="text-lg font-bold text-blue-900">12</span>
-									<span class="text-xs text-blue-600 font-medium">days</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<!-- 6. Recent Activity -->
-			<section class="mb-5">
-				<div class="flex items-center justify-between mb-3 px-4">
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<!-- SECTION 6: TIMELINE & TOOLS                                         -->
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<section class="px-4 pb-2">
+			<!-- Recent Activity -->
+			<div class="mb-6">
+				<div class="flex items-center justify-between mb-4">
 					<h2 class="text-lg font-semibold text-neutral-900 flex items-center space-x-2">
-						<i class="fa-solid fa-clock-rotate-left text-emerald-600"></i>
+						<i class="fa-solid fa-clock-rotate-left text-amber-600"></i>
 						<span>Recent Activity</span>
 					</h2>
 					<button class="text-sm text-neutral-500 font-medium active:scale-95 transition-transform"
 						(click)="viewAllActivities()">View all</button>
 				</div>
 
-				<div class="px-4">
-					<!-- Show message if no activities -->
-					<div *ngIf="dashboardData.recentActivities.length === 0"
-						class="bg-gradient-to-br from-emerald-50 to-teal-100 rounded-3xl p-6 shadow-md text-center">
-						<div
-							class="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-							<i class="fa-solid fa-seedling text-3xl text-emerald-600"></i>
-						</div>
-						<h3 class="text-base font-semibold text-emerald-900 mb-2">Start Your Journey</h3>
-						<p class="text-sm text-emerald-700 font-medium">Your first activities will appear here</p>
+				<!-- Empty state -->
+				<div *ngIf="dashboardData.recentActivities.length === 0"
+					class="bg-gradient-to-br from-amber-50 to-orange-100 rounded-3xl p-6 shadow-sm text-center">
+					<div class="w-14 h-14 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+						<i class="fa-solid fa-seedling text-2xl text-amber-600"></i>
 					</div>
+					<h3 class="text-base font-semibold text-amber-900 mb-2">Start Your Journey</h3>
+					<p class="text-sm text-amber-700 font-medium">Your first activities will appear here</p>
+				</div>
 
-					<!-- Activities list -->
-					<div *ngIf="dashboardData.recentActivities.length > 0" class="space-y-3">
-						<div *ngFor="let activity of dashboardData.recentActivities; trackBy: trackActivity"
-							class="bg-white rounded-3xl p-5 shadow-md active:scale-[0.98] transition-transform border border-neutral-50">
-							<div class="flex items-center space-x-4">
-								<!-- Dynamic colored icon based on activity type -->
-								<div class="w-14 h-14 rounded-2xl flex items-center justify-center shadow-md"
-									[ngClass]="getActivityGradientClass(activity.type)">
-									<i [class]="getActivityIcon(activity.type)" class="text-white text-xl"></i>
-								</div>
-
-								<div class="flex-1 min-w-0">
-									<h3 class="text-base font-semibold text-neutral-900 mb-1 truncate">{{ activity.title
-										}}</h3>
-									<div class="flex items-center space-x-2">
-										<p class="text-sm text-neutral-500 font-medium">{{ activity.description ||
-											formatActivityTime(activity.createdAt) }}</p>
-										<span *ngIf="activity.description"
-											class="w-1 h-1 bg-neutral-300 rounded-full"></span>
-										<span *ngIf="activity.description"
-											class="text-xs text-neutral-400 font-medium">{{
-											formatActivityTime(activity.createdAt) }}</span>
-										<span *ngIf="!activity.description"
-											class="w-1 h-1 bg-neutral-300 rounded-full"></span>
-										<span
-											class="text-xs font-semibold text-neutral-600 bg-gradient-to-r from-neutral-100 to-neutral-200 px-3 py-1 rounded-full">
-											{{ getActivityTypeLabel(activity.type) }}
-										</span>
-									</div>
-								</div>
-
-								<!-- Activity status or points -->
-								<div class="flex flex-col items-end">
-									<div
-										class="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center mb-1">
-										<i class="fa-solid fa-check text-emerald-600 text-sm"></i>
-									</div>
-									<span class="text-xs font-medium text-emerald-600">+5 pts</span>
-								</div>
-							</div>
+				<!-- Activities list -->
+				<div *ngIf="dashboardData.recentActivities.length > 0" class="space-y-3">
+					<div *ngFor="let activity of dashboardData.recentActivities.slice(0, 4); trackBy: trackActivity"
+						class="bg-white rounded-2xl p-4 shadow-sm border border-neutral-100 flex items-center space-x-3">
+						<div class="w-11 h-11 rounded-xl flex items-center justify-center shadow-sm"
+							[ngClass]="getActivityGradientClass(activity.type)">
+							<i [class]="getActivityIcon(activity.type)" class="text-white text-base"></i>
+						</div>
+						<div class="flex-1 min-w-0">
+							<h3 class="text-sm font-semibold text-neutral-900 truncate">{{ activity.title }}</h3>
+							<p class="text-xs text-neutral-500 font-medium">{{ formatActivityTime(activity.createdAt) }}
+							</p>
+						</div>
+						<div class="w-7 h-7 bg-emerald-100 rounded-full flex items-center justify-center">
+							<i class="fa-solid fa-check text-emerald-600 text-xs"></i>
 						</div>
 					</div>
 				</div>
-			</section>
+			</div>
 
+			<!-- Wellness Tools Grid -->
+			<div class="mb-6">
+				<h2 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center space-x-2">
+					<i class="fa-solid fa-hands-praying text-purple-600"></i>
+					<span>Quick Actions</span>
+				</h2>
+				<div class="grid grid-cols-2 gap-3">
+					<!-- Log Mood -->
+					<button
+						class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-4 text-white shadow-md active:scale-[0.97] transition-transform relative overflow-hidden"
+						(click)="logMood()">
+						<div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8"></div>
+						<div class="relative z-10 text-center">
+							<div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+								<i class="fa-solid fa-smile text-white text-lg"></i>
+							</div>
+							<h3 class="text-sm font-semibold text-white">Check In</h3>
+						</div>
+					</button>
 
+					<!-- Breathe -->
+					<button
+						class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-4 text-white shadow-md active:scale-[0.97] transition-transform relative overflow-hidden"
+						(click)="openBreathe()">
+						<div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8"></div>
+						<div class="relative z-10 text-center">
+							<div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+								<i class="fa-solid fa-wind text-white text-lg"></i>
+							</div>
+							<h3 class="text-sm font-semibold text-white">Breathe</h3>
+						</div>
+					</button>
 
-			<!-- Sacred Wisdom -->
-			<section
-				*ngIf="hasActiveTrackers() && hasAnySuggestions && !isLoadingSuggestions && getAllMotivationalQuotes().length > 0"
-				class="mb-5">
-				<h2 class="text-lg font-semibold text-neutral-900 mb-3 flex items-center space-x-2">
+					<!-- Add Tracker -->
+					<button
+						class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-4 text-white shadow-md active:scale-[0.97] transition-transform relative overflow-hidden"
+						(click)="addNewTracker()">
+						<div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8"></div>
+						<div class="relative z-10 text-center">
+							<div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+								<i class="fa-solid fa-plus text-white text-lg"></i>
+							</div>
+							<h3 class="text-sm font-semibold text-white">New Activity</h3>
+						</div>
+					</button>
+
+					<!-- Journal -->
+					<button
+						class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-4 text-white shadow-md active:scale-[0.97] transition-transform relative overflow-hidden"
+						(click)="openJournalEntry()">
+						<div class="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full -mr-8 -mt-8"></div>
+						<div class="relative z-10 text-center">
+							<div class="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mx-auto mb-2">
+								<i class="fa-solid fa-feather text-white text-lg"></i>
+							</div>
+							<h3 class="text-sm font-semibold text-white">Reflect</h3>
+						</div>
+					</button>
+				</div>
+			</div>
+
+			<!-- Daily Inspiration (Sacred Wisdom) - Auto-rotating Slideshow -->
+			<div
+				*ngIf="hasActiveTrackers() && hasAnySuggestions && !isLoadingSuggestions && getAllMotivationalQuotes().length > 0">
+				<h2 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center space-x-2">
 					<i class="fa-solid fa-lotus text-amber-600"></i>
 					<span>Daily Inspiration</span>
 				</h2>
 
-				<!-- Horizontal Scrolling Quotes -->
-				<div class="flex space-x-4 overflow-x-auto scrollbar-hide pb-2"
-					style="scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;">
-					<div *ngFor="let quote of getAllMotivationalQuotes(); let i = index"
-						class="min-w-[280px] max-w-[320px] flex-shrink-0" style="scroll-snap-align: start;"
-						[class.ml-4]="i === 0" [class.mr-4]="i === getAllMotivationalQuotes().length - 1">
+				<!-- Slideshow Container -->
+				<div class="relative">
+					<!-- Quote Card with fade transition -->
+					<div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden transition-opacity duration-500"
+						[class.opacity-100]="!isQuoteTransitioning" [class.opacity-0]="isQuoteTransitioning">
+						<!-- Decorative elements -->
+						<div class="absolute top-0 right-0 w-28 h-28 bg-white/10 rounded-full -mr-14 -mt-14"></div>
+						<div class="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full -ml-10 -mb-10"></div>
+						<div class="absolute top-3 left-4 text-3xl text-white/30 font-serif leading-none">"</div>
+						<div
+							class="absolute bottom-3 right-4 text-3xl text-white/30 font-serif leading-none rotate-180">
+							"</div>
 
-						<div class="relative">
-							<!-- Main quote card -->
-							<div
-								class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
-								<!-- Decorative elements -->
-								<div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16">
-								</div>
-								<div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12">
-								</div>
-
-								<!-- Quote marks -->
-								<div class="absolute top-3 left-3 text-3xl text-white/30 font-serif leading-none">"
-								</div>
-								<div
-									class="absolute bottom-3 right-3 text-3xl text-white/30 font-serif leading-none rotate-180">
-									"</div>
-
-								<!-- Content -->
-								<div class="relative z-10 pt-4 pb-2 px-1">
-									<blockquote class="text-base font-semibold leading-snug mb-4 text-center">
-										{{ quote.text }}
-									</blockquote>
-
-									<div class="text-center">
-										<cite class="text-white/90 not-italic font-medium text-sm">
-											— {{ quote.author }}
-										</cite>
-									</div>
-								</div>
-							</div>
-
-							<!-- Context card below -->
-							<div *ngIf="quote.context"
-								class="mt-4 bg-white rounded-2xl p-4 border border-amber-200 shadow-sm">
-								<div class="flex items-center space-x-3">
-									<div
-										class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-										<i class="fa-solid fa-comment text-amber-600 text-sm"></i>
-									</div>
-									<p class="text-sm text-amber-800 font-medium flex-1">
-										{{ quote.context }}
-									</p>
-								</div>
+						<!-- Quote Content -->
+						<div class="relative z-10 pt-4 pb-2 px-2">
+							<blockquote class="text-base font-semibold leading-snug mb-4 text-center min-h-[60px]">
+								{{ getCurrentQuote()?.text }}
+							</blockquote>
+							<div class="text-center">
+								<cite class="text-white/90 not-italic font-medium text-sm">
+									— {{ getCurrentQuote()?.author }}
+								</cite>
 							</div>
 						</div>
-					</div>
-				</div>
 
-				<!-- Scroll indicator dots -->
-				<div *ngIf="getAllMotivationalQuotes().length > 1" class="flex justify-center space-x-2 mt-3">
-					<div *ngFor="let quote of getAllMotivationalQuotes(); let i = index"
-						class="w-2 h-2 rounded-full bg-amber-200 opacity-40"></div>
-				</div>
-			</section>
-
-			<!-- Wellness Tools -->
-			<section class="mb-5">
-				<h2 class="text-lg font-semibold text-neutral-900 mb-3 flex items-center space-x-2">
-					<i class="fa-solid fa-hands-praying text-midnight-plum"></i>
-					<span>Wellness Tools</span>
-				</h2>
-				<div class="grid grid-cols-2 gap-4">
-					<!-- Log Mood Button -->
-					<button
-						class="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-3xl p-6 text-white shadow-lg active:scale-[0.98] transition-transform relative overflow-hidden group"
-						(click)="logMood()">
-						<!-- Background decoration -->
-						<div
-							class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-active:scale-110 transition-transform">
-						</div>
-						<div
-							class="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full -ml-8 -mb-8 group-active:scale-110 transition-transform">
-						</div>
-
-						<!-- Content -->
-						<div class="relative z-10 text-center">
-							<div
-								class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
-								<i class="fa-solid fa-smile text-white text-xl"></i>
-							</div>
-							<h3 class="text-base font-semibold text-white mb-1">Check In</h3>
-							<p class="text-xs text-white/80 font-medium">Track mood</p>
-						</div>
-					</button>
-
-					<!-- Breathe Button -->
-					<button
-						class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl p-6 text-white shadow-lg active:scale-[0.98] transition-transform relative overflow-hidden group"
-						(click)="openBreathe()">
-						<!-- Background decoration -->
-						<div
-							class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-active:scale-110 transition-transform">
-						</div>
-						<div
-							class="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full -ml-8 -mb-8 group-active:scale-110 transition-transform">
-						</div>
-
-						<!-- Content -->
-						<div class="relative z-10 text-center">
-							<div
-								class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
-								<i class="fa-solid fa-wind text-white text-xl"></i>
-							</div>
-							<h3 class="text-base font-semibold text-white mb-1">Breathe</h3>
-							<p class="text-xs text-white/80 font-medium">Center your being</p>
-						</div>
-					</button>
-
-					<!-- Add Tracker Button -->
-					<button
-						class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl p-6 text-white shadow-lg active:scale-[0.98] transition-transform relative overflow-hidden group"
-						(click)="addNewTracker()">
-						<!-- Background decoration -->
-						<div
-							class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-active:scale-110 transition-transform">
-						</div>
-						<div
-							class="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full -ml-8 -mb-8 group-active:scale-110 transition-transform">
-						</div>
-
-						<!-- Content -->
-						<div class="relative z-10 text-center">
-							<div
-								class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
-								<i class="fa-solid fa-plus text-white text-xl"></i>
-							</div>
-							<h3 class="text-base font-semibold text-white mb-1">Create Activity</h3>
-							<p class="text-xs text-white/80 font-medium">Plant new habits</p>
-						</div>
-					</button>
-
-					<!-- Journal Entry Button -->
-					<button
-						class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl p-6 text-white shadow-lg active:scale-[0.98] transition-transform relative overflow-hidden group"
-						(click)="openJournalEntry()">
-						<!-- Background decoration -->
-						<div
-							class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10 group-active:scale-110 transition-transform">
-						</div>
-						<div
-							class="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full -ml-8 -mb-8 group-active:scale-110 transition-transform">
-						</div>
-
-						<!-- Content -->
-						<div class="relative z-10 text-center">
-							<div
-								class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-sm">
-								<i class="fa-solid fa-feather text-white text-xl"></i>
-							</div>
-							<h3 class="text-base font-semibold text-white mb-1">Reflect</h3>
-							<p class="text-xs text-white/80 font-medium">Write in your journal</p>
-						</div>
-					</button>
-				</div>
-			</section>
-
-			<!-- Developer Mode - Force Refresh Button -->
-			<section class="mb-8 mt-8" *ngIf="isDeveloperMode">
-				<div class="px-2">
-					<div
-						class="bg-gradient-to-br from-red-500 to-orange-600 rounded-3xl p-4 text-white shadow-lg relative overflow-hidden">
-						<!-- Background decoration -->
-						<div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
-						<div class="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full -ml-8 -mb-8"></div>
-
-						<!-- Content -->
-						<div class="relative z-10">
-							<div class="flex items-center justify-between mb-3">
-								<div class="flex items-center space-x-3">
-									<div
-										class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-										<i class="fa-solid fa-code text-white text-lg"></i>
-									</div>
-									<div>
-										<h3 class="text-lg font-bold text-white">Developer Mode</h3>
-										<p class="text-xs text-white/80 font-medium">Force refresh AI suggestions</p>
-									</div>
-								</div>
-								<div class="flex items-center bg-white/20 rounded-full px-3 py-1 backdrop-blur-sm">
-									<i class="fa-solid fa-wrench text-white text-xs"></i>
-									<span class="text-xs text-white font-semibold ml-1">DEV</span>
-								</div>
-							</div>
-
+						<!-- Navigation arrows (only show if multiple quotes) -->
+						<div *ngIf="getAllMotivationalQuotes().length > 1"
+							class="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2 pointer-events-none">
 							<button
-								class="w-full bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center active:scale-[0.98] transition-transform border border-white/30 mb-4"
-								(click)="triggerStatsCalculation()" [disabled]="isCalculatingStats">
-								<div class="flex items-center justify-center space-x-3">
-									<i *ngIf="!isCalculatingStats"
-										class="fa-solid fa-chart-line text-white text-lg"></i>
-									<ion-spinner *ngIf="isCalculatingStats" name="crescent"
-										class="w-5 h-5"></ion-spinner>
-									<span class="text-base font-semibold text-white">
-										{{ isCalculatingStats ? 'Calculating...' : 'Calculate Statistics' }}
-									</span>
-								</div>
-								<p class="text-xs text-white/70 mt-2 font-medium">
-									{{ isCalculatingStats ? 'Please wait while we calculate your daily stats...' :
-									'Trigger manual calculation of today\'s pre-calculated statistics' }}
-								</p>
+								class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm pointer-events-auto active:scale-90 transition-transform"
+								(click)="previousQuote()">
+								<i class="fa-solid fa-chevron-left text-white text-xs"></i>
 							</button>
-
 							<button
-								class="w-full bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center active:scale-[0.98] transition-transform border border-white/30"
-								(click)="devRegenerateCoaching()" [disabled]="isRegeneratingCoaching">
-								<div class="flex items-center justify-center space-x-3">
-									<i *ngIf="!isRegeneratingCoaching"
-										class="fa-solid fa-refresh text-white text-lg"></i>
-									<ion-spinner *ngIf="isRegeneratingCoaching" name="crescent"
-										class="w-5 h-5"></ion-spinner>
-									<span class="text-base font-semibold text-white">
-										{{ isRegeneratingCoaching ? 'Regenerating...' : 'Force Refresh All Suggestions'
-										}}
-									</span>
-								</div>
-								<p class="text-xs text-white/70 mt-2 font-medium">
-									{{ isRegeneratingCoaching ? 'Please wait while we regenerate your coaching...' :
-									'Bypasses cache and generates fresh insights, actions & motivation for all trackers'
-									}}
-								</p>
+								class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm pointer-events-auto active:scale-90 transition-transform"
+								(click)="nextQuote()">
+								<i class="fa-solid fa-chevron-right text-white text-xs"></i>
 							</button>
 						</div>
 					</div>
+
+					<!-- Indicator dots (only show if multiple quotes) -->
+					<div *ngIf="getAllMotivationalQuotes().length > 1" class="flex justify-center space-x-2 mt-3">
+						<button *ngFor="let quote of getAllMotivationalQuotes(); let i = index"
+							class="w-2 h-2 rounded-full transition-all duration-300"
+							[class.bg-amber-500]="i === currentQuoteIndex" [class.w-4]="i === currentQuoteIndex"
+							[class.bg-neutral-300]="i !== currentQuoteIndex" (click)="goToQuote(i)">
+						</button>
+					</div>
 				</div>
-			</section>
+			</div>
+		</section>
 
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<!-- DEVELOPER MODE                                                       -->
+		<!-- ═══════════════════════════════════════════════════════════════════ -->
+		<section class="px-4 py-6" *ngIf="isDeveloperMode">
+			<div
+				class="bg-gradient-to-br from-red-500 to-orange-600 rounded-3xl p-5 text-white shadow-lg relative overflow-hidden">
+				<div class="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -mr-10 -mt-10"></div>
+				<div class="absolute bottom-0 left-0 w-16 h-16 bg-white/10 rounded-full -ml-8 -mb-8"></div>
 
+				<div class="relative z-10">
+					<div class="flex items-center justify-between mb-4">
+						<div class="flex items-center space-x-3">
+							<div
+								class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+								<i class="fa-solid fa-code text-white text-lg"></i>
+							</div>
+							<div>
+								<h3 class="text-lg font-bold text-white">Developer Mode</h3>
+								<p class="text-xs text-white/80 font-medium">Debug tools</p>
+							</div>
+						</div>
+						<div class="flex items-center bg-white/20 rounded-full px-3 py-1 backdrop-blur-sm">
+							<i class="fa-solid fa-wrench text-white text-xs"></i>
+							<span class="text-xs text-white font-semibold ml-1">DEV</span>
+						</div>
+					</div>
 
-		</div> <!-- Close dashboard content -->
+					<div class="space-y-3">
+						<button
+							class="w-full bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center active:scale-[0.98] transition-transform border border-white/30"
+							(click)="triggerStatsCalculation()" [disabled]="isCalculatingStats">
+							<div class="flex items-center justify-center space-x-2">
+								<i *ngIf="!isCalculatingStats" class="fa-solid fa-chart-line text-white"></i>
+								<ion-spinner *ngIf="isCalculatingStats" name="crescent" class="w-4 h-4"></ion-spinner>
+								<span class="text-sm font-semibold text-white">
+									{{ isCalculatingStats ? 'Calculating...' : 'Calculate Statistics' }}
+								</span>
+							</div>
+						</button>
+
+						<button
+							class="w-full bg-white/20 backdrop-blur-sm rounded-2xl p-4 text-center active:scale-[0.98] transition-transform border border-white/30"
+							(click)="devRegenerateCoaching()" [disabled]="isRegeneratingCoaching">
+							<div class="flex items-center justify-center space-x-2">
+								<i *ngIf="!isRegeneratingCoaching" class="fa-solid fa-refresh text-white"></i>
+								<ion-spinner *ngIf="isRegeneratingCoaching" name="crescent"
+									class="w-4 h-4"></ion-spinner>
+								<span class="text-sm font-semibold text-white">
+									{{ isRegeneratingCoaching ? 'Regenerating...' : 'Force Refresh Suggestions' }}
+								</span>
+							</div>
+						</button>
+					</div>
+				</div>
+			</div>
+		</section>
+
 	</main>
 </ion-content>

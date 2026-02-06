@@ -1,7 +1,7 @@
 # ReGen28 Wellness App – Project Checklist
 
 > **Tech Stack**: Ionic 8 + Angular 20 + Firebase + Capacitor  
-> **Last Updated**: 2026-02-04
+> **Last Updated**: 2026-02-05
 
 ---
 
@@ -193,12 +193,14 @@ Components → Services → DatabaseService → Firebase
 - **Dashboard Integration**: Active goals with progress bars
 - **Goals Page** (`src/app/pages/goals/`): Dedicated management with add/edit/complete
 
-### Activities Feature ✅
-- Replaced "tracker" terminology with "activity" throughout
-- Dual-action button system (Create Activity / Log Activity)
-- Timezone-aware AI suggestions with midnight window processing
-- Multi-tracker dashboard with expand/collapse functionality
-- Consistent avatar system with Dicebear API
+### Activities & Recent Activity Feed ✅
+- **Activity History Page** (`src/app/pages/activities/`): Dedicated view for full user history
+- **Navigation Fixes**: Corrected dashboard "View All" links and "Explore Deeper" navigation
+- **Automated Logging**: 
+  - Ritual completion now triggers Recent Activity records
+  - Journal entries automatically appear in the activity feed
+  - Goal creation and completion logged as accomplishments
+- **Design Alignment**: Premium glass-morphism cards with dynamic icon gradients and "time ago" logic
 
 ---
 
@@ -336,10 +338,10 @@ npm run lint:fix            # Fix linting issues
 ## 🎯 Current Priority
 
 **Next Immediate Steps**:
-1. Complete tracker client-side analytics integration
-2. Implement backfill system for historical stats
-3. Enhanced goal management with milestone tracking
-4. Rich text journal editing with mood correlation
+1. Implement PWA support for offline caching and background sync
+2. Push notification system for ritual reminders
+3. Biometric authentication for enhanced security
+4. Advanced pattern recognition for habit-mood correlations
 
 ---
 

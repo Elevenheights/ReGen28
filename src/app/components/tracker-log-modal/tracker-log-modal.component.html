@@ -1,428 +1,282 @@
-<!-- Enhanced Logging Modal -->
-<ion-modal [isOpen]="isOpen" (didDismiss)="closeModal()">
-  <ng-template>
-  <div class="bg-neutral-50 h-full overflow-y-auto">
-    <!-- Modern Header with gradient accent -->
-    <div *ngIf="tracker" class="bg-white border-b border-neutral-200 px-6 py-4">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-4">
-          <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
-            <i [class]="'fa-solid ' + getTrackerIcon(tracker)" class="text-xl text-white"></i>
-          </div>
-          <div>
-            <h3 class="text-xl font-bold text-neutral-900">{{ tracker?.name || 'Activity' }}</h3>
-            <div class="flex items-center space-x-3 mt-1">
-              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-                <i class="fa-solid fa-tag w-3 h-3 mr-1"></i>
-                {{ getCategoryLabel(tracker?.category) }}
-              </span>
-              <span *ngIf="tracker?.target" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
-                <i class="fa-solid fa-bullseye w-3 h-3 mr-1"></i>
-                Target: {{ formatValue(tracker?.target || 0) }}
-              </span>
-            </div>
-          </div>
-        </div>
-        <button (click)="closeModal()" 
-                class="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center hover:bg-neutral-200 transition-all duration-200 group">
-          <i class="fa-solid fa-times text-neutral-500 group-hover:text-neutral-700 transition-colors"></i>
-        </button>
-      </div>
-    </div>
+<!-- Clean Logging Modal -->
+<ion-modal [isOpen]="isOpen" (didDismiss)="closeModal()" class="clean-modal">
+	<ng-template>
+		<div class="h-full flex flex-col bg-neutral-50 relative" *ngIf="tracker"
+			[style.--tracker-color]="tracker.color">
 
-    <div class="px-6 py-6 space-y-6">
-      <!-- Enhanced Error State -->
-      <div *ngIf="loggingErrorState.hasError" class="bg-gradient-to-r from-red-50 to-red-100 border border-red-200 rounded-2xl p-5 shadow-sm">
-        <div class="flex items-start justify-between">
-          <div class="flex items-start space-x-4">
-            <div class="w-10 h-10 bg-red-500 rounded-xl flex items-center justify-center flex-shrink-0">
-              <i class="fa-solid fa-exclamation-triangle text-white"></i>
-            </div>
-            <div>
-              <h4 class="font-semibold text-red-900 mb-1">Something went wrong</h4>
-              <p class="text-sm text-red-700 leading-relaxed">{{ loggingErrorState.errorMessage }}</p>
-              <button *ngIf="loggingErrorState.canRetry" 
-                      (click)="retryLogging()"
-                      class="mt-3 inline-flex items-center px-3 py-2 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors">
-                <i class="fa-solid fa-refresh mr-2"></i>
-                Try Again
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+			<!-- 1. Header (Sacred Glass) -->
+			<ion-header class="ion-no-border">
+				<div
+					class="px-6 pt-10 pb-6 bg-white/90 backdrop-blur-2xl sticky top-0 z-50 flex justify-between items-center border-b border-neutral-100/30 overflow-hidden">
+					<!-- Ambient Glow -->
+					<div class="absolute -top-10 -left-10 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl"></div>
+					<div class="absolute -bottom-10 -right-10 w-40 h-40 bg-purple-500/5 rounded-full blur-3xl"></div>
 
-      <!-- Main Value Input with Enhanced Design -->
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-hash text-white"></i>
-          </div>
-          <h4 class="text-lg font-semibold text-neutral-900">{{ getValueLabel() }}</h4>
-        </div>
-        <div class="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-xl p-6">
-          <ion-range 
-            [(ngModel)]="loggingForm.value" 
-            [min]="getValueInputConfig().min"
-            [max]="getValueInputConfig().max"
-            [step]="getValueInputConfig().step"
-            [pin]="true"
-            class="mb-4">
-          </ion-range>
-          <div class="flex justify-between items-center">
-            <span class="text-sm text-neutral-500 px-3 py-1 bg-neutral-100 rounded-lg font-medium">{{ getValueInputConfig().min }}</span>
-            <div class="text-center">
-              <span class="text-2xl font-bold text-neutral-900">{{ formatValue(loggingForm.value) }}</span>
-              <p class="text-xs text-neutral-500 mt-1">current value</p>
-            </div>
-            <span class="text-sm text-neutral-500 px-3 py-1 bg-neutral-100 rounded-lg font-medium">{{ getValueInputConfig().max }}</span>
-          </div>
-        </div>
-      </div>
+					<div class="relative z-10 group cursor-pointer">
+						<!-- Hidden Native Select -->
+						<ion-select class="absolute inset-0 opacity-0 w-full h-full z-10" [value]="tracker.id"
+							(ionChange)="onTrackerSelectChange($event)" interface="popover">
+							<ion-select-option *ngFor="let t of activeTrackers" [value]="t.id">
+								{{ t.name }}
+							</ion-select-option>
+						</ion-select>
 
-      <!-- Conditional Fields with Modern Icons -->
-      <!-- Mood -->
-      <div *ngIf="shouldShowField('mood')" class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-face-smile text-white"></i>
-          </div>
-          <h4 class="text-lg font-semibold text-neutral-900">Mood</h4>
-        </div>
-        <div class="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-6">
-          <ion-range 
-            [(ngModel)]="loggingForm.mood" 
-            [min]="1"
-            [max]="10"
-            [step]="1"
-            [pin]="true"
-            class="mb-4">
-          </ion-range>
-          <div class="flex justify-between text-sm text-purple-700">
-            <span class="flex items-center space-x-2">
-              <span class="text-lg">😞</span>
-              <span class="font-medium">Poor</span>
-            </span>
-            <span class="flex items-center space-x-2">
-              <span class="text-lg">😐</span>
-              <span class="font-medium">Okay</span>
-            </span>
-            <span class="flex items-center space-x-2">
-              <span class="text-lg">😊</span>
-              <span class="font-medium">Great</span>
-            </span>
-          </div>
-        </div>
-      </div>
+						<div class="flex items-center gap-2">
+							<h2 class="text-3xl font-black text-neutral-900 tracking-tighter">{{ tracker.name }}</h2>
+							<i
+								class="fa-solid fa-chevron-down text-neutral-300 text-sm group-hover:text-neutral-900 transition-colors"></i>
+						</div>
+						<div class="flex items-center space-x-2 mt-1.5">
+							<div class="w-2.5 h-2.5 rounded-full shadow-inner" [style.background-color]="tracker.color">
+							</div>
+							<span class="text-[10px] font-black text-neutral-400 uppercase tracking-[0.2em]">{{
+								tracker.category }}</span>
+						</div>
+					</div>
+					<button (click)="closeModal()"
+						class="w-12 h-12 rounded-2xl bg-neutral-100/50 flex items-center justify-center text-neutral-400 active:scale-90 transition-all hover:bg-neutral-100 hover:text-neutral-900 shadow-sm relative z-10">
+						<i class="fa-solid fa-times text-xl"></i>
+					</button>
+				</div>
+			</ion-header>
 
-      <!-- Energy -->
-      <div *ngIf="shouldShowField('energy')" class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-bolt text-white"></i>
-          </div>
-          <h4 class="text-lg font-semibold text-neutral-900">Energy Level</h4>
-        </div>
-        <div class="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-6">
-          <ion-range 
-            [(ngModel)]="loggingForm.energy" 
-            [min]="1"
-            [max]="5"
-            [step]="1"
-            [pin]="true"
-            class="mb-4">
-          </ion-range>
-          <div class="flex justify-between text-sm text-orange-700">
-            <span class="flex items-center space-x-2">
-              <span class="text-lg">🔋</span>
-              <span class="font-medium">Low</span>
-            </span>
-            <span class="flex items-center space-x-2">
-              <span class="text-lg">⚡</span>
-              <span class="font-medium">High</span>
-            </span>
-          </div>
-        </div>
-      </div>
+			<!-- 2. Ion Content (Replaces previous div for guaranteed scrolling) -->
+			<ion-content [fullscreen]="true" class="ion-padding-bottom" [style.--background]="'transparent'">
+				<div class="px-5 pt-6 pb-32 space-y-6">
 
-      <!-- Duration -->
-      <div *ngIf="shouldShowField('duration')" class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-stopwatch text-white"></i>
-          </div>
-          <h4 class="text-lg font-semibold text-neutral-900">Duration</h4>
-        </div>
-        <div class="bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200 rounded-xl p-6">
-          <ion-range 
-            [(ngModel)]="loggingForm.duration" 
-            [min]="0"
-            [max]="240"
-            [step]="5"
-            [pin]="true"
-            class="mb-4">
-          </ion-range>
-          <div class="text-center">
-            <span class="text-2xl font-bold text-blue-800">{{ formatValue(loggingForm.duration || 0) }}</span>
-            <p class="text-sm text-blue-600 mt-1">minutes</p>
-          </div>
-        </div>
-      </div>
+					<!-- PRIMARY INPUT (Hero Section) -->
+					<div class="flex flex-col items-center justify-center py-4 animate-entry">
 
-      <!-- Intensity -->
-      <div *ngIf="shouldShowField('intensity')" class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-fire text-white"></i>
-          </div>
-          <h4 class="text-lg font-semibold text-neutral-900">Intensity</h4>
-        </div>
-        <div class="bg-gradient-to-br from-red-50 to-pink-50 border border-red-200 rounded-xl p-6">
-          <ion-range 
-            [(ngModel)]="loggingForm.intensity" 
-            [min]="1"
-            [max]="10"
-            [step]="1"
-            [pin]="true"
-            class="mb-4">
-          </ion-range>
-          <div class="flex justify-between text-sm text-red-700">
-            <span class="flex items-center space-x-2">
-              <span class="text-lg">😌</span>
-              <span class="font-medium">Light</span>
-            </span>
-            <span class="flex items-center space-x-2">
-              <span class="text-lg">😤</span>
-              <span class="font-medium">Moderate</span>
-            </span>
-            <span class="flex items-center space-x-2">
-              <span class="text-lg">🔥</span>
-              <span class="font-medium">Intense</span>
-            </span>
-          </div>
-        </div>
-      </div>
+						<!-- Boolean Input -->
+						<div *ngIf="tracker.type === 'boolean'" class="w-full flex justify-center py-6">
+							<button (click)="loggingForm.value = loggingForm.value ? 0 : 1"
+								[style.background-color]="loggingForm.value ? tracker.color : null"
+								[class]="loggingForm.value ? 'scale-110 shadow-2xl shadow-indigo-500/30 text-white' : 'bg-white border-2 border-dashed border-neutral-200 text-neutral-300 scale-100'"
+								class="w-40 h-40 rounded-full flex flex-col items-center justify-center transition-all duration-500 group relative overflow-hidden">
+								<!-- Ripple effect simulation -->
+								<div *ngIf="loggingForm.value" class="absolute inset-0 bg-white/20 animate-pulse"></div>
 
-      <!-- Quality -->
-      <div *ngIf="shouldShowField('quality')" class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-star text-white"></i>
-          </div>
-          <h4 class="text-lg font-semibold text-neutral-900">Quality</h4>
-        </div>
-        <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-6">
-          <ion-range 
-            [(ngModel)]="loggingForm.quality" 
-            [min]="1"
-            [max]="10"
-            [step]="1"
-            [pin]="true"
-            class="mb-4">
-          </ion-range>
-          <div class="flex justify-between text-sm text-emerald-700">
-            <span class="flex items-center space-x-2">
-              <span class="text-lg">👎</span>
-              <span class="font-medium">Poor</span>
-            </span>
-            <span class="flex items-center space-x-2">
-              <span class="text-lg">👍</span>
-              <span class="font-medium">Good</span>
-            </span>
-            <span class="flex items-center space-x-2">
-              <span class="text-lg">⭐</span>
-              <span class="font-medium">Excellent</span>
-            </span>
-          </div>
-        </div>
-      </div>
+								<i class="fa-solid fa-check text-5xl mb-3 relative z-10 transition-transform group-active:scale-90"
+									[class.animate-bounce-slow]="loggingForm.value"></i>
+								<span class="text-[10px] font-black uppercase tracking-[0.2em] relative z-10">{{
+									loggingForm.value ?
+									'Victorious' : 'Complete' }}</span>
+							</button>
+						</div>
 
-      <!-- Social Context -->
-      <div *ngIf="shouldShowField('socialContext')" class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-users text-white"></i>
-          </div>
-          <h4 class="text-lg font-semibold text-neutral-900">Social Context</h4>
-        </div>
-        <div class="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200 rounded-xl p-6">
-          <div class="grid grid-cols-3 gap-3">
-            <button 
-              *ngFor="let option of getSocialContextOptions()"
-              (click)="loggingForm.socialContext = option.value"
-              [class]="getSocialContextButtonClass(option.value)"
-              class="p-3 rounded-xl text-sm font-medium transition-all duration-200">
-              <i [class]="option.icon + ' text-lg mb-1'"></i>
-              <div>{{ option.label }}</div>
-            </button>
-          </div>
-        </div>
-      </div>
+						<!-- Numeric/Range Input -->
+						<div *ngIf="tracker.type !== 'boolean'" class="w-full text-center">
+							<div class="mb-8 relative inline-block">
+								<span class="text-7xl font-black text-neutral-900 tracking-tighter"
+									[appCountUp]="loggingForm.value" [duration]="500"></span>
+								<span
+									class="absolute -right-8 top-2 text-[10px] font-black text-neutral-400 uppercase tracking-widest rotate-90 origin-left">{{
+									tracker.unit || 'Units' }}</span>
+							</div>
 
-      <!-- Tags -->
-      <div *ngIf="shouldShowField('tags')" class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-tags text-white"></i>
-          </div>
-          <h4 class="text-lg font-semibold text-neutral-900">Tags</h4>
-        </div>
-        <div class="bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-6">
-          <div class="flex flex-wrap gap-2 mb-4">
-            <span 
-              *ngFor="let tag of loggingForm.tags; let i = index"
-              class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-violet-100 text-violet-800">
-              {{ tag }}
-              <button 
-                (click)="removeTag(i)"
-                class="ml-2 text-violet-600 hover:text-violet-800">
-                <i class="fa-solid fa-times text-xs"></i>
-              </button>
-            </span>
-          </div>
-          <input 
-            #tagInput
-            (keyup.enter)="addTag(tagInput.value); tagInput.value = ''"
-            placeholder="Add a tag and press Enter..."
-            class="w-full px-3 py-2 border border-violet-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent">
-          <p class="text-xs text-violet-600 mt-2">Press Enter to add tags</p>
-        </div>
-      </div>
+							<!-- Stepper Controls -->
+							<div
+								class="card-glass p-3 rounded-[2.5rem] flex items-center justify-between max-w-sm mx-auto shadow-2xl shadow-indigo-500/10">
+								<button (click)="decrementValue()"
+									class="w-14 h-14 rounded-2xl bg-neutral-100/50 flex items-center justify-center text-neutral-600 active:scale-90 transition-all hover:bg-neutral-100 hover:text-neutral-900 pulse-on-click">
+									<i class="fa-solid fa-minus"></i>
+								</button>
 
-      <!-- Photos -->
-      <div *ngIf="shouldShowField('photos')" class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-camera text-white"></i>
-          </div>
-          <h4 class="text-lg font-semibold text-neutral-900">Photos</h4>
-        </div>
-        <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-6">
-          <p class="text-sm text-emerald-700 mb-4">Capture your progress with photos</p>
-          <div class="space-y-3">
-            <button 
-              type="button"
-              class="w-full flex items-center justify-center px-4 py-3 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">
-              <i class="fa-solid fa-plus mr-2"></i>
-              Add Photo
-            </button>
-            <p class="text-xs text-emerald-600 text-center">Photo upload coming soon!</p>
-          </div>
-        </div>
-      </div>
+								<div class="flex-1 px-4">
+									<ion-range [(ngModel)]="loggingForm.value" [min]="getValueInputConfig().min"
+										[max]="getValueInputConfig().max" [step]="getValueInputConfig().step"
+										class="clean-range">
+									</ion-range>
+								</div>
 
-      <!-- Custom Date -->
-      <div *ngIf="shouldShowField('customDate')" class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-calendar text-white"></i>
-          </div>
-          <h4 class="text-lg font-semibold text-neutral-900">Date</h4>
-        </div>
-        <div class="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6">
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-sm font-medium text-amber-800">Log for a different date?</span>
-            <label class="flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                [(ngModel)]="loggingForm.customDateEnabled"
-                class="sr-only">
-              <div class="relative">
-                <div class="block bg-amber-200 w-14 h-8 rounded-full"></div>
-                <div [class]="'absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition ' + (loggingForm.customDateEnabled ? 'transform translate-x-6' : '')"></div>
-              </div>
-            </label>
-          </div>
-          <input 
-            *ngIf="loggingForm.customDateEnabled"
-            type="date" 
-            [(ngModel)]="loggingForm.date"
-            [max]="getTodayISOString()"
-            class="w-full px-3 py-2 border border-amber-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent">
-        </div>
-      </div>
+								<button (click)="incrementValue()" [style.background-color]="tracker.color"
+									class="w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-lg active:scale-95 transition-all pulse-on-click">
+									<i class="fa-solid fa-plus font-bold"></i>
+								</button>
+							</div>
+						</div>
+					</div>
 
-      <!-- Custom Time -->
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-clock text-white"></i>
-          </div>
-          <h4 class="text-lg font-semibold text-neutral-900">Time</h4>
-        </div>
-        <div class="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-200 rounded-xl p-6">
-          <div class="flex items-center justify-between mb-4">
-            <span class="text-sm font-medium text-indigo-800">Choose a specific time?</span>
-            <label class="flex items-center cursor-pointer">
-              <input 
-                type="checkbox" 
-                [(ngModel)]="loggingForm.customTimeEnabled"
-                class="sr-only">
-              <div class="relative">
-                <div class="block bg-indigo-200 w-14 h-8 rounded-full"></div>
-                <div [class]="'absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition ' + (loggingForm.customTimeEnabled ? 'transform translate-x-6' : '')"></div>
-              </div>
-            </label>
-          </div>
-          <div *ngIf="!loggingForm.customTimeEnabled" class="text-sm text-indigo-700 bg-indigo-100 px-3 py-2 rounded-lg">
-            <i class="fa-solid fa-info-circle mr-2"></i>
-            Will use current time ({{ getCurrentTimeString() }})
-          </div>
-          <input 
-            *ngIf="loggingForm.customTimeEnabled"
-            type="time" 
-            [(ngModel)]="loggingForm.time"
-            class="w-full px-3 py-2 border border-indigo-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-        </div>
-      </div>
+					<!-- Date & Time (Clean Cards) -->
+					<div class="grid grid-cols-2 gap-3 animate-entry delay-100">
+						<div
+							class="card-glass rounded-[2rem] p-5 relative overflow-hidden group hover:bg-white/95 transition-all active:scale-[0.98]">
+							<span
+								class="text-[9px] font-black text-neutral-400 uppercase tracking-widest block mb-2">Date</span>
+							<div class="flex items-center gap-2">
+								<i class="fa-solid fa-calendar-day text-indigo-400 text-xs"></i>
+								<span class="text-sm font-black text-neutral-900">{{ loggingForm.customDateEnabled ?
+									(loggingForm.date | date:'mediumDate') : 'Today' }}</span>
+							</div>
+							<input type="date" [(ngModel)]="loggingForm.date"
+								class="absolute inset-0 opacity-0 cursor-pointer"
+								(change)="loggingForm.customDateEnabled = true">
+						</div>
 
-      <!-- Notes -->
-      <div *ngIf="shouldShowField('notes')" class="bg-white rounded-2xl p-6 shadow-sm border border-neutral-100">
-        <div class="flex items-center space-x-3 mb-4">
-          <div class="w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-700 rounded-lg flex items-center justify-center">
-            <i class="fa-solid fa-pen text-white"></i>
-          </div>
-          <h4 class="text-lg font-semibold text-neutral-900">Notes</h4>
-        </div>
-        <div class="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-xl p-6">
-          <ion-textarea 
-            [(ngModel)]="loggingForm.notes"
-            placeholder="Add any notes about this entry..."
-            [rows]="3"
-            [maxlength]="500"
-            class="bg-white rounded-lg border border-gray-300 resize-none">
-          </ion-textarea>
-          <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-200">
-            <span class="text-xs text-gray-500 font-medium">Optional</span>
-            <span class="text-xs text-gray-500">{{ (loggingForm.notes || '').length }}/500</span>
-          </div>
-        </div>
-      </div>
+						<div
+							class="card-glass rounded-[2rem] p-5 relative overflow-hidden group hover:bg-white/95 transition-all active:scale-[0.98]">
+							<span
+								class="text-[9px] font-black text-neutral-400 uppercase tracking-widest block mb-2">Time</span>
+							<div class="flex items-center gap-2">
+								<i class="fa-solid fa-clock text-indigo-400 text-xs"></i>
+								<span class="text-sm font-black text-neutral-900">{{ loggingForm.customTimeEnabled ?
+									loggingForm.time : getCurrentTimeString() }}</span>
+							</div>
+							<input type="time" [(ngModel)]="loggingForm.time"
+								class="absolute inset-0 opacity-0 cursor-pointer"
+								(change)="loggingForm.customTimeEnabled = true">
+						</div>
+					</div>
 
-      <!-- Enhanced Action Buttons -->
-      <div class="flex space-x-4 pt-2">
-        <button class="flex-1 px-6 py-4 bg-neutral-100 text-neutral-700 rounded-2xl font-semibold hover:bg-neutral-200 transition-all duration-200 shadow-sm border border-neutral-200"
-                (click)="closeModal()"
-                [disabled]="isSubmittingEntry">
-          <div class="flex items-center justify-center space-x-2">
-            <i class="fa-solid fa-times"></i>
-            <span>Cancel</span>
-          </div>
-        </button>
-        <button class="flex-1 px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg disabled:opacity-50"
-                (click)="logTrackerEntry()"
-                [disabled]="isSubmittingEntry || !formValidation.isValid">
-          <div *ngIf="!isSubmittingEntry" class="flex items-center justify-center space-x-2">
-            <i class="fa-solid fa-check"></i>
-            <span>Log Entry</span>
-          </div>
-          <div *ngIf="isSubmittingEntry" class="flex items-center justify-center space-x-2">
-            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-            <span>Logging...</span>
-          </div>
-        </button>
-      </div>
-    </div>
-  </div>
-  </ng-template>
-</ion-modal> 
+					<!-- Notes Area -->
+					<div class="card-glass rounded-[2.5rem] p-6 animate-entry delay-100 shadow-xl shadow-neutral-500/5">
+						<textarea [(ngModel)]="loggingForm.notes" placeholder="How did it feel?"
+							class="w-full bg-transparent text-neutral-800 placeholder-neutral-300 text-base font-medium resize-none outline-none min-h-[100px]"
+							rows="3"></textarea>
+					</div>
+
+					<!-- Details Accordion -->
+					<div class="space-y-4 animate-entry delay-200">
+						<div class="flex items-center gap-3">
+							<div class="h-px bg-neutral-200 flex-1"></div>
+							<span class="text-xs font-bold text-neutral-400 uppercase tracking-widest">Details</span>
+							<div class="h-px bg-neutral-200 flex-1"></div>
+						</div>
+
+						<!-- Mood & Energy -->
+						<div class="grid grid-cols-2 gap-3"
+							*ngIf="shouldShowField('mood') || shouldShowField('energy')">
+							<div *ngIf="shouldShowField('mood')" class="card-glass rounded-[2rem] p-5">
+								<div class="flex justify-between items-center mb-4">
+									<span
+										class="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Mood</span>
+									<span class="text-xl animate-bounce duration-500">{{ getMoodEmoji(loggingForm.mood)
+										}}</span>
+								</div>
+								<ion-range [(ngModel)]="loggingForm.mood" min="1" max="10" step="1"
+									class="clean-range-sm range-mood"></ion-range>
+							</div>
+
+							<div *ngIf="shouldShowField('energy')" class="card-glass rounded-[2rem] p-5">
+								<div class="flex justify-between items-center mb-4">
+									<span
+										class="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Energy</span>
+									<span class="text-xs font-black text-amber-500 uppercase tracking-tighter">{{
+										loggingForm.energy }}/5</span>
+								</div>
+								<ion-range [(ngModel)]="loggingForm.energy" min="1" max="5" step="1"
+									class="clean-range-sm" color="warning"></ion-range>
+							</div>
+						</div>
+
+						<!-- Tags -->
+						<div *ngIf="shouldShowField('tags')" class="card-glass rounded-[2.5rem] p-6">
+							<span
+								class="text-[10px] font-black text-neutral-400 uppercase tracking-widest block mb-4">Patterns
+								& Tags</span>
+							<div class="flex flex-wrap gap-2 mb-4">
+								<span *ngFor="let tag of loggingForm.tags; let i = index" (click)="removeTag(i)"
+									class="bg-indigo-50 text-indigo-600 border border-indigo-100 text-[10px] px-3 py-1.5 rounded-xl font-black uppercase tracking-wider flex items-center cursor-pointer hover:bg-red-50 hover:text-red-500 hover:border-red-100 transition-all">
+									#{{ tag }}
+								</span>
+							</div>
+							<div
+								class="flex items-center gap-3 bg-neutral-100/50 rounded-2xl px-4 py-3 border border-neutral-100/50 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
+								<i class="fa-solid fa-hashtag text-neutral-400 text-xs"></i>
+								<input #tagInput (keyup.enter)="addTag(tagInput.value); tagInput.value = ''"
+									placeholder="Add tag..."
+									class="bg-transparent text-sm w-full outline-none text-neutral-700 font-bold">
+								<button (click)="addTag(tagInput.value); tagInput.value = ''"
+									class="text-indigo-400 hover:text-indigo-600 transition-colors"><i
+										class="fa-solid fa-plus-circle text-lg"></i></button>
+							</div>
+						</div>
+
+						<!-- Quality & Intensity -->
+						<div class="grid grid-cols-2 gap-3"
+							*ngIf="shouldShowField('intensity') || shouldShowField('quality')">
+							<div *ngIf="shouldShowField('intensity')" class="glass-panel rounded-2xl p-4">
+								<div class="flex justify-between items-center mb-2">
+									<span class="text-xs font-bold text-neutral-500">Intensity</span>
+									<span class="text-xs font-bold text-red-500">{{ loggingForm.intensity }}/10</span>
+								</div>
+								<ion-range [(ngModel)]="loggingForm.intensity" min="1" max="10" step="1"
+									class="clean-range-sm" color="danger"></ion-range>
+							</div>
+							<div *ngIf="shouldShowField('quality')" class="glass-panel rounded-2xl p-4">
+								<div class="flex justify-between items-center mb-2">
+									<span class="text-xs font-bold text-neutral-500">Quality</span>
+									<span class="text-xs font-bold text-emerald-500">{{ loggingForm.quality }}/10</span>
+								</div>
+								<ion-range [(ngModel)]="loggingForm.quality" min="1" max="10" step="1"
+									class="clean-range-sm" color="success"></ion-range>
+							</div>
+						</div>
+
+						<!-- Social Context -->
+						<div *ngIf="shouldShowField('socialContext')" class="card-glass rounded-[2.5rem] p-6">
+							<span
+								class="text-[10px] font-black text-neutral-400 uppercase tracking-widest block mb-4">Who
+								are you with?</span>
+							<div class="grid grid-cols-3 gap-2">
+								<button *ngFor="let option of getSocialContextOptions()"
+									(click)="loggingForm.socialContext = option.value"
+									[class]="getSocialContextButtonClass(option.value)"
+									class="py-4 rounded-2xl transition-all duration-300 pulse-on-click flex flex-col items-center justify-center gap-2">
+									<i [class]="option.icon" class="text-2xl mb-1"></i>
+									<span class="text-[9px] font-black uppercase tracking-widest leading-none">{{
+										option.label }}</span>
+								</button>
+							</div>
+						</div>
+
+						<!-- Photo Upload -->
+						<div *ngIf="shouldShowField('photos')" class="card-glass rounded-[2.5rem] p-6">
+							<div class="flex justify-between items-center mb-4">
+								<span class="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Visual
+									Evidence</span>
+								<span
+									class="text-[9px] font-black bg-neutral-100 text-neutral-500 px-2 py-0.5 rounded-full uppercase tracking-widest">{{
+									loggingForm.photos?.length || 0 }}/3</span>
+							</div>
+
+							<div class="grid grid-cols-4 gap-3">
+								<div *ngFor="let photo of loggingForm.photos; let i = index"
+									class="aspect-square rounded-2xl bg-neutral-100 relative group overflow-hidden shadow-sm border border-neutral-100">
+									<img [src]="photo" class="w-full h-full object-cover">
+									<button (click)="removePhoto(i)"
+										class="absolute top-1.5 right-1.5 w-6 h-6 bg-black/60 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm">
+										<i class="fa-solid fa-times text-[10px]"></i>
+									</button>
+								</div>
+
+								<button (click)="addPhoto()"
+									class="aspect-square rounded-2xl bg-neutral-50 border-2 border-dashed border-neutral-200 flex flex-col items-center justify-center text-neutral-400 hover:bg-white hover:border-indigo-300 hover:text-indigo-500 transition-all active:scale-95 group">
+									<i
+										class="fa-solid fa-camera text-xl mb-1.5 group-hover:scale-110 transition-transform"></i>
+									<span class="text-[9px] font-black uppercase tracking-widest">Add</span>
+								</button>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</ion-content>
+
+			<!-- 3. Floating Action Bar -->
+			<ion-footer class="ion-no-border bg-transparent shadow-none">
+				<div class="px-6 pb-10 pt-4 bg-gradient-to-t from-neutral-50 via-neutral-50 to-transparent">
+					<button (click)="logTrackerEntry()" [disabled]="isSubmittingEntry"
+						class="w-full h-16 bg-neutral-950 text-white rounded-[2rem] font-black tracking-widest uppercase text-xs shadow-2xl shadow-neutral-900/40 active:scale-95 transition-all flex items-center justify-center gap-3 border border-white/10 btn-save-entry group">
+						<div *ngIf="isSubmittingEntry"
+							class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+						<span *ngIf="!isSubmittingEntry">Commit to Flow</span>
+						<i *ngIf="!isSubmittingEntry"
+							class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+					</button>
+				</div>
+			</ion-footer>
+
+		</div>
+	</ng-template>
+</ion-modal>
