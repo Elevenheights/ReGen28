@@ -12,10 +12,11 @@ platform :ios do
     )
     
     # Run the build
+    # Pass DEVELOPMENT_TEAM as xcarg to ensure SPM packages get the team ID
     gym(
       scheme: "App",
       export_method: "development",
-      xcargs: "-allowProvisioningUpdates"
+      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM=3GNC95S8K6"
     )
   end
 end

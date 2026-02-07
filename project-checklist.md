@@ -145,7 +145,7 @@ Components → Services → DatabaseService → Firebase
 - Complete elimination of hardcoded fallbacks
 
 ### Phase 6.5: Android Mobile Build Setup ✅
-- Capacitor with app ID `com.regen28.app`
+- Capacitor with app ID `com.regen28labs`
 - Java 21 (Eclipse Temurin JDK 21.0.9.10)
 - Environment variables (`JAVA_HOME`, PATH)
 - TypeScript compiler target (ES2022), CSS budget limits

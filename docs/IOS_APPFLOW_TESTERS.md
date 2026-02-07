@@ -37,7 +37,7 @@ If you’re on **Windows only**, options:
 - Use **MacInCloud** or similar: open the repo, run the three commands above, commit and push.
 - Use **GitHub Actions** (or similar) with a `macos-latest` runner: add a workflow that runs `npx cap add ios && npx cap sync ios`, then commits and pushes the `ios` folder (one-time job).
 
-Your app ID is already **`com.regen28.app`** in `capacitor.config.json`; the generated iOS project will use that.
+Your app ID is already **`com.regen28labs`** in `capacitor.config.json`; the generated iOS project will use that.
 
 ---
 
@@ -49,12 +49,12 @@ Do this in [Apple Developer](https://developer.apple.com/account) and [App Store
    - Certificates, IDs & Profiles → Identifiers → **+**  
    - App IDs → Continue → **App**  
    - Description: e.g. “ReGen28”  
-   - Bundle ID: **Explicit** → `com.regen28.app`  
+   - Bundle ID: **Explicit** → `com.regen28labs`  
    - Register.
 
 2. **Create the app in App Store Connect** (if not already):  
    - App Store Connect → **My Apps** → **+** → **New App**  
-   - Platform: iOS, name ReGen28, Bundle ID `com.regen28.app`.  
+   - Platform: iOS, name ReGen28, Bundle ID `com.regen28labs`.  
    - Note the **Apple ID** (numeric) and **Team ID** (Membership details in Apple Developer) for Appflow later.
 
 3. **iOS Distribution certificate** (for App Store / TestFlight):  
@@ -64,7 +64,7 @@ Do this in [Apple Developer](https://developer.apple.com/account) and [App Store
 4. **Provisioning profile (App Store)**  
    - Apple Developer → **Profiles** → **+**  
    - **App Store** (under Distribution)  
-   - Select App ID `com.regen28.app`  
+   - Select App ID `com.regen28labs`  
    - Select the **Apple Distribution** certificate  
    - Name it (e.g. “ReGen28 App Store”)  
    - Download the `.mobileprovision` file.
@@ -150,7 +150,7 @@ Get **App ID** from Appflow (app overview); **Build ID** from the build detail p
 ## Quick checklist
 
 - [ ] `ios` folder in repo (added on a Mac, then pushed)
-- [ ] App ID `com.regen28.app` registered in Apple Developer
+- [ ] App ID `com.regen28labs` registered in Apple Developer
 - [ ] App created in App Store Connect
 - [ ] iOS Distribution certificate (`.p12`) and App Store provisioning profile (`.mobileprovision`) created
 - [ ] Appflow app created and connected to Git
@@ -165,7 +165,7 @@ Get **App ID** from Appflow (app overview); **Build ID** from the build detail p
 ## Troubleshooting
 
 - **“No iOS project” / build fails**: Ensure the **`ios`** folder is committed and pushed on the branch you’re building.
-- **Signing errors**: Confirm the provisioning profile’s Bundle ID is `com.regen28.app` and the profile type is **App Store**.
+- **Signing errors**: Confirm the provisioning profile’s Bundle ID is `com.regen28labs` and the profile type is **App Store**.
 - **TestFlight not showing build**: Wait for processing in App Store Connect; check **Activity** and email for any compliance or processing errors.
 - **Firebase / Google Sign-In on iOS**: Ensure you’ve added the iOS app in Firebase Console and, if needed, updated `GoogleService-Info.plist` in the `ios` project (then commit and rebuild).
 
