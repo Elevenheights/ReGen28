@@ -3,14 +3,13 @@ default_platform(:ios)
 platform :ios do
   desc "Build for Appflow"
   lane :build_capacitor do
-    # Xcode 15+ SPM signing workaround
-    # Don't pass CODE_SIGN_IDENTITY to avoid conflicts with SPM automatic signing
-    # Only pass DEVELOPMENT_TEAM which is needed for all targets
+    # Xcode 15+ SPM signing workaround:
+    # - Always pass DEVELOPMENT_TEAM via xcargs so SPM targets can sign
+    # - Control the signing identity via `GYM_CODE_SIGNING_IDENTITY` in `.env.default`
     gym(
       scheme: "App",
       export_method: "development",
-      xcargs: "DEVELOPMENT_TEAM=3GNC95S8K6",
-      codesigning_identity: ""  # Empty string prevents Appflow from passing CODE_SIGN_IDENTITY
+      xcargs: "DEVELOPMENT_TEAM=3GNC95S8K6"
     )
   end
 end
