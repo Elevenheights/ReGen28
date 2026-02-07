@@ -3,14 +3,12 @@ default_platform(:ios)
 platform :ios do
   desc "Build for Appflow"
   lane :build_capacitor do
-    # Appflow's build runner overrides this Fastfile with its own pipeline.
-    # The GYM_XCARGS environment variable (set via Appflow Environments or
-    # fastlane/.env.default) injects DEVELOPMENT_TEAM into the xcodebuild
-    # command so SPM packages can sign properly.
+    # Xcode 15+ SPM signing workaround
+    # Pass CODE_SIGN_STYLE=Manual to prevent SPM packages from requiring a team
     gym(
       scheme: "App",
       export_method: "development",
-      xcargs: "DEVELOPMENT_TEAM=3GNC95S8K6"
+      xcargs: "CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=3GNC95S8K6"
     )
   end
 end
