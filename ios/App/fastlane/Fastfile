@@ -4,11 +4,13 @@ platform :ios do
   desc "Build for Appflow"
   lane :build_capacitor do
     # Xcode 15+ SPM signing workaround
-    # Pass CODE_SIGN_STYLE=Manual to prevent SPM packages from requiring a team
+    # Don't pass CODE_SIGN_IDENTITY to avoid conflicts with SPM automatic signing
+    # Only pass DEVELOPMENT_TEAM which is needed for all targets
     gym(
       scheme: "App",
       export_method: "development",
-      xcargs: "CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=3GNC95S8K6"
+      xcargs: "DEVELOPMENT_TEAM=3GNC95S8K6",
+      codesigning_identity: ""  # Empty string prevents Appflow from passing CODE_SIGN_IDENTITY
     )
   end
 end
