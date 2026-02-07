@@ -3,20 +3,14 @@ default_platform(:ios)
 platform :ios do
   desc "Build for Appflow"
   lane :build_capacitor do
-    # Enable automatic signing and set team ID for all targets
-    # This addresses the issue where SPM dependencies are missing the development team
-    automatic_code_signing(
-      path: "App.xcodeproj",
-      use_automatic_signing: true,
-      team_id: "3GNC95S8K6"
-    )
-    
-    # Run the build
-    # Pass DEVELOPMENT_TEAM as xcarg to ensure SPM packages get the team ID
+    # Appflow's build runner overrides this Fastfile with its own pipeline.
+    # The GYM_XCARGS environment variable (set via Appflow Environments or
+    # fastlane/.env.default) injects DEVELOPMENT_TEAM into the xcodebuild
+    # command so SPM packages can sign properly.
     gym(
       scheme: "App",
       export_method: "development",
-      xcargs: "-allowProvisioningUpdates DEVELOPMENT_TEAM=3GNC95S8K6"
+      xcargs: "DEVELOPMENT_TEAM=3GNC95S8K6"
     )
   end
 end
