@@ -3,6 +3,15 @@ default_platform(:ios)
 platform :ios do
   desc "Build for Appflow"
   lane :build_capacitor do
+    # Appflow injects the signing identity from the uploaded .p12 (e.g. "iPhone Developer: ...")
+    # into the xcodebuild invocation. With Xcode 15+ this can conflict with SwiftPM targets,
+    # which are "automatically signed" and then fail with:
+    #   "has conflicting provisioning settings ... but code signing identity ... has been manually specified"
+    #
+    # Force a compatible identity name that Xcode accepts for automatic signing flows.
+    ENV["GYM_CODE_SIGNING_IDENTITY"] = "Apple Development"
+    ENV["GYM_XCARGS"] = "DEVELOPMENT_TEAM=3GNC95S8K6"
+
     # Xcode 15+ SPM signing workaround:
     # - Always pass DEVELOPMENT_TEAM via xcargs so SPM targets can sign
     # - Control the signing identity via `GYM_CODE_SIGNING_IDENTITY` in `.env.default`
