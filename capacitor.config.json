@@ -1,12 +1,19 @@
 {
-  "appId": "com.regen28.app",
-  "appName": "ReGen28",
-  "webDir": "www",
-  "plugins": {
-    "FirebaseAuthentication": {
-      "skipNativeAuth": false,
-      "providers": ["google.com"],
-      "googleClientId": "980859994035-9ah4unhkfdqf1c4l24dnfp6l0oa2bk4b.apps.googleusercontent.com"
-    }
-  }
+	"appId": "com.regen28.app",
+	"appName": "ReGen28",
+	"webDir": "www",
+	"plugins": {
+		"FirebaseAuthentication": {
+			"skipNativeAuth": false,
+			"providers": [
+				"google.com"
+			],
+			"googleClientId": "980859994035-9ah4unhkfdqf1c4l24dnfp6l0oa2bk4b.apps.googleusercontent.com"
+		}
+	},
+	"ios": {
+		"buildOptions": {
+			"developmentTeam": "3GNC95S8K6"
+		}
+	}
 }
