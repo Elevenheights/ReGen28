@@ -1,0 +1,21 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Build for Appflow"
+  lane :build_capacitor do
+    # Enable automatic signing and set team ID for all targets
+    # This addresses the issue where SPM dependencies are missing the development team
+    automatic_code_signing(
+      path: "App.xcodeproj",
+      use_automatic_signing: true,
+      team_id: "3GNC95S8K6"
+    )
+    
+    # Run the build
+    gym(
+      scheme: "App",
+      export_method: "development",
+      xcargs: "-allowProvisioningUpdates"
+    )
+  end
+end
