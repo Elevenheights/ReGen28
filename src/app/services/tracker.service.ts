@@ -8,6 +8,7 @@ import { Tracker, TrackerEntry, TrackerStats, TrackerCategory, TrackerType, Trac
 import { createDefaultTrackersForUser } from '../data/default-trackers';
 import { Observable, map, switchMap, of, combineLatest, shareReplay, firstValueFrom, catchError, Subject, startWith } from 'rxjs';
 import { ActivityService } from './activity.service';
+import { NotificationService } from './notification.service';
 
 @Injectable({
 	providedIn: 'root'
@@ -25,7 +26,8 @@ export class TrackerService {
 		private db: DatabaseService,
 		private activityService: ActivityService,
 		private errorHandler: ErrorHandlingService,
-		private logging: LoggingService
+		private logging: LoggingService,
+		private notificationService: NotificationService
 	) {
 		// Clear cache when user logs out
 		this.authService.user$.subscribe(user => {
@@ -102,7 +104,6 @@ export class TrackerService {
 				if (!authUser) return of([]);
 
 				return this.db.getUserDocuments<Tracker>('trackers', authUser.uid, {
-					where: [{ field: 'isActive', operator: '==', value: true }],
 					orderBy: [{ field: 'createdAt', direction: 'asc' }] // Database ordering for performance
 				}).pipe(
 					map(trackers => {
@@ -144,6 +145,15 @@ export class TrackerService {
 	async updateTracker(trackerId: string, updates: Partial<Tracker>): Promise<void> {
 		await firstValueFrom(this.db.updateDocument<Tracker>('trackers', trackerId, updates));
 		this.refreshTrackers(); // Refresh trackers to reflect changes immediately
+
+		// Handle notifications
+		const updatedTracker = await firstValueFrom(this.getTracker(trackerId));
+		if (updatedTracker) {
+			await this.notificationService.cancelTrackerReminder(trackerId);
+			if (updatedTracker.isActive && !updatedTracker.isCompleted) {
+				await this.notificationService.scheduleTrackerReminder(updatedTracker);
+			}
+		}
 	}
 
 	// ENHANCED: Delete tracker entry with rollback on failure
@@ -373,6 +383,9 @@ export class TrackerService {
 			this.logging.error('Failed to delete tracker', { trackerId, error });
 			throw this.errorHandler.createAppError(error, 'Failed to delete tracker');
 		}
+
+		// Cancel any notifications
+		this.notificationService.cancelTrackerReminder(trackerId);
 	}
 
 	// ENHANCED: Log tracker entry with rollback on failure
@@ -722,6 +735,9 @@ export class TrackerService {
 		// Refresh trackers observable to reflect new tracker immediately
 		this.refreshTrackers();
 
+		// Schedule notification if configured
+		await this.notificationService.scheduleTrackerReminder({ ...tracker, id: trackerId } as Tracker);
+
 		return trackerId;
 	}
 
@@ -853,6 +869,22 @@ export class TrackerService {
 			isCompleted: false,
 			timesExtended: 0,
 			isActive: true
+		});
+	}
+
+	// Archive a tracker (hide it without blocking or deleting)
+	async archiveTracker(trackerId: string): Promise<void> {
+		await this.updateTracker(trackerId, {
+			isActive: false,
+			archivedAt: new Date()
+		});
+	}
+
+	// Unarchive a tracker
+	async unarchiveTracker(trackerId: string): Promise<void> {
+		await this.updateTracker(trackerId, {
+			isActive: true,
+			archivedAt: undefined
 		});
 	}
 

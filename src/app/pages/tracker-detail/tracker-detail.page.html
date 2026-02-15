@@ -36,9 +36,22 @@
 							class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white active:scale-90 transition-transform shadow-sm ring-1 ring-white/20">
 							<i class="fa-solid fa-plus text-sm"></i>
 						</button>
+						<!-- Archive / Restore -->
+						<button *ngIf="!isArchived" (click)="confirmArchiveTracker()"
+							class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/90 active:scale-90 transition-transform shadow-sm hover:bg-white/20"
+							title="Archive Tracker">
+							<i class="fa-solid fa-box-archive text-sm"></i>
+						</button>
+						<button *ngIf="isArchived" (click)="unarchiveTracker()"
+							class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/90 active:scale-90 transition-transform shadow-sm hover:bg-emerald-500/20"
+							title="Restore Tracker">
+							<i class="fa-solid fa-box-open text-sm"></i>
+						</button>
+
 						<!-- Delete -->
 						<button (click)="confirmDeleteTracker()"
-							class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/90 active:scale-90 transition-transform shadow-sm hover:bg-red-500/20">
+							class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/90 active:scale-90 transition-transform shadow-sm hover:bg-red-500/20"
+							title="Delete Tracker">
 							<i class="fa-solid fa-trash-can text-sm"></i>
 						</button>
 					</div>
@@ -54,6 +67,10 @@
 					<h1 class="text-3xl font-bold text-white mb-2 tracking-tight drop-shadow-md">{{ tracker.name }}</h1>
 
 					<div class="flex items-center justify-center gap-2 flex-wrap">
+						<span *ngIf="isArchived"
+							class="px-3 py-1 bg-neutral-500/50 backdrop-blur-sm rounded-full text-xs font-bold text-white border border-white/20 shadow-sm uppercase tracking-wide">
+							Archived
+						</span>
 						<span
 							class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-bold text-white border border-white/20 shadow-sm uppercase tracking-wide">
 							{{ tracker.category }}

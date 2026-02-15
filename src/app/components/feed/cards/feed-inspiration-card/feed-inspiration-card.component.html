@@ -1,0 +1,52 @@
+<div class="inspiration-post" 
+     *ngIf="quotes.length > 0"
+     (touchstart)="onTouchStart($event)"
+     (touchend)="onTouchEnd($event)">
+  <div class="quote-card" [class.transitioning]="isTransitioning">
+    <!-- Decorative elements -->
+    <div class="decor-circle decor-top-right"></div>
+    <div class="decor-circle decor-bottom-left"></div>
+    <div class="quote-mark open">"</div>
+    <div class="quote-mark close">"</div>
+
+    <!-- Quote Content -->
+    <div class="quote-content" *ngIf="currentQuote">
+      <blockquote class="quote-text">
+        {{ currentQuote.text }}
+      </blockquote>
+      <cite class="quote-author">
+        — {{ currentQuote.author }}
+      </cite>
+      <p class="quote-context" *ngIf="currentQuote.context">
+        {{ currentQuote.context }}
+      </p>
+    </div>
+
+    <!-- Navigation Arrows -->
+    <div class="nav-arrows" *ngIf="quotes.length > 1">
+      <button class="nav-btn" (click)="prevQuote($event)" [disabled]="currentIndex === 0">
+        <ion-icon name="chevron-back"></ion-icon>
+      </button>
+      <button class="nav-btn" (click)="nextQuote($event)" [disabled]="currentIndex === quotes.length - 1">
+        <ion-icon name="chevron-forward"></ion-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Dot Indicators -->
+  <div class="dot-indicators" *ngIf="quotes.length > 1">
+    <button *ngFor="let q of quotes; let i = index"
+            class="dot"
+            [class.active]="i === currentIndex"
+            (click)="goToQuote(i)">
+    </button>
+  </div>
+</div>
+
+<!-- Empty State -->
+<div class="inspiration-empty" *ngIf="quotes.length === 0">
+  <div class="empty-card">
+    <ion-icon name="sparkles-outline"></ion-icon>
+    <p>Inspiration loading...</p>
+  </div>
+</div>

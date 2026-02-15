@@ -271,7 +271,12 @@ export class AuthService {
 						dataSharing: false,
 						analytics: true,
 						backupEnabled: true,
-						developerMode: false
+						developerMode: false,
+						schedule: {
+							wakeTime: "06:00",
+							midDayTime: "12:00",
+							bedTime: "22:00"
+						}
 					},
 					stats: {
 						totalTrackerEntries: 0,

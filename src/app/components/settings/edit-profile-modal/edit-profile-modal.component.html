@@ -11,10 +11,18 @@
 				<p class="text-xs text-neutral-500 font-medium">Customize your presence</p>
 			</div>
 		</div>
-		<button (click)="dismiss()" [disabled]="isSaving || isUploading"
-			class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 active:scale-90 transition-transform hover:bg-neutral-200">
-			<i class="fa-solid fa-times text-lg"></i>
-		</button>
+		<div class="flex items-center gap-3">
+			<button (click)="save()" [disabled]="profileForm.invalid || isSaving || isUploading"
+				class="px-5 h-10 rounded-full bg-neutral-900 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95">
+				<span>Save</span>
+				<i *ngIf="isSaving" class="fa-solid fa-circle-notch fa-spin"></i>
+			</button>
+
+			<button (click)="dismiss()" [disabled]="isSaving || isUploading"
+				class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 active:scale-90 transition-transform hover:bg-neutral-200">
+				<i class="fa-solid fa-times text-lg"></i>
+			</button>
+		</div>
 	</div>
 </ion-header>
 
@@ -86,6 +94,35 @@
 						</p>
 					</div>
 
+					<!-- Country Input Card -->
+					<div
+						class="bg-white rounded-3xl p-5 border border-neutral-100 shadow-sm focus-within:ring-2 focus-within:ring-amber-100 transition-all">
+						<label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">
+							Country / Region
+						</label>
+						<div class="flex items-center gap-3">
+							<i class="fa-solid fa-earth-americas text-neutral-300"></i>
+							<ion-select formControlName="country" placeholder="Select Country" interface="popover"
+								class="w-full bg-transparent font-bold text-neutral-900 placeholder-neutral-300 p-0 border-none"
+								style="--padding-start: 0; --padding-end: 0; --placeholder-opacity: 0.3; --placeholder-color: #d4d4d4;">
+								<ion-select-option *ngFor="let c of countries" [value]="c">{{ c }}</ion-select-option>
+							</ion-select>
+						</div>
+					</div>
+
+					<!-- City Input Card -->
+					<div
+						class="bg-white rounded-3xl p-5 border border-neutral-100 shadow-sm focus-within:ring-2 focus-within:ring-amber-100 transition-all">
+						<label class="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-1">
+							City
+						</label>
+						<div class="flex items-center gap-3">
+							<i class="fa-solid fa-city text-neutral-300"></i>
+							<input type="text" formControlName="city" placeholder="Enter your city"
+								class="w-full bg-transparent text-lg font-bold text-neutral-900 placeholder-neutral-300 focus:outline-none border-none p-0">
+						</div>
+					</div>
+
 					<!-- Email Card (Read Only) -->
 					<div class="bg-neutral-100/50 rounded-3xl p-5 border border-neutral-200/50">
 						<div class="flex justify-between items-start mb-1">
@@ -115,7 +152,7 @@
 								<span
 									class="text-[10px] font-bold text-neutral-400 uppercase tracking-widest block">Member
 									Since</span>
-								<span class="text-sm font-bold text-neutral-900 block">{{ user?.joinDate | date:'MMM d,
+								<span class="text-sm font-bold text-neutral-900 block">{{ getJoinDate() | date:'MMM d,
 									yyyy' }}</span>
 							</div>
 							<div class="space-y-1">

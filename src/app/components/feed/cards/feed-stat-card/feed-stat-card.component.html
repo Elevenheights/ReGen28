@@ -1,0 +1,14 @@
+<ion-card class="feed-card stat-card">
+  <div class="stat-content">
+    <div class="icon-circle">
+      <ion-icon name="flame" color="warning"></ion-icon>
+    </div>
+    <div class="stat-info">
+      <h2>{{ item.title }}</h2>
+      <p>{{ item.subtitle }}</p>
+    </div>
+    <div class="stat-value" *ngIf="item.metrics?.[0]">
+      {{ item.metrics![0].value }}
+    </div>
+  </div>
+</ion-card>

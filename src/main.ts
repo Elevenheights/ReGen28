@@ -1,4 +1,5 @@
 import { bootstrapApplication } from '@angular/platform-browser';
+import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
@@ -10,14 +11,20 @@ import { provideQuillConfig } from 'ngx-quill';
 
 // Import Ionic icons
 import { addIcons } from 'ionicons';
-import { 
-  refreshOutline, 
-  checkmark,
-  checkmarkCircle,
-  alertCircle,
-  warning,
-  informationCircle,
-  hourglass
+import {
+	refreshOutline,
+	checkmark,
+	checkmarkCircle,
+	alertCircle,
+	warning,
+	informationCircle,
+	hourglass,
+	heart,
+	heartOutline,
+	chatbubbleOutline,
+	paperPlaneOutline,
+	bookmarkOutline,
+	ellipsisHorizontal
 } from 'ionicons/icons';
 
 import { routes } from './app/app.routes';
@@ -26,38 +33,47 @@ import { environment } from './environments/environment';
 
 // Register icons
 addIcons({
-  'refresh-outline': refreshOutline,
-  'checkmark': checkmark,
-  'checkmark-circle': checkmarkCircle,
-  'alert-circle': alertCircle,
-  'warning': warning,
-  'information-circle': informationCircle,
-  'hourglass': hourglass,
+	'refresh-outline': refreshOutline,
+	'checkmark': checkmark,
+	'checkmark-circle': checkmarkCircle,
+	'alert-circle': alertCircle,
+	'warning': warning,
+	'information-circle': informationCircle,
+	'hourglass': hourglass,
+	'heart': heart,
+	'heart-outline': heartOutline,
+	'chatbubble-outline': chatbubbleOutline,
+	'paper-plane-outline': paperPlaneOutline,
+	'bookmark-outline': bookmarkOutline,
+	'ellipsis-horizontal': ellipsisHorizontal
 });
 
+// Register Capacitor PWA Elements
+defineCustomElements(window);
+
 bootstrapApplication(AppComponent, {
-  providers: [
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    provideIonicAngular(),
-    provideRouter(routes, withPreloading(PreloadAllModules)),
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore()),
-    provideStorage(() => getStorage()),
-    provideFunctions(() => getFunctions()),
-    provideQuillConfig({
-      theme: 'snow',
-      modules: {
-        syntax: false,
-        toolbar: [
-          ['bold', 'italic', 'underline'],
-          [{ 'header': [1, 2, 3, false] }],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-          ['blockquote'],
-          ['link'],
-          ['clean']
-        ]
-      }
-    }),
-  ],
+	providers: [
+		{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+		provideIonicAngular(),
+		provideRouter(routes, withPreloading(PreloadAllModules)),
+		provideFirebaseApp(() => initializeApp(environment.firebase)),
+		provideAuth(() => getAuth()),
+		provideFirestore(() => getFirestore()),
+		provideStorage(() => getStorage()),
+		provideFunctions(() => getFunctions()),
+		provideQuillConfig({
+			theme: 'snow',
+			modules: {
+				syntax: false,
+				toolbar: [
+					['bold', 'italic', 'underline'],
+					[{ 'header': [1, 2, 3, false] }],
+					[{ 'list': 'ordered' }, { 'list': 'bullet' }],
+					['blockquote'],
+					['link'],
+					['clean']
+				]
+			}
+		}),
+	],
 });

@@ -30,10 +30,17 @@ export class TrackerSuggestionsService {
   }
 
   /**
-   * Get suggestions state for all trackers
+   * Get suggestions state for all trackers (observable)
    */
   getSuggestionsState(): Observable<TrackerSuggestionsState> {
     return this.suggestionsState$.asObservable();
+  }
+
+  /**
+   * Get current suggestions state snapshot (synchronous)
+   */
+  getSuggestionsStateSnapshot(): TrackerSuggestionsState {
+    return this.suggestionsState$.value;
   }
 
   /**

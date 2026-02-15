@@ -24,6 +24,29 @@ service cloud.firestore {
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
     }
 
+    // Achievements (Global Catalog)
+    match /achievements/{achievementId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // User Achievements
+    match /user-achievements/{userAchievementId} {
+      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Mood Entries
+    match /mood-entries/{entryId} {
+      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Tracker Streaks
+    match /tracker-streaks/{streakId} {
+      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+
     // Goals
     match /goals/{goalId} {
       allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
@@ -50,6 +73,13 @@ service cloud.firestore {
     // Journal Daily Stats
     match /journal-daily-stats/{statId} {
       allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // Feed Items (Actions, Insights, etc.)
+    match /feed-items/{itemId} {
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      // Only Cloud Functions should write to the feed
+      allow create, update, delete: if false; 
     }
 
     // Default deny

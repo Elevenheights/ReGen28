@@ -1,0 +1,17 @@
+<div class="feed-container">
+	<ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+		<ion-refresher-content></ion-refresher-content>
+	</ion-refresher>
+
+	<div class="feed-list">
+
+		<app-feed-item-card *ngFor="let item of feedItems$ | async; trackBy: trackByFn"
+			[item]="item"></app-feed-item-card>
+
+		<!-- Empty state -->
+		<div *ngIf="(feedItems$ | async)?.length === 0" class="empty-state">
+			<ion-icon name="newspaper-outline"></ion-icon>
+			<p>No activity yet. Start tracking to see your feed!</p>
+		</div>
+	</div>
+</div>

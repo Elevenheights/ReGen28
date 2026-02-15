@@ -5,14 +5,57 @@ rules_version = '2';
 //    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
   match /b/{bucket}/o {
+    // Helper function to check if user is authenticated and is the owner
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    // Helper function to check if user is authenticated
+    function isAuth() {
+      return request.auth != null;
+    }
+
     // Allow authenticated users to upload and manage their own profile images
     match /profile-images/{userId}/{allPaths=**} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
     }
     
     // Allow authenticated users to read any profile images (for displaying other users' avatars)
     match /profile-images/{userId}/{filename} {
-      allow read: if request.auth != null;
+      allow read: if isAuth();
+    }
+
+    // User media (progress photos, uploads) - Owner full access
+    match /user-media/{userId}/{allPaths=**} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Feed media (generated cards) - Owner write (cleanup), Auth read (sharing)
+    match /feed-media/{userId}/{allPaths=**} {
+      allow read: if isAuth();
+      allow write: if isOwner(userId);
+    }
+
+    // AI media - Owner full access
+    match /ai-media/{userId}/{allPaths=**} {
+      allow read, write: if isOwner(userId);
+    }
+    
+    // User reference images and data - Owner full access 
+    match /users/{userId}/{allPaths=**} {
+      allow read, write: if isOwner(userId);
+    }
+
+    // Feed generated images
+    match /feed-images/{userId}/{allPaths=**} {
+      allow read: if isAuth();
+      allow write: if isOwner(userId);
+    }
+    
+    // Wrapped videos - Backend writes, Owner/Auth reads
+    match /wrapped-videos/{userId}/{allPaths=**} {
+      allow read: if isAuth();
+      allow write: if false; // Only backend generates these
     }
     
     // Deny all other access by default
@@ -20,4 +63,4 @@ service firebase.storage {
       allow read, write: if false;
     }
   }
-} 
+}

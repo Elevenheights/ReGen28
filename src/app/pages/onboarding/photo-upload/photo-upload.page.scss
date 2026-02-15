@@ -1,0 +1,22 @@
+.animate-fade-in-up {
+	animation: fadeInUp 0.5s ease-out forwards;
+	opacity: 0;
+	transform: translateY(20px);
+}
+
+@keyframes fadeInUp {
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+ion-content {
+	--background: #f9fafb;
+}
+
+ion-button {
+	--background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+	--background-hover: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+	--background-activated: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+}

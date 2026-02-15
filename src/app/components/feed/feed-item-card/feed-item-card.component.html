@@ -1,0 +1,96 @@
+<div class="ig-post">
+	<!-- Header: Author & Meta -->
+	<div class="post-header">
+		<div class="author-info">
+			<ion-avatar class="author-avatar" [class.ai-avatar]="item.author?.isAiGenerated">
+				<img [src]="authorAvatar" alt="Author" (error)="onAvatarError($event)" />
+			</ion-avatar>
+			<div class="author-text">
+				<span class="author-name">{{ item.author?.name || 'Regen28 Coach' }}</span>
+				<span class="post-location" *ngIf="item.author?.location">{{ item.author?.location }}</span>
+			</div>
+		</div>
+		<ion-button fill="clear" size="small" color="dark">
+			<ion-icon name="ellipsis-horizontal"></ion-icon>
+		</ion-button>
+	</div>
+
+	<!-- Content Area: The "Image/Video" part -->
+	<div class="post-content">
+		<!-- 1. Actual Media (Image/Video) -->
+		<div *ngIf="item.media?.images?.length" class="media-container">
+			<img [src]="item.media!.images![0].url" class="post-image" />
+		</div>
+
+		<!-- 2. Guidance Carousel -->
+		<app-feed-guidance-card *ngIf="item.type === 'guidance'" [item]="item"></app-feed-guidance-card>
+
+		<!-- 3. Inspiration Quotes -->
+		<app-feed-inspiration-card *ngIf="item.type === 'inspiration'" [item]="item"></app-feed-inspiration-card>
+
+		<!-- 4. Action Posts -->
+		<app-feed-action-card *ngIf="item.type === 'action'" [item]="item"></app-feed-action-card>
+
+		<!-- 5. Insight Posts -->
+		<app-feed-insight-card *ngIf="item.type === 'insight'" [item]="item"></app-feed-insight-card>
+
+		<!-- 6. Visualizations (Stats, Milestones, etc.) -->
+		<div *ngIf="!item.media?.images?.length && item.type !== 'guidance' && item.type !== 'inspiration' && item.type !== 'action' && item.type !== 'insight'"
+			class="visualization-container" [ngClass]="item.type">
+			<ng-container [ngSwitch]="item.type">
+				<app-feed-tracker-card *ngSwitchCase="'trackerEntry'" [item]="item"></app-feed-tracker-card>
+				<app-feed-stat-card *ngSwitchCase="'statCard'" [item]="item"></app-feed-stat-card>
+				<app-feed-milestone-card *ngSwitchCase="'milestone'" [item]="item"></app-feed-milestone-card>
+				<app-feed-journal-card *ngSwitchCase="'journal'" [item]="item"></app-feed-journal-card>
+				<app-feed-activity-card *ngSwitchDefault [item]="item"></app-feed-activity-card>
+			</ng-container>
+		</div>
+	</div>
+
+	<!-- Action Bar -->
+	<div class="action-bar">
+		<div class="left-actions">
+			<ion-button fill="clear" size="small" (click)="toggleLike()" class="like-button">
+				<ion-icon *ngIf="item.hasLiked" name="heart" class="liked-icon" slot="icon-only"></ion-icon>
+				<ion-icon *ngIf="!item.hasLiked" name="heart-outline" slot="icon-only"></ion-icon>
+			</ion-button>
+			<ion-button fill="clear" size="small" (click)="openComments()">
+				<ion-icon name="chatbubble-outline" slot="icon-only"></ion-icon>
+			</ion-button>
+			<ion-button fill="clear" size="small">
+				<ion-icon name="paper-plane-outline" slot="icon-only"></ion-icon>
+			</ion-button>
+		</div>
+		<div class="right-actions">
+			<ion-button fill="clear" size="small">
+				<ion-icon name="bookmark-outline" color="medium" slot="icon-only"></ion-icon>
+			</ion-button>
+		</div>
+	</div>
+
+	<!-- Likes & Caption -->
+	<div class="post-footer">
+		<div class="likes-count" *ngIf="(item.likesCount || 0) > 0">
+			{{ item.likesCount }} likes
+		</div>
+
+		<div class="caption-area">
+			<span class="author-name-inline">{{ item.author?.name || 'Regen28 Coach' }}</span>
+			<span class="caption-text">
+				{{ item.body || item.title }}
+				<span class="hashtags" *ngIf="item.tags?.length">
+					<span *ngFor="let tag of item.tags">#{{ tag }} </span>
+				</span>
+			</span>
+		</div>
+
+		<div class="comments-link" (click)="openComments()">
+			<span *ngIf="(item.commentsCount || 0) > 0">View all {{ item.commentsCount }} comments</span>
+			<span *ngIf="(item.commentsCount || 0) === 0">Add a comment...</span>
+		</div>
+
+		<div class="timestamp">
+			{{ timeAgo }} ago
+		</div>
+	</div>
+</div>

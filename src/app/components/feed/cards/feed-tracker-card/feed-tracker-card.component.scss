@@ -1,0 +1,76 @@
+.tracker-visual {
+  width: 100%;
+  height: 100%;
+  min-height: 320px; // Ensure square-ish aspect ratio
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.content-center {
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.icon-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  
+  i {
+    font-size: 32px;
+  }
+}
+
+.value-display {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  
+  .value {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+  
+  .unit {
+    font-size: 20px;
+    font-weight: 600;
+    opacity: 0.9;
+    text-transform: uppercase;
+  }
+}
+
+.tracker-name {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  opacity: 0.95;
+  letter-spacing: 0.5px;
+}
+
+.watermark {
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  opacity: 0.1;
+  transform: rotate(-15deg);
+  
+  i {
+    font-size: 200px;
+  }
+}

@@ -1,0 +1,50 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Comments</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">Close</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="loading-container" *ngIf="isLoading">
+    <ion-spinner></ion-spinner>
+  </div>
+
+  <div class="empty-state" *ngIf="!isLoading && comments.length === 0">
+    <p>No comments yet. Be the first to share your thoughts!</p>
+  </div>
+
+  <ion-list *ngIf="!isLoading && comments.length > 0">
+    <ion-item *ngFor="let comment of comments" lines="none" class="comment-item">
+      <ion-avatar slot="start">
+        <img [src]="comment.author?.avatarUrl || 'assets/shapes.svg'" alt="Avatar" />
+      </ion-avatar>
+      <ion-label class="ion-text-wrap">
+        <h3>
+          <span class="author-name">{{ comment.author?.name || 'User' }}</span>
+          <span class="time-ago">{{ timeAgo(comment.createdAt) }}</span>
+        </h3>
+        <p>{{ comment.text }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="input-container">
+      <ion-input 
+        placeholder="Add a comment..." 
+        [(ngModel)]="newCommentText"
+        (keyup.enter)="addComment()"
+        [disabled]="isSending"
+      ></ion-input>
+      <ion-button fill="clear" (click)="addComment()" [disabled]="!newCommentText.trim() || isSending">
+        <ion-icon name="send" slot="icon-only" *ngIf="!isSending"></ion-icon>
+        <ion-spinner name="crescent" *ngIf="isSending"></ion-spinner>
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

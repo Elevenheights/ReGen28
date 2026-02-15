@@ -1,1 +1,23 @@
+ion-tab-bar {
+	--background: rgba(var(--ion-color-light-rgb), 0.9);
+	--border: none;
+	backdrop-filter: blur(10px);
+	height: 56px;
+	padding-bottom: env(safe-area-inset-bottom);
+	border-top: 1px solid rgba(0, 0, 0, 0.05);
 
+	ion-tab-button {
+		--color: var(--ion-color-medium);
+		--color-selected: var(--ion-color-primary);
+
+		i {
+			transition: transform 0.2s ease, color 0.2s ease;
+		}
+
+		&.tab-selected {
+			i {
+				transform: translateY(-2px);
+			}
+		}
+	}
+}

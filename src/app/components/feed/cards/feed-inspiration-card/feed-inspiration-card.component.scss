@@ -1,0 +1,198 @@
+.inspiration-post {
+  width: 100%;
+  position: relative;
+  touch-action: pan-y; // Allow vertical scroll but handle horizontal swipes
+  user-select: none; // Prevent text selection during swipe
+}
+
+// ── Quote Card ────────────────────────────────────────────
+.quote-card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: linear-gradient(135deg, #d97706, #f59e0b, #fbbf24);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.25s ease;
+
+  &.transitioning {
+    opacity: 0.3;
+  }
+}
+
+// ── Decorative Elements ───────────────────────────────────
+.decor-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+
+  &.decor-top-right {
+    width: 120px;
+    height: 120px;
+    top: -40px;
+    right: -40px;
+  }
+
+  &.decor-bottom-left {
+    width: 90px;
+    height: 90px;
+    bottom: -30px;
+    left: -30px;
+  }
+}
+
+.quote-mark {
+  position: absolute;
+  font-size: 48px;
+  font-family: Georgia, 'Times New Roman', serif;
+  color: rgba(255, 255, 255, 0.25);
+  line-height: 1;
+  user-select: none;
+
+  &.open {
+    top: 20px;
+    left: 24px;
+  }
+
+  &.close {
+    bottom: 20px;
+    right: 24px;
+    transform: rotate(180deg);
+  }
+}
+
+// ── Quote Content ─────────────────────────────────────────
+.quote-content {
+  position: relative;
+  z-index: 2;
+  padding: 48px 28px;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.quote-text {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.45;
+  margin: 0 0 20px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  max-width: 90%;
+}
+
+.quote-author {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  font-style: normal;
+  opacity: 0.9;
+  max-width: 90%;
+}
+
+.quote-context {
+  margin: 12px 0 0;
+  font-size: 12px;
+  opacity: 0.75;
+  line-height: 1.4;
+  max-width: 90%;
+}
+
+// ── Navigation Arrows ─────────────────────────────────────
+.nav-arrows {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.nav-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.2s ease;
+  
+  &:active {
+    transform: scale(0.9);
+  }
+
+  &:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+
+  ion-icon {
+    font-size: 16px;
+  }
+}
+
+// ── Dot Indicators ────────────────────────────────────────
+.dot-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 0 4px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--ion-color-medium-tint);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+
+  &.active {
+    width: 18px;
+    background: #d97706;
+  }
+}
+
+// ── Empty State ───────────────────────────────────────────
+.inspiration-empty {
+  width: 100%;
+}
+
+.empty-card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+  gap: 12px;
+
+  ion-icon {
+    font-size: 40px;
+    opacity: 0.6;
+  }
+
+  p {
+    font-size: 14px;
+    margin: 0;
+    font-weight: 500;
+  }
+}

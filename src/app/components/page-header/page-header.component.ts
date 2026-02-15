@@ -17,8 +17,10 @@ export class PageHeaderComponent {
 	@Input() showProfile: boolean = false;
 	@Input() profileUrl: string = '';
 	@Input() userName: string = '';
+	@Input() historyIcon: string = ''; // New input for history icon
 
 	@Output() actionClick = new EventEmitter<void>();
+	@Output() historyClick = new EventEmitter<void>(); // New output for history click
 
 	get gradientClass(): string {
 		switch (this.theme) {

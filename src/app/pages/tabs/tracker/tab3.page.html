@@ -46,8 +46,9 @@
 	<!-- Main Content -->
 	<main *ngIf="!isLoading" class="relative z-10 pb-32">
 		<!-- 1. Activities Header -->
-		<app-page-header title="Activities" subtitle="Life in Alignment" theme="indigo" actionIcon="fa-plus"
-			(actionClick)="openQuickLogModal()">
+		<app-page-header title="Trackers" subtitle="Your Goals" theme="indigo" actionIcon="fa-plus"
+			(actionClick)="openQuickLogModal()" [historyIcon]="'fa-clock-rotate-left'"
+			(historyClick)="navigateToArchivedTrackers()">
 
 			<!-- Today's Flow Progress (Projected) -->
 			<div class="bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-6 border border-white/10 shadow-2xl">
@@ -55,7 +56,7 @@
 					<div class="flex items-center gap-2">
 						<div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
 						<span class="text-[10px] font-black text-white/60 uppercase tracking-[0.3em]">Today's
-							Aura</span>
+							Progress</span>
 					</div>
 					<span class="text-sm font-black text-white tracking-tighter"><span
 							[appCountUp]="dailyProgress"></span>%</span>
@@ -98,7 +99,7 @@
 						<h2 class="text-xl font-black text-neutral-900 tracking-tight leading-none mb-1">{{
 							group.category | titlecase }}</h2>
 						<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">{{
-							group.trackers.length }} Active Patterns</p>
+							group.trackers.length }} Active Trackers</p>
 					</div>
 				</div>
 
@@ -115,49 +116,13 @@
 			<div *ngIf="activeTrackers.length === 0" class="py-16 text-center animate-entry">
 				<div
 					class="w-24 h-24 bg-neutral-100 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
-					<i class="fa-solid fa-seedling text-4xl text-neutral-200"></i>
+					<i class="fa-solid fa-list-check text-4xl text-neutral-200"></i>
 				</div>
-				<h3 class="text-2xl font-black text-neutral-900 mb-3 tracking-tighter">Your field is empty</h3>
-				<p class="text-xs text-neutral-400 max-w-xs mx-auto mb-10 font-bold uppercase tracking-widest">Plant
-					your first habit pattern to begin</p>
+				<h3 class="text-2xl font-black text-neutral-900 mb-3 tracking-tighter">No trackers active</h3>
+				<p class="text-xs text-neutral-400 max-w-xs mx-auto mb-10 font-bold uppercase tracking-widest">Create a
+					tracker to get started</p>
 
-				<div class="grid grid-cols-1 gap-5 max-w-sm mx-auto">
-					<button (click)="navigateToAddTracker()"
-						class="w-full p-6 bg-white rounded-[2rem] border border-neutral-100 shadow-sm flex items-center justify-between group active:scale-95 transition-all">
-						<div class="flex items-center gap-4 text-left">
-							<div
-								class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white transition-all">
-								<i class="fa-solid fa-shapes text-xl"></i>
-							</div>
-							<div>
-								<p class="font-black text-neutral-900 uppercase tracking-tight text-sm">Sacred Templates
-								</p>
-								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Proven paths
-								</p>
-							</div>
-						</div>
-						<i
-							class="fa-solid fa-chevron-right text-neutral-200 group-hover:translate-x-1 transition-transform"></i>
-					</button>
-
-					<button (click)="navigateToAddTracker()"
-						class="w-full p-6 bg-white rounded-[2rem] border border-neutral-100 shadow-sm flex items-center justify-between group active:scale-95 transition-all">
-						<div class="flex items-center gap-4 text-left">
-							<div
-								class="w-12 h-12 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition-all">
-								<i class="fa-solid fa-magic-wand-sparkles text-xl"></i>
-							</div>
-							<div>
-								<p class="font-black text-neutral-900 uppercase tracking-tight text-sm">Unique Rhythm
-								</p>
-								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Custom
-									creation</p>
-							</div>
-						</div>
-						<i
-							class="fa-solid fa-chevron-right text-neutral-200 group-hover:translate-x-1 transition-transform"></i>
-					</button>
-				</div>
+				<!-- Button removed as requested -->
 			</div>
 
 
@@ -177,8 +142,9 @@
 							</div>
 							<div class="text-left">
 								<p class="font-black text-white uppercase tracking-tight">Add New Tracker</p>
-								<p class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Create a new
-									rhythm to track</p>
+								<p class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Start
+									tracking
+									something new</p>
 							</div>
 						</div>
 						<i
@@ -188,59 +154,10 @@
 			</div>
 
 			<!-- Celebrated Completions -->
-			<section *ngIf="completedTrackers.length > 0" class="animate-entry delay-500 pt-8">
-				<div class="flex items-center justify-between mb-8 px-1">
-					<div class="flex items-center gap-3">
-						<div
-							class="w-10 h-10 rounded-2xl bg-white border border-neutral-100 shadow-sm flex items-center justify-center text-amber-500">
-							<i class="fa-solid fa-award text-lg"></i>
-						</div>
-						<div>
-							<h2 class="text-xs font-black text-neutral-400 uppercase tracking-widest leading-none mb-1">
-								Hall of Victory</h2>
-							<p class="text-[10px] text-neutral-300 font-bold uppercase tracking-widest"><span
-									[appCountUp]="completedTrackers.length"></span> Triumphs</p>
-						</div>
-					</div>
-					<button
-						class="text-[10px] font-black text-amber-600 uppercase tracking-widest hover:translate-x-1 transition-transform">Archive</button>
-				</div>
+			<!-- Completed Trackers Section Removed -->
 
-				<div class="grid grid-cols-1 gap-5">
-					<div *ngFor="let tracker of completedTrackers.slice(0, 3)"
-						class="bg-white rounded-[2.5rem] p-6 border border-neutral-100 flex items-center justify-between shadow-sm relative overflow-hidden group active:scale-95 transition-all">
-
-						<!-- Shine effect -->
-						<div
-							class="absolute inset-0 bg-gradient-to-r from-transparent via-amber-50/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000">
-						</div>
-
-						<div class="flex items-center gap-5 relative z-10">
-							<div
-								class="w-16 h-16 bg-neutral-50 rounded-[1.8rem] flex items-center justify-center shadow-inner transform group-hover:scale-110 transition-transform">
-								<i [class]="'fa-solid ' + getTrackerIcon(tracker)"
-									[style.color]="getTrackerColor(tracker)" class="text-3xl"></i>
-							</div>
-							<div class="text-left">
-								<p class="text-lg font-black text-neutral-900 leading-none mb-2 tracking-tight">{{
-									tracker.name }}</p>
-								<div class="flex items-center gap-2">
-									<div class="px-2 py-0.5 bg-amber-50 rounded-full border border-amber-100">
-										<p class="text-[9px] font-black text-amber-600 uppercase tracking-widest">
-											Mastery</p>
-									</div>
-									<span class="text-[8px] font-black text-neutral-300 uppercase tracking-widest">{{
-										getCategoryLabel(tracker.category) }}</span>
-								</div>
-							</div>
-						</div>
-						<div
-							class="w-10 h-10 rounded-2xl bg-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-200">
-							<i class="fa-solid fa-check"></i>
-						</div>
-					</div>
-				</div>
-			</section>
+			<!-- Archived Rituals -->
+			<!-- History Button Removed from Bottom -->
 
 		</div>
 

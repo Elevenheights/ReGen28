@@ -9,6 +9,18 @@
 				"google.com"
 			],
 			"googleClientId": "980859994035-9ah4unhkfdqf1c4l24dnfp6l0oa2bk4b.apps.googleusercontent.com"
+		},
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		},
+		"LocalNotifications": {
+			"smallIcon": "ic_stat_icon_config_sample",
+			"iconColor": "#488AFF",
+			"sound": "beep.wav"
 		}
 	},
 	"ios": {

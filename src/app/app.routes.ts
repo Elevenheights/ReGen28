@@ -12,7 +12,8 @@ export const routes: Routes = [
 	},
 	{
 		path: 'intro',
-		loadComponent: () => import('./pages/intro/intro.page').then(m => m.IntroPage)
+		loadComponent: () => import('./pages/intro/intro.page').then(m => m.IntroPage),
+		canActivate: [GuestGuard]
 	},
 
 	// Main app routes - delegates to tabs.routes.ts which handles guards
@@ -84,6 +85,11 @@ export const routes: Routes = [
 				canActivate: [AuthGuard]
 			},
 			{
+				path: 'photo-upload',
+				loadComponent: () => import('./pages/onboarding/photo-upload/photo-upload.page').then(m => m.PhotoUploadPage),
+				canActivate: [AuthGuard]
+			},
+			{
 				path: 'complete',
 				loadComponent: () => import('./pages/onboarding/complete/complete.page').then(m => m.CompletePage),
 				canActivate: [AuthGuard]
@@ -91,13 +97,19 @@ export const routes: Routes = [
 		]
 	},
 
+	{
+		path: 'goals',
+		loadComponent: () => import('./pages/goals/goals.page').then(m => m.GoalsPage)
+	},
+	{
+		path: 'archived-trackers',
+		loadComponent: () => import('./pages/archived-trackers/archived-trackers.page').then(m => m.ArchivedTrackersPage),
+		canActivate: [AuthGuard]
+	},
+
 	// Fallback route
 	{
 		path: '**',
 		redirectTo: '/intro'
-	},
-	{
-		path: 'goals',
-		loadComponent: () => import('./pages/goals/goals.page').then(m => m.GoalsPage)
 	}
 ];

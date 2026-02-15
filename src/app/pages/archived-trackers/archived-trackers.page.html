@@ -1,0 +1,119 @@
+<ion-content class="bg-neutral-50">
+	<div class="min-h-screen pb-20">
+
+		<!-- Custom Header -->
+		<div class="bg-white/90 backdrop-blur-md sticky top-0 z-20 border-b border-neutral-100 px-4 pt-safe-top pb-4">
+			<div class="flex items-center justify-between h-12">
+				<ion-buttons slot="start">
+					<ion-back-button defaultHref="/tabs/tracker" text="" icon="chevron-back-outline"
+						class="text-neutral-900 w-10 h-10 flex items-center justify-center rounded-full active:bg-neutral-100 transition-colors">
+					</ion-back-button>
+				</ion-buttons>
+				<h1 class="text-lg font-bold text-neutral-900">History</h1>
+				<div class="w-10"></div> <!-- Spacer for balance -->
+			</div>
+
+			<!-- Tabs -->
+			<div class="flex p-1 bg-neutral-100 rounded-xl mt-2">
+				<button (click)="viewMode = 'archived'"
+					class="flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all duration-300"
+					[class.bg-white]="viewMode === 'archived'" [class.shadow-sm]="viewMode === 'archived'"
+					[class.text-neutral-900]="viewMode === 'archived'"
+					[class.text-neutral-400]="viewMode !== 'archived'">
+					Archived
+				</button>
+				<button (click)="viewMode = 'completed'"
+					class="flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-wide transition-all duration-300"
+					[class.bg-white]="viewMode === 'completed'" [class.shadow-sm]="viewMode === 'completed'"
+					[class.text-neutral-900]="viewMode === 'completed'"
+					[class.text-neutral-400]="viewMode !== 'completed'">
+					Completed
+				</button>
+			</div>
+		</div>
+
+		<div class="p-4 space-y-4">
+			<!-- Archived List -->
+			<ng-container *ngIf="viewMode === 'archived'">
+				<ng-container *ngIf="archivedTrackers$ | async as archivedTrackers">
+					<div *ngIf="archivedTrackers.length === 0" class="py-20 text-center animate-entry">
+						<div
+							class="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4 text-neutral-300">
+							<i class="fa-solid fa-box-open text-2xl"></i>
+						</div>
+						<p class="text-neutral-400 font-medium text-sm">No archived trackers</p>
+					</div>
+
+					<div *ngFor="let tracker of archivedTrackers"
+						class="bg-white rounded-[2rem] p-5 border border-neutral-100 shadow-sm flex items-center gap-4 active:scale-[0.98] transition-all"
+						(click)="navigateToTrackerDetail(tracker)">
+
+						<div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl grayscale opacity-60"
+							[style.background-color]="getTrackerColor(tracker) + '20'"
+							[style.color]="getTrackerColor(tracker)">
+							<i [class]="'fa-solid ' + getTrackerIcon(tracker)"></i>
+						</div>
+
+						<div class="flex-1 min-w-0">
+							<h3 class="font-bold text-neutral-800 truncate mb-1">{{ tracker.name }}</h3>
+							<div class="flex items-center gap-2">
+								<span
+									class="text-[10px] bg-neutral-100 text-neutral-500 font-bold px-2 py-0.5 rounded-md uppercase tracking-wide">
+									{{ getCategoryLabel(tracker.category) }}
+								</span>
+								<span class="text-[10px] text-neutral-400">
+									Archived on {{ tracker.archivedAt | date:'mediumDate' }}
+								</span>
+							</div>
+						</div>
+
+						<i class="fa-solid fa-chevron-right text-neutral-300 text-xs"></i>
+					</div>
+				</ng-container>
+			</ng-container>
+
+			<!-- Completed List -->
+			<ng-container *ngIf="viewMode === 'completed'">
+				<ng-container *ngIf="completedTrackers$ | async as completedTrackers">
+					<div *ngIf="completedTrackers.length === 0" class="py-20 text-center animate-entry">
+						<div
+							class="w-16 h-16 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4 text-neutral-300">
+							<i class="fa-solid fa-trophy text-2xl"></i>
+						</div>
+						<p class="text-neutral-400 font-medium text-sm">No completed trackers yet</p>
+					</div>
+
+					<div *ngFor="let tracker of completedTrackers"
+						class="bg-white rounded-[2rem] p-5 border border-amber-100 shadow-sm flex items-center gap-4 active:scale-[0.98] transition-all relative overflow-hidden group"
+						(click)="navigateToTrackerDetail(tracker)">
+
+						<!-- Shine effect -->
+						<div
+							class="absolute inset-0 bg-gradient-to-tr from-amber-50/0 via-amber-50/50 to-amber-50/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000">
+						</div>
+
+						<div
+							class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl bg-amber-50 text-amber-500 relative z-10">
+							<i class="fa-solid fa-trophy"></i>
+						</div>
+
+						<div class="flex-1 min-w-0 relative z-10">
+							<h3 class="font-bold text-neutral-800 truncate mb-1">{{ tracker.name }}</h3>
+							<div class="flex items-center gap-2">
+								<span
+									class="text-[10px] bg-amber-100 text-amber-700 font-bold px-2 py-0.5 rounded-md uppercase tracking-wide">
+									Completed
+								</span>
+								<span class="text-[10px] text-neutral-400">
+									{{ tracker.endDate | date:'mediumDate' }}
+								</span>
+							</div>
+						</div>
+
+						<i class="fa-solid fa-chevron-right text-neutral-300 text-xs relative z-10"></i>
+					</div>
+				</ng-container>
+			</ng-container>
+		</div>
+	</div>
+</ion-content>

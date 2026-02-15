@@ -1,0 +1,24 @@
+.feed-container {
+  padding: 0 8px 80px; // Bottom padding for tab bar
+}
+
+.feed-list {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--ion-color-medium);
+  
+  ion-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+  
+  p {
+    font-size: 16px;
+  }
+}

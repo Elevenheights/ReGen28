@@ -60,6 +60,7 @@ export class Tab3Page implements OnInit, OnDestroy {
 	// Data
 	activeTrackers: TrackerData[] = [];
 	completedTrackers: TrackerData[] = [];
+	archivedTrackers: TrackerData[] = [];
 	trackerStats: TrackerDashboardStats = {
 		totalSessions: 0,
 		weeklyCount: 0,
@@ -184,6 +185,7 @@ export class Tab3Page implements OnInit, OnDestroy {
 				if (!trackers || trackers.length === 0) {
 					this.activeTrackers = [];
 					this.completedTrackers = [];
+					this.archivedTrackers = [];
 					this.isLoading = false;
 					this.cdr.detectChanges();
 					return;
@@ -231,6 +233,7 @@ export class Tab3Page implements OnInit, OnDestroy {
 			this.logging.error('Error processing trackers', error);
 			this.activeTrackers = [];
 			this.completedTrackers = [];
+			this.archivedTrackers = [];
 		}
 	}
 
@@ -247,7 +250,6 @@ export class Tab3Page implements OnInit, OnDestroy {
 				const streak = await this.calculateRealTrackerStreak(tracker); // Now properly awaited
 				const todayCompleted = this.checkTodayCompletedWithEntries(tracker, todaysEntries);
 				const daysRemaining = this.trackerService.getDaysRemaining(tracker);
-
 				// Get total entries for this tracker across all time
 				const totalEntries = await this.getTotalEntriesForTracker(tracker);
 
@@ -264,14 +266,16 @@ export class Tab3Page implements OnInit, OnDestroy {
 
 		const validProcessed = processed.filter(tracker => tracker !== null) as TrackerData[];
 
-		// Separate active and completed trackers
+		// Separate active, completed, AND archived trackers
 		this.activeTrackers = validProcessed.filter(t => t.isActive && !t.isCompleted);
 		this.completedTrackers = validProcessed.filter(t => t.isCompleted);
+		this.archivedTrackers = validProcessed.filter(t => !t.isActive && !t.isCompleted);
 
 		this.logging.debug('Processed trackers with total entries', {
 			total: validProcessed.length,
 			active: this.activeTrackers.length,
-			completed: this.completedTrackers.length
+			completed: this.completedTrackers.length,
+			archived: this.archivedTrackers.length
 		});
 	}
 
@@ -301,14 +305,16 @@ export class Tab3Page implements OnInit, OnDestroy {
 
 		const validProcessed = processed.filter(tracker => tracker !== null) as TrackerData[];
 
-		// Separate active and completed trackers
+		// Separate active, completed, AND archived trackers
 		this.activeTrackers = validProcessed.filter(t => t.isActive && !t.isCompleted);
 		this.completedTrackers = validProcessed.filter(t => t.isCompleted);
+		this.archivedTrackers = validProcessed.filter(t => !t.isActive && !t.isCompleted);
 
 		this.logging.debug('Processed trackers without entries data', {
 			total: validProcessed.length,
 			active: this.activeTrackers.length,
-			completed: this.completedTrackers.length
+			completed: this.completedTrackers.length,
+			archived: this.archivedTrackers.length
 		});
 	}
 
@@ -431,6 +437,12 @@ export class Tab3Page implements OnInit, OnDestroy {
 		this.router.navigate(['/tabs/add-tracker']);
 	}
 
+	// Navigation method for Archived Trackers
+	navigateToArchivedTrackers() {
+		this.logging.info('Navigating to archived trackers page');
+		this.router.navigate(['/archived-trackers']);
+	}
+
 
 
 	// Enhanced Logging Modal Methods
@@ -489,12 +501,12 @@ export class Tab3Page implements OnInit, OnDestroy {
 		if (!category) return 'General';
 
 		const labels: { [key: string]: string } = {
-			'mind': 'Mental Wellness',
-			'body': 'Physical Health',
-			'soul': 'Emotional Wellness',
+			'mind': 'Mental',
+			'body': 'Physical',
+			'soul': 'Emotional',
 			'beauty': 'Self Care',
-			'mood': 'Mental Health',
-			'lifestyle': 'Life Management'
+			'mood': 'Mood',
+			'lifestyle': 'Lifestyle'
 		};
 
 		const normalizedCategory = category.toLowerCase();

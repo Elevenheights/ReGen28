@@ -27,7 +27,7 @@ async function seedData() {
 					trackerId: tracker.id,
 					userId: userId,
 					date: dateStr,
-					value: tracker.target || 1,
+					value: (tracker as any).target || 1,
 					mood: Math.floor(Math.random() * 4) + 6, // 6-10
 					energy: Math.floor(Math.random() * 3) + 3, // 3-5
 					notes: i === 0 ? "Feeling strong today!" : undefined,
@@ -44,7 +44,7 @@ async function seedData() {
 				userId: userId,
 				date: dateStr,
 				title: `Reflection: ${dateStr}`,
-				content: `<p>Consistency is the key to transformation. Today was a ${Math.random() > 0.5 ? 'great' : 'productive'} day on my 28-day journey. Focusing on my ${trackers[0]?.category || 'wellness'} goals feels more natural every day.</p>`,
+				content: `<p>Consistency is the key to transformation. Today was a ${Math.random() > 0.5 ? 'great' : 'productive'} day on my 28-day journey. Focusing on my ${(trackers[0] as any)?.category || 'wellness'} goals feels more natural every day.</p>`,
 				mood: Math.floor(Math.random() * 4) + 6,
 				createdAt: date,
 				updatedAt: date

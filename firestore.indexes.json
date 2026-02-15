@@ -69,6 +69,314 @@
 					"order": "DESCENDING"
 				}
 			]
+		},
+		{
+			"collectionGroup": "feed-items",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "createdAt",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "feed-items",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "source.trackerId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "type",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "dateKey",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "trackers",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "isActive",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "createdAt",
+					"order": "ASCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "mood-entries",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "date",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "reflection-prompts",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "dateKey",
+					"order": "ASCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "reflection-prompts",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "dateKey",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "tracker-specific-suggestions",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "trackerId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "dateKey",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "tracker-specific-suggestions",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "trackerId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "dateKey",
+					"order": "ASCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "activities",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "createdAt",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "activities",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "activityDate",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "daily-journal-prompts",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "dateKey",
+					"order": "ASCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "daily-journal-prompts",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "dateKey",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "journal-entries",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "date",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "journal-entries",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "date",
+					"order": "ASCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "journal-entries",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "createdAt",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "tracker-entries",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "date",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "createdAt",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "tracker-entries",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "trackerId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "date",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "user-achievements",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "earnedAt",
+					"order": "DESCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "daily-suggestions",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "userId",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "dateKey",
+					"order": "ASCENDING"
+				}
+			]
+		},
+		{
+			"collectionGroup": "achievements",
+			"queryScope": "COLLECTION",
+			"fields": [
+				{
+					"fieldPath": "isActive",
+					"order": "ASCENDING"
+				},
+				{
+					"fieldPath": "type",
+					"order": "ASCENDING"
+				}
+			]
 		}
 	],
 	"fieldOverrides": []

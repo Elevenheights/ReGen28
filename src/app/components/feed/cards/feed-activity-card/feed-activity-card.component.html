@@ -1,0 +1,35 @@
+<ion-card class="feed-card activity-card">
+  <ion-card-header>
+    <div class="header-row">
+      <div class="user-info">
+        <ion-avatar class="user-avatar">
+          <!-- Placeholder or user image -->
+          <img src="assets/shapes.svg" alt="User" /> 
+        </ion-avatar>
+        <div class="meta">
+          <ion-card-title>{{ item.title }}</ion-card-title>
+          <ion-card-subtitle>{{ timeAgo }}</ion-card-subtitle>
+        </div>
+      </div>
+      <ion-icon name="ellipsis-horizontal" class="more-options"></ion-icon>
+    </div>
+  </ion-card-header>
+
+  <ion-card-content>
+    <p *ngIf="item.body" class="body-text">{{ item.body }}</p>
+    
+    <div *ngIf="item.metrics?.length" class="metrics-grid">
+      <div *ngFor="let metric of item.metrics" class="metric-item">
+        <span class="metric-value">{{ metric.value }}</span>
+        <span class="metric-unit" *ngIf="metric.unit">{{ metric.unit }}</span>
+        <span class="metric-label">{{ metric.label }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="item.tags?.length" class="tags-row">
+      <ion-chip *ngFor="let tag of item.tags" outline="true" color="primary">
+        <ion-label>{{ tag }}</ion-label>
+      </ion-chip>
+    </div>
+  </ion-card-content>
+</ion-card>

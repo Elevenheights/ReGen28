@@ -23,6 +23,7 @@ import { LoggingModalService } from '../../services/logging-modal.service';
 import { ErrorHandlingService } from '../../services/error-handling.service';
 import { DatabaseService } from '../../services/database.service';
 import { TrackerSuggestionsService } from '../../services/tracker-suggestions.service';
+import { ToastService } from '../../services/toast.service';
 
 // Models
 import { Tracker, TrackerEntry, TrackerType } from '../../models/tracker.interface';
@@ -87,7 +88,8 @@ export class TrackerDetailPage implements OnInit, OnDestroy {
 		private errorHandling: ErrorHandlingService,
 		private db: DatabaseService,
 		private alertController: AlertController,
-		private trackerSuggestions: TrackerSuggestionsService
+		private trackerSuggestions: TrackerSuggestionsService,
+		private toastService: ToastService
 	) { }
 
 	ngOnInit() {
@@ -564,5 +566,58 @@ export class TrackerDetailPage implements OnInit, OnDestroy {
 			});
 			await alert.present();
 		}
+	}
+
+	// Confirm and archive tracker
+	async confirmArchiveTracker() {
+		if (!this.tracker) return;
+
+		const alert = await this.alertController.create({
+			header: 'Archive Tracker',
+			message: `Are you sure you want to archive "${this.tracker.name}"? This will hide it from your active list but keep your history.`,
+			buttons: [
+				{
+					text: 'Cancel',
+					role: 'cancel',
+				},
+				{
+					text: 'Archive',
+					handler: async () => {
+						await this.archiveTracker();
+					}
+				}
+			]
+		});
+
+		await alert.present();
+	}
+
+	async archiveTracker() {
+		if (!this.tracker) return;
+		try {
+			await this.trackerService.archiveTracker(this.tracker.id);
+			this.toastService.showSuccess('Tracker archived successfully');
+			this.router.navigate(['/tabs/tracker']);
+		} catch (error) {
+			this.logging.error('Error archiving tracker', error);
+			this.toastService.showError('Failed to archive tracker');
+		}
+	}
+
+	async unarchiveTracker() {
+		if (!this.tracker) return;
+		try {
+			await this.trackerService.unarchiveTracker(this.tracker.id);
+			this.toastService.showSuccess('Tracker restored successfully');
+			// Reload tracker data
+			this.loadTrackerDetail(this.tracker.id);
+		} catch (error) {
+			this.logging.error('Error unarchiving tracker', error);
+			this.toastService.showError('Failed to restore tracker');
+		}
+	}
+
+	get isArchived(): boolean {
+		return !!this.tracker && !this.tracker.isActive && !this.tracker.isCompleted;
 	}
 }

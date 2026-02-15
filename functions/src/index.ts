@@ -4,47 +4,57 @@
  * - User Management for onboarding and analytics
  */
 
-import { initializeApp } from "firebase-admin/app";
-initializeApp();
-
+import './init';
 import { setGlobalOptions } from "firebase-functions";
 import { onCall } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import * as logger from "firebase-functions/logger";
-import { getFirestore } from "firebase-admin/firestore";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { OpenAIService } from "./openai.service";
-import { completeUserOnboarding, updateUserStats, cleanupDuplicateTrackers, cleanupOldSuggestions, getTrackerSpecificSuggestions, onTrackerEntryCreated, checkExpiredTrackers, queueDailyTrackerSuggestions, processSuggestionJobs, onSuggestionJobCreated, updateUserSubscriptionStatus, checkExpiredTrials, getDailyJournalPrompt, getReflectionPrompts, queueDailyJournalPrompts, processJournalPromptJobs } from './user-management';
-import { calculateAllDailyStats, getStatistics, triggerStatsCalculation, backfillUserStats, onTrackerEntryCreated as onTrackerEntryCreatedStats, onJournalEntryWritten, onActivityCreated } from './statistics-functions';
-import { seedUserTestData } from './seeding';
+import { completeUserOnboarding, updateUserStats, getTrackerSpecificSuggestions, onTrackerEntryCreated, queueDailyTrackerSuggestions, processSuggestionJobs, onSuggestionJobCreated, updateUserSubscriptionStatus, getDailyJournalPrompt, getReflectionPrompts, queueDailyJournalPrompts, processJournalPromptJobs } from './user-management';
+import { dailyMaintenance } from './schedulers/daily-maintenance';
+import { calculateAllDailyStats, calculateUserStatsTask, getStatistics, triggerStatsCalculation, backfillUserStats, onTrackerEntryCreated as onTrackerEntryCreatedStats, onJournalEntryWritten, onActivityCreated } from './statistics-functions';
+// import { seedUserTestData } from './seeding'; // DELETED
+// import { onActivityCreatedFeedTrigger } from './feed/feed-items'; // DELETED
+// import { processFeedMediaJobs } from './feed/feed-jobs'; // onFeedMediaJobCreated DELETED
+// import { scheduleWeeklyWrapped } from './feed/wrapped-scheduler'; // DELETED
+// import { processWrappedVideoJobs } from './feed/wrapped-jobs'; // DELETED
+import { feedInteractions } from './feed/interactions';
+import { generateFeedPostTask, triggerFeedPost } from './feed/unified-feed';
 const db = getFirestore();
 
 // Export all functions
 export {
 	completeUserOnboarding,
 	updateUserStats,
-	cleanupDuplicateTrackers,
-	cleanupOldSuggestions,
 	getTrackerSpecificSuggestions,
 	onTrackerEntryCreated,
-	checkExpiredTrackers,
 	queueDailyTrackerSuggestions,
 	processSuggestionJobs,
 	onSuggestionJobCreated,
 	updateUserSubscriptionStatus,
-	checkExpiredTrials,
 	getDailyJournalPrompt,
 	getReflectionPrompts,
 	queueDailyJournalPrompts,
 	processJournalPromptJobs,
+	// Consolidated Schedulers
+	dailyMaintenance, // NEW: Replaces cleanup/expiration checks
 	// Statistics functions
 	calculateAllDailyStats,
+	calculateUserStatsTask, // NEW: Task Queue
 	getStatistics,
 	triggerStatsCalculation,
 	backfillUserStats,
 	onTrackerEntryCreatedStats,
 	onJournalEntryWritten,
 	onActivityCreated,
-	seedUserTestData
+	// Feed functions
+	// Feed Interactions (Consolidated)
+	feedInteractions, // NEW: Consolidated handler for likes/comments
+	// Action & Insight Generation
+	// Unified Feed Functions
+	generateFeedPostTask,
+	triggerFeedPost
 };
 
 // Define the OpenAI API key secret
@@ -523,7 +533,21 @@ export const logTrackerEntry = onCall<LogTrackerEntryRequest>(
 			};
 
 			// Add the entry to Firestore
-			const entryRef = await db.collection('tracker-entries').add(entryData);
+			const batch = db.batch();
+			const entryRef = db.collection('tracker-entries').doc();
+			batch.set(entryRef, entryData);
+
+			// Atomic Increment on Tracker Document (for immediate UI feedback)
+			// We only increment totalEntries here. Streak logic is complex and handled by the daily sync or specialized helpers,
+			// but we can do a naive +1 to streak if the last entry was yesterday (optional optimization, but let's stick to totalEntries for safety).
+			const trackerRef = db.collection('trackers').doc(trackerId);
+			batch.update(trackerRef, {
+				'stats.totalEntries': FieldValue.increment(1),
+				'lastLogDate': date,
+				'updatedAt': new Date()
+			});
+
+			await batch.commit();
 
 			logger.info("Tracker entry created successfully", {
 				entryId: entryRef.id,

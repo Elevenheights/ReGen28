@@ -1,8 +1,0 @@
-﻿[33m[1m! [22m[39m [1m[33mfunctions: [39m[22mpackage.json indicates an outdated version of firebase-functions. Please upgrade using [1mnpm install --save firebase-functions@latest[22m in your functions directory.
-[32m[1m+  functions:[22m[39m Using node@22 from host.
-Serving at port 8624
-
-[36m[1mi  functions:[22m[39m Loaded functions: completeUserOnboarding, updateUserStats, cleanupDuplicateTrackers, cleanupOldSuggestions, getTrackerSpecificSuggestions, onTrackerEntryCreated, checkExpiredTrackers, queueDailyTrackerSuggestions, processSuggestionJobs, onSuggestionJobCreated, updateUserSubscriptionStatus, checkExpiredTrials, getDailyJournalPrompt, getReflectionPrompts, queueDailyJournalPrompts, processJournalPromptJobs, calculateAllDailyStats, getStatistics, triggerStatsCalculation, backfillUserStats, onTrackerEntryCreatedStats, onJournalEntryWritten, onActivityCreated, getTrackerRecommendations, logTrackerEntry
-[33m[1m!  functions:[22m[39m The following emulators are not running, calls to these services will affect production: [1mfirestore, database, pubsub, storage, eventarc, tasks[22m
-firebase > Uncaught ReferenceError: admin is not defined
-firebase > 

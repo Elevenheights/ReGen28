@@ -64,7 +64,12 @@ export class UserService {
 									timezone: 'UTC', // Default fallback
 									dataSharing: false,
 									analytics: true,
-									backupEnabled: true
+									backupEnabled: true,
+									schedule: {
+										wakeTime: "06:00",
+										midDayTime: "12:00",
+										bedTime: "22:00"
+									}
 								},
 								stats: {
 									totalTrackerEntries: 0,
@@ -105,7 +110,12 @@ export class UserService {
 			timezone: 'UTC', // Default fallback, should be overridden during onboarding
 			dataSharing: false,
 			analytics: true,
-			backupEnabled: true
+			backupEnabled: true,
+			schedule: {
+				wakeTime: "06:00",
+				midDayTime: "12:00",
+				bedTime: "22:00"
+			}
 		};
 
 		const defaultStats: UserStats = {
@@ -184,6 +194,17 @@ export class UserService {
 		await this.updateUserProfile({ photoURL: downloadURL });
 
 		return downloadURL;
+	}
+
+	// Upload generic user image (for reference photos etc)
+	async uploadUserImage(userId: string, base64Data: string, fileName: string): Promise<string> {
+		// Convert base64 to blob
+		const response = await fetch(base64Data);
+		const blob = await response.blob();
+
+		const imageRef = ref(this.storage, `users/${userId}/${fileName}`);
+		const snapshot = await uploadBytes(imageRef, blob);
+		return await getDownloadURL(snapshot.ref);
 	}
 
 	// Download and store Google profile photo to Firebase Storage

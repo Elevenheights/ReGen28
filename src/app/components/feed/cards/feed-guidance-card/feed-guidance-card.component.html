@@ -1,0 +1,96 @@
+<div class="guidance-post">
+  <!-- Carousel: 1 card at a time, square format -->
+  <div class="carousel-viewport" 
+       *ngIf="suggestions.length > 0"
+       (touchstart)="onTouchStart($event)"
+       (touchend)="onTouchEnd($event)">
+    <div class="carousel-track" [style.transform]="'translateX(-' + (currentIndex * 100) + '%)'">
+      <div *ngFor="let card of suggestions; let i = index" 
+           class="carousel-slide"
+           [ngClass]="card.color">
+        
+        <div class="slide-content" [class.expanded]="expandedIndex === i" (click)="toggleExpand(i)">
+          <!-- Tracker Name Header -->
+          <div class="tracker-header">
+            <span class="tracker-icon">{{ card.trackerIcon }}</span>
+            <span class="tracker-name">{{ card.trackerName }}</span>
+          </div>
+
+          <!-- Icon Circle -->
+          <div class="icon-circle">
+            <span class="icon-emoji">{{ card.content.icon || '✨' }}</span>
+          </div>
+
+          <!-- Card Type Badge -->
+          <div class="card-badge">
+            <span>{{ card.type === 'action' ? 'Today\'s Action' : 'Strategic Insight' }}</span>
+          </div>
+
+          <!-- Card Text -->
+          <p class="card-text" [class.truncated]="expandedIndex !== i">
+            {{ card.content.text }}
+          </p>
+
+          <!-- Metadata (when expanded) -->
+          <div class="card-metadata" *ngIf="expandedIndex === i">
+            <!-- Type & Data Point for insights -->
+            <div class="metadata-row" *ngIf="card.type === 'insight' && card.content.type">
+              <span class="metadata-label">Type:</span>
+              <span class="metadata-value">{{ card.content.type }}</span>
+            </div>
+            <div class="metadata-row" *ngIf="card.content.dataPoint">
+              <span class="metadata-label">Based on:</span>
+              <span class="metadata-value">{{ card.content.dataPoint }}</span>
+            </div>
+            <!-- Reason -->
+            <div class="metadata-row" *ngIf="card.content.reason">
+              <span class="metadata-label">Why:</span>
+              <span class="metadata-value">{{ card.content.reason }}</span>
+            </div>
+          </div>
+
+          <!-- Expand hint -->
+          <div class="expand-hint" *ngIf="expandedIndex !== i && hasExpandableContent(card)">
+            <span>Tap for details</span>
+            <ion-icon name="chevron-down-outline"></ion-icon>
+          </div>
+
+          <!-- Collapse hint -->
+          <div class="collapse-hint" *ngIf="expandedIndex === i">
+            <ion-icon name="chevron-up-outline"></ion-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Arrows (if multiple) -->
+    <div class="nav-arrows" *ngIf="suggestions.length > 1">
+      <button class="nav-btn nav-prev" (click)="prevSlide($event)" [disabled]="currentIndex === 0">
+        <ion-icon name="chevron-back"></ion-icon>
+      </button>
+      <button class="nav-btn nav-next" (click)="nextSlide($event)" [disabled]="currentIndex === suggestions.length - 1">
+        <ion-icon name="chevron-forward"></ion-icon>
+      </button>
+    </div>
+
+    <!-- Dot Indicators -->
+    <div class="dot-indicators" *ngIf="suggestions.length > 1">
+      <button *ngFor="let card of suggestions; let i = index"
+              class="dot"
+              [class.active]="i === currentIndex"
+              (click)="goToSlide(i)">
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading && suggestions.length === 0">
+    <div class="skeleton-square"></div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!isLoading && suggestions.length === 0">
+    <ion-icon name="sparkles-outline"></ion-icon>
+    <p>Check back later for personalized guidance!</p>
+  </div>
+</div>

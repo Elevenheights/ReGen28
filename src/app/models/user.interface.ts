@@ -5,6 +5,7 @@ export interface User {
 	gender?: string;
 	birthday?: string;
 	photoURL?: string;
+	location?: string; // e.g. "New York, USA"
 
 	// Wellness journey data
 	joinDate: Date;
@@ -19,6 +20,13 @@ export interface User {
 	// User preferences
 	preferences: UserPreferences;
 
+	// Reference Images
+	referenceImageFace?: string;
+	referenceImageBody?: string;
+
+	// Post Style Preference
+	postStyle?: 'realistic' | 'illustrated';
+
 	// Stats and analytics
 	stats: UserStats;
 
@@ -31,6 +39,10 @@ export interface User {
 	trialEndsAt?: Date; // When free trial expires
 	lastActiveAt?: Date; // Track when user was last active
 
+	// Push Notifications
+	fcmTokens?: string[]; // Array of FMC tokens for multiple devices
+
+
 	// Suggestion tracking (new fields)
 	lastSuggestionsGeneratedDate?: string; // YYYY-MM-DD format in user's timezone
 	lastSuggestionsGeneratedAt?: Date;      // Timestamp when suggestions were last generated
@@ -40,12 +52,22 @@ export interface User {
 	updatedAt: Date;
 }
 
+export interface UserSchedule {
+	wakeTime: string; // "06:00"
+	midDayTime: string; // "12:00"
+	bedTime: string; // "22:00"
+}
+
 export interface UserPreferences {
+	// Schedule
+	schedule: UserSchedule;
+
 	// Notifications
 	dailyReminders: boolean;
 	reminderTime: string; // Format: "09:00"
 	weeklyReports: boolean;
 	milestoneNotifications: boolean;
+	newFeedPostNotifications?: boolean; // New AI Coach post notifications
 
 	// App settings
 	darkMode: boolean;
@@ -57,6 +79,12 @@ export interface UserPreferences {
 	analytics: boolean;
 	backupEnabled: boolean;
 	developerMode?: boolean;
+
+	// Developer Settings
+	devSettings?: {
+		nanoModelType: 'standard' | 'pro';
+		imageModel?: 'nano-banana' | 'dall-e';
+	};
 }
 
 export interface UserStats {

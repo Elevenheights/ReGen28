@@ -1,0 +1,92 @@
+<ion-header class="ion-no-border">
+	<ion-toolbar color="transparent">
+		<ion-buttons slot="start">
+			<ion-back-button defaultHref="/onboarding/trackers" color="dark"></ion-back-button>
+		</ion-buttons>
+		<ion-buttons slot="end">
+			<ion-button (click)="onSkip()" color="medium" fill="clear">
+				Skip
+			</ion-button>
+		</ion-buttons>
+	</ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+	<div class="flex flex-col h-full">
+		<div class="text-center mb-8 animate-fade-in-up">
+			<h1 class="text-3xl font-bold text-gray-900 mb-2">Personalize Your AI Coach</h1>
+			<p class="text-gray-600">
+				Upload reference photos to help your AI coach create personalized, motivating visuals of YOU achieving
+				your goals.
+			</p>
+		</div>
+
+		<div class="flex-1 space-y-6">
+
+			<!-- Face Reference -->
+			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 animate-fade-in-up"
+				style="animation-delay: 100ms;">
+				<h3 class="text-lg font-semibold text-gray-900 mb-2 flex items-center">
+					<ion-icon name="person-circle-outline" class="mr-2 text-indigo-500"></ion-icon>
+					Face Reference
+				</h3>
+				<p class="text-sm text-gray-500 mb-4">A clear, well-lit photo of your face.</p>
+
+				<div class="relative h-48 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 transition-colors hover:bg-gray-100 cursor-pointer overflow-hidden group"
+					(click)="selectImage('face')">
+					<img *ngIf="faceImagePreview" [src]="faceImagePreview"
+						class="absolute inset-0 w-full h-full object-cover">
+
+					<div *ngIf="!faceImagePreview" class="text-center p-4">
+						<ion-icon name="camera-outline" class="text-4xl text-gray-400 mb-2"></ion-icon>
+						<p class="text-sm font-medium text-gray-500">Tap to upload face</p>
+					</div>
+
+					<div *ngIf="faceImagePreview"
+						class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+						<ion-icon name="create-outline" class="text-3xl text-white"></ion-icon>
+					</div>
+				</div>
+			</div>
+
+			<!-- Body Reference -->
+			<div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 animate-fade-in-up"
+				style="animation-delay: 200ms;">
+				<h3 class="text-lg font-semibold text-gray-900 mb-2 flex items-center">
+					<ion-icon name="accessibility-outline" class="mr-2 text-emerald-500"></ion-icon>
+					Body Reference
+				</h3>
+				<p class="text-sm text-gray-500 mb-4">A full-body photo to visualize fitness progress.</p>
+
+				<div class="relative h-48 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center bg-gray-50 transition-colors hover:bg-gray-100 cursor-pointer overflow-hidden group"
+					(click)="selectImage('body')">
+					<img *ngIf="bodyImagePreview" [src]="bodyImagePreview"
+						class="absolute inset-0 w-full h-full object-cover">
+
+					<div *ngIf="!bodyImagePreview" class="text-center p-4">
+						<ion-icon name="body-outline" class="text-4xl text-gray-400 mb-2"></ion-icon>
+						<p class="text-sm font-medium text-gray-500">Tap to upload body</p>
+					</div>
+
+					<div *ngIf="bodyImagePreview"
+						class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+						<ion-icon name="create-outline" class="text-3xl text-white"></ion-icon>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<div class="mt-8 mb-4 animate-fade-in-up" style="animation-delay: 300ms;">
+			<ion-button expand="block" shape="round"
+				class="h-14 text-lg font-medium shadow-lg hover:scale-[1.02] active:scale-95 transition-all"
+				[disabled]="isUploading" (click)="onContinue()">
+				<span *ngIf="!isUploading">Continue</span>
+				<ion-spinner *ngIf="isUploading" name="crescent"></ion-spinner>
+			</ion-button>
+			<p class="text-center text-xs text-gray-400 mt-4">
+				Photos are stored securely and used only for your personalized motivational content.
+			</p>
+		</div>
+	</div>
+</ion-content>

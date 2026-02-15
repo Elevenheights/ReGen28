@@ -1,0 +1,13 @@
+<ion-card class="feed-card journal-card">
+  <ion-card-header>
+    <div class="journal-meta">
+      <ion-icon name="book-outline"></ion-icon>
+      <span>Journal Entry</span>
+    </div>
+    <ion-card-title>{{ item.title }}</ion-card-title>
+    <ion-card-subtitle *ngIf="item.createdAt">{{ item.createdAt | date:'mediumDate' }}</ion-card-subtitle>
+  </ion-card-header>
+  <ion-card-content>
+    <p class="journal-preview">{{ item.body }}</p>
+  </ion-card-content>
+</ion-card>

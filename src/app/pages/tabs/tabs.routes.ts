@@ -10,9 +10,14 @@ export const routes: Routes = [
     canActivate: [AuthGuard, OnboardingGuard],
     children: [
       {
-        path: 'dashboard',
+        path: 'dashboard', // This is now the FEED tab
         loadComponent: () =>
           import('./dashboard/tab1.page').then((m) => m.Tab1Page),
+      },
+      {
+        path: 'insights', // This is the OLD dashboard
+        loadComponent: () =>
+          import('./insights/insights.page').then((m) => m.InsightsPage),
       },
       {
         path: 'journal',

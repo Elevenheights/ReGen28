@@ -1,0 +1,27 @@
+<div class="action-card" [style.background]="categoryGradient">
+  <div class="action-header">
+    <div class="icon-circle" [style.border-color]="categoryColor">
+      <span class="icon-emoji">{{ item.metadata?.icon || '🎯' }}</span>
+    </div>
+    <div class="tracker-name">{{ item.source.trackerName }}</div>
+  </div>
+
+  <div class="action-content">
+    <div class="action-badge">TODAY'S ACTION</div>
+    <p class="action-text">{{ item.body }}</p>
+    
+    <button 
+      class="expand-button" 
+      (click)="toggleExpand()"
+      *ngIf="item.metadata?.reason"
+    >
+      <ion-icon [name]="isExpanded ? 'chevron-up' : 'chevron-down'"></ion-icon>
+      {{ isExpanded ? 'Show less' : 'Why this action?' }}
+    </button>
+
+    <div class="reason-section" *ngIf="isExpanded && item.metadata?.reason">
+      <div class="reason-label">Why this works for you:</div>
+      <p class="reason-text">{{ item.metadata?.reason }}</p>
+    </div>
+  </div>
+</div>

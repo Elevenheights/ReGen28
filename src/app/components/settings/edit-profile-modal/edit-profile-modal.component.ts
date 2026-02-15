@@ -15,6 +15,8 @@ import {
 	IonAvatar,
 	IonSpinner,
 	IonFooter,
+	IonSelect,
+	IonSelectOption,
 	ModalController
 } from '@ionic/angular/standalone';
 import { User } from '../../../models/user.interface';
@@ -43,11 +45,24 @@ import { ToastService } from '../../../services/toast.service';
 		IonIcon,
 		IonAvatar,
 		IonSpinner,
-		IonFooter
+		IonIcon,
+		IonAvatar,
+		IonSpinner,
+		IonFooter,
+		IonSelect,
+		IonSelectOption
 	]
 })
 export class EditProfileModalComponent implements OnInit {
 	@Input() user: User | null = null;
+
+	countries = [
+		"United States", "Canada", "United Kingdom", "Australia", "Germany", "France", "Japan", "India", "Brazil", "Mexico",
+		"Argentina", "Austria", "Belgium", "Chile", "China", "Colombia", "Czech Republic", "Denmark", "Egypt", "Finland",
+		"Greece", "Hong Kong", "Hungary", "Indonesia", "Ireland", "Israel", "Italy", "Malaysia", "Netherlands", "New Zealand",
+		"Norway", "Philippines", "Poland", "Portugal", "Russia", "Saudi Arabia", "Singapore", "South Africa", "South Korea",
+		"Spain", "Sweden", "Switzerland", "Taiwan", "Thailand", "Turkey", "Ukraine", "United Arab Emirates", "Vietnam"
+	].sort();
 
 	profileForm!: FormGroup;
 	isSaving = false;
@@ -65,8 +80,24 @@ export class EditProfileModalComponent implements OnInit {
 	ngOnInit() {
 		this.profileImageUrl = this.user?.photoURL || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${this.user?.displayName || 'User'}`;
 
+		let country = '';
+		let city = '';
+		const userLocation = this.user?.location;
+		if (userLocation) {
+			const parts = userLocation.split(',').map(s => s.trim());
+			if (parts.length >= 2) {
+				// Assume "City, Country" - check if last part matches a known country, or just take last part
+				country = parts[parts.length - 1];
+				city = parts.slice(0, parts.length - 1).join(', ');
+			} else {
+				city = userLocation;
+			}
+		}
+
 		this.profileForm = this.fb.group({
 			displayName: [this.user?.displayName || '', [Validators.required, Validators.minLength(2)]],
+			country: [country],
+			city: [city],
 			email: [{ value: this.user?.email || '', disabled: true }] // Email usually fixed or needs separate flow
 		});
 	}
@@ -108,8 +139,13 @@ export class EditProfileModalComponent implements OnInit {
 
 		this.isSaving = true;
 		try {
+			const country = this.profileForm.value.country;
+			const city = this.profileForm.value.city;
+			const location = (city && country) ? `${city}, ${country}` : (city || country || '');
+
 			const updates: Partial<User> = {
-				displayName: this.profileForm.value.displayName
+				displayName: this.profileForm.value.displayName,
+				location: location
 			};
 
 			this.logging.info('Saving profile updates', updates);
@@ -122,5 +158,17 @@ export class EditProfileModalComponent implements OnInit {
 		} finally {
 			this.isSaving = false;
 		}
+	}
+
+	getJoinDate(): Date | null {
+		if (!this.user?.joinDate) return null;
+
+		// Handle Firestore Timestamp
+		if (typeof (this.user.joinDate as any).toDate === 'function') {
+			return (this.user.joinDate as any).toDate();
+		}
+
+		// Handle Date string or number
+		return new Date(this.user.joinDate);
 	}
 }

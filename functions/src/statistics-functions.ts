@@ -7,11 +7,47 @@
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onCall } from 'firebase-functions/v2/https';
 import { onDocumentCreated, onDocumentWritten } from 'firebase-functions/v2/firestore';
+import { onTaskDispatched } from 'firebase-functions/v2/tasks';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getFunctions } from 'firebase-admin/functions';
 import { calculateUserDailyStats, getActiveUsers } from './statistics.service';
+import { incrementUserDailyStats } from './statistics-helpers';
 
 const db = getFirestore();
+
+// ===============================
+// TASK QUEUE FUNCTIONS
+// ===============================
+
+/**
+ * Task to calculate daily stats for a single user
+ */
+export const calculateUserStatsTask = onTaskDispatched({
+	retryConfig: {
+		maxAttempts: 3,
+		minBackoffSeconds: 60,
+	},
+	rateLimits: {
+		maxConcurrentDispatches: 50,
+	},
+	timeoutSeconds: 300,
+}, async (req) => {
+	const { userId, date } = req.data;
+	if (!userId || !date) {
+		console.error("❌ Missing userId or date in task data");
+		return;
+	}
+
+	console.log(`🔄 [TASK] Calculating stats for user ${userId} on ${date}`);
+	try {
+		await calculateUserDailyStats(userId, date);
+		console.log(`✅ [TASK] Stats calculated for user ${userId}`);
+	} catch (error) {
+		console.error(`❌ [TASK] Failed to calculate stats for user ${userId}:`, error);
+		throw error; // Throw to trigger retry
+	}
+});
 
 // ===============================
 // MAIN SCHEDULER FUNCTION
@@ -23,12 +59,14 @@ const db = getFirestore();
  */
 export const calculateAllDailyStats = onSchedule({
 	schedule: '0 2 * * *', // 2 AM UTC daily
+	timeoutSeconds: 540,
+	memory: '512MiB',
 }, async () => {
-	console.log('🕐 Starting daily statistics calculation at 2 AM UTC');
+	console.log('🕐 Starting daily statistics calculation (Scheduling Tasks) at 2 AM UTC');
 
 	try {
 		const targetDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-		console.log(`📊 Calculating stats for date: ${targetDate}`);
+		console.log(`📊 Scheduling stats calculation for date: ${targetDate}`);
 
 		// Get all active users (last activity within 30 days)
 		const activeUsers = await getActiveUsers();
@@ -39,56 +77,29 @@ export const calculateAllDailyStats = onSchedule({
 			return;
 		}
 
-		// Process in batches to avoid timeout
-		const batchSize = 50;
-		let totalProcessed = 0;
-		let totalSuccessful = 0;
-
-		for (let i = 0; i < activeUsers.length; i += batchSize) {
-			const batch = activeUsers.slice(i, i + batchSize);
-			console.log(`🔄 Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(activeUsers.length / batchSize)} (${batch.length} users)`);
-
-			const batchPromises = batch.map(async (user) => {
-				try {
-					await calculateUserDailyStats(user.id, targetDate);
-					return { userId: user.id, success: true };
-				} catch (error) {
-					console.error(`❌ Failed to calculate stats for user ${user.id}:`, error);
-					return { userId: user.id, success: false, error };
-				}
+		const queue = getFunctions().taskQueue("calculateUserStatsTask");
+		const promises = activeUsers.map(async (user) => {
+			await queue.enqueue({
+				userId: user.id,
+				date: targetDate
 			});
+		});
 
-			const batchResults = await Promise.all(batchPromises);
-			const batchSuccessful = batchResults.filter(r => r.success).length;
+		await Promise.all(promises);
 
-			totalProcessed += batchResults.length;
-			totalSuccessful += batchSuccessful;
-
-			console.log(`✅ Batch completed: ${batchSuccessful}/${batchResults.length} successful`);
-
-			// Small delay between batches to avoid overwhelming Firestore
-			if (i + batchSize < activeUsers.length) {
-				await new Promise(resolve => setTimeout(resolve, 1000));
-			}
-		}
-
-		console.log(`🎉 Daily statistics calculation completed!`);
-		console.log(`📈 Results: ${totalSuccessful}/${totalProcessed} users processed successfully`);
+		console.log(`🎉 Daily statistics calculation scheduled!`);
+		console.log(`📈 Queued tasks for ${activeUsers.length} users`);
 
 		// Log completion stats
 		await db.collection('system-logs').add({
-			type: 'daily_stats_calculation',
+			type: 'daily_stats_scheduling',
 			date: targetDate,
 			totalUsers: activeUsers.length,
-			processedUsers: totalProcessed,
-			successfulUsers: totalSuccessful,
-			failedUsers: totalProcessed - totalSuccessful,
-			completedAt: new Date(),
-			durationMs: Date.now() - Date.now() // Fixed since we don't have event.scheduleTime
+			scheduledAt: new Date(),
 		});
 
 	} catch (error) {
-		console.error('💥 Fatal error in daily statistics calculation:', error);
+		console.error('💥 Fatal error in daily statistics scheduling:', error);
 
 		// Log error for monitoring
 		await db.collection('system-logs').add({
@@ -105,8 +116,10 @@ export const calculateAllDailyStats = onSchedule({
 // REAL-TIME TRIGGER FUNCTIONS
 // ===============================
 
+
 /**
  * Update stats when tracker entry is created
+ * LIGHTWEIGHT MODE: Increments counters instead of full recalculation
  */
 export const onTrackerEntryCreated = onDocumentCreated(
 	'tracker-entries/{entryId}',
@@ -114,49 +127,59 @@ export const onTrackerEntryCreated = onDocumentCreated(
 		const entry = event.data?.data();
 		if (!entry) return;
 
-		console.log(`🔄 Recalculating stats due to new tracker entry: ${event.params.entryId}`);
+		console.log(`🔄 Incrementing stats for tracker entry: ${event.params.entryId}`);
 
 		try {
 			const today = new Date().toISOString().split('T')[0];
 
-			// Recalculate today's stats for affected user
-			await calculateUserDailyStats(entry.userId, today);
+			// Lightweight increment
+			await incrementUserDailyStats(entry.userId, today, {
+				activityType: 'tracker',
+				category: entry.tracker?.category,
+				mood: entry.mood,
+				energy: entry.energy
+			});
 
-			console.log(`✅ Stats recalculated for user ${entry.userId} after tracker entry`);
 		} catch (error) {
-			console.error(`❌ Failed to recalculate stats after tracker entry:`, error);
-			// Don't throw - this is a background update
+			console.error(`❌ Failed to increment stats:`, error);
 		}
 	}
 );
 
 /**
  * Update stats when journal entry is created/updated
+ * LIGHTWEIGHT MODE: Increments counters instead of full recalculation
  */
 export const onJournalEntryWritten = onDocumentWritten(
 	'journal-entries/{entryId}',
 	async (event) => {
 		const entry = event.data?.after.data();
-		if (!entry) return;
+		// Only increment on creation (when before doesn't exist)
+		// We avoid decrement logic on updates for simplicity tailored to "totals" syncing at night
+		const isNew = !event.data?.before.exists;
 
-		console.log(`🔄 Recalculating stats due to journal entry change: ${event.params.entryId}`);
+		if (!entry || !isNew) return;
+
+		console.log(`🔄 Incrementing stats for journal entry: ${event.params.entryId}`);
 
 		try {
-			const entryDate = entry.date; // Already in YYYY-MM-DD format
+			const entryDate = entry.date;
 
-			// Recalculate stats for the entry's date
-			await calculateUserDailyStats(entry.userId, entryDate);
+			await incrementUserDailyStats(entry.userId, entryDate, {
+				activityType: 'journal',
+				mood: entry.mood,
+				energy: entry.energy
+			});
 
-			console.log(`✅ Stats recalculated for user ${entry.userId} after journal entry`);
 		} catch (error) {
-			console.error(`❌ Failed to recalculate stats after journal entry:`, error);
-			// Don't throw - this is a background update
+			console.error(`❌ Failed to increment stats:`, error);
 		}
 	}
 );
 
 /**
  * Update stats when activity is created
+ * LIGHTWEIGHT MODE: Increments counters instead of full recalculation
  */
 export const onActivityCreated = onDocumentCreated(
 	'activities/{activityId}',
@@ -164,18 +187,18 @@ export const onActivityCreated = onDocumentCreated(
 		const activity = event.data?.data();
 		if (!activity) return;
 
-		console.log(`🔄 Recalculating stats due to new activity: ${event.params.activityId}`);
+		console.log(`🔄 Incrementing stats for activity: ${event.params.activityId}`);
 
 		try {
 			const today = new Date().toISOString().split('T')[0];
 
-			// Recalculate today's stats for affected user
-			await calculateUserDailyStats(activity.userId, today);
+			await incrementUserDailyStats(activity.userId, today, {
+				activityType: 'activity',
+				category: activity.type // Assuming type maps to category often, or generic
+			});
 
-			console.log(`✅ Stats recalculated for user ${activity.userId} after activity`);
 		} catch (error) {
-			console.error(`❌ Failed to recalculate stats after activity:`, error);
-			// Don't throw - this is a background update
+			console.error(`❌ Failed to increment stats:`, error);
 		}
 	}
 );

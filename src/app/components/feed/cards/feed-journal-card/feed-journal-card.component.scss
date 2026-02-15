@@ -1,0 +1,20 @@
+.journal-card {
+  background: #fff9f0; // Paper-like color
+  border-left: 4px solid var(--ion-color-tertiary);
+}
+
+.journal-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ion-color-tertiary);
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.journal-preview {
+  font-style: italic;
+  font-family: serif;
+  color: var(--ion-color-dark);
+}

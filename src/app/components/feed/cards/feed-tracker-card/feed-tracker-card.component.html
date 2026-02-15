@@ -1,0 +1,21 @@
+<div class="tracker-visual" [style.background]="backgroundGradient">
+  <div class="content-center">
+    <div class="icon-circle">
+      <!-- We might need to map FA icons to Ion icons or use FA here too -->
+      <i class="fa-solid fa-check text-3xl"></i>
+    </div>
+    
+    <div class="value-display" *ngIf="item.metrics?.[0]">
+      <span class="value">{{ item.metrics![0].value }}</span>
+      <span class="unit">{{ item.metrics![0].unit }}</span>
+    </div>
+    
+    <div class="tracker-name">
+      {{ item.title.replace('Tracked ', '') }}
+    </div>
+  </div>
+  
+  <div class="watermark">
+    <i class="fa-solid fa-chart-simple"></i>
+  </div>
+</div>
