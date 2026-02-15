@@ -19,6 +19,7 @@ import { ErrorHandlingService, UIErrorState } from '../../../services/error-hand
 import { GoalService } from '../../../services/goal.service';
 import { Goal } from '../../../models/goal.interface';
 import { LoggingService } from '../../../services/logging.service';
+import { LoggingModalService } from '../../../services/logging-modal.service';
 import { TrackerSuggestionsService, TrackerSuggestionsState } from '../../../services/tracker-suggestions.service';
 import { AIRecommendationsService } from '../../../services/ai-recommendations.service';
 import { ToastService } from '../../../services/toast.service';
@@ -29,7 +30,7 @@ import { FeedItem } from '../../../models/feed-item.interface';
 // Models
 import { User } from '../../../models/user.interface';
 import { Activity } from '../../../models/activity.interface';
-import { Tracker } from '../../../models/tracker.interface';
+import { Tracker, TrackerEntry } from '../../../models/tracker.interface';
 
 // Components
 import { ProfileImageComponent } from '../../../components/profile-image';
@@ -330,6 +331,7 @@ export class InsightsPage implements OnInit, OnDestroy {
 		private trackerSuggestions: TrackerSuggestionsService,
 		private statisticsService: StatisticsService,
 		private feedService: FeedService,
+		private loggingModalService: LoggingModalService,
 		public router: Router,
 		private toastService: ToastService,
 		private modalCtrl: ModalController
@@ -973,6 +975,23 @@ export class InsightsPage implements OnInit, OnDestroy {
 		} catch (error) {
 			this.logging.error('Error opening breathing exercise', { error });
 			this.toastService.showError('Unable to open breathing exercise');
+		}
+	}
+
+	async openQuickLogModal() {
+		try {
+			if (this.dashboardData.activeTrackers.length > 0) {
+				const tracker = this.dashboardData.activeTrackers[0];
+				this.loggingModalService.openLogModal(tracker, (entry) => {
+					this.loadEnhancedDashboardData();
+				});
+			} else {
+				this.toastService.showInfo('No active trackers found. Create one first!');
+				this.router.navigate(['/tabs/add-tracker']);
+			}
+		} catch (error) {
+			this.logging.error('Error opening quick log modal', { error });
+			this.toastService.showError('Error opening activity logger');
 		}
 	}
 

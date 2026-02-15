@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { IonicModule, ModalController } from '@ionic/angular';
 import { FeedItem } from 'src/app/models/feed-item.interface';
 import { FeedService } from 'src/app/services/feed.service';
+import { ToastService } from 'src/app/services/toast.service';
 import { CommentsModalComponent } from '../comments-modal/comments-modal.component';
 import { FeedActivityCardComponent } from '../cards/feed-activity-card/feed-activity-card.component';
 import { FeedStatCardComponent } from '../cards/feed-stat-card/feed-stat-card.component';
@@ -15,7 +16,7 @@ import { FeedActionCardComponent } from '../cards/feed-action-card/feed-action-c
 import { FeedInsightCardComponent } from '../cards/feed-insight-card/feed-insight-card.component';
 
 import { addIcons } from 'ionicons';
-import { heart, heartOutline, chatbubbleOutline, paperPlaneOutline, bookmarkOutline } from 'ionicons/icons';
+import { heart, heartOutline, chatbubbleOutline, shareSocialOutline, bookmarkOutline } from 'ionicons/icons';
 
 @Component({
 	selector: 'app-feed-item-card',
@@ -44,9 +45,10 @@ export class FeedItemCardComponent implements OnInit {
 
 	constructor(
 		private feedService: FeedService,
-		private modalController: ModalController
+		private modalController: ModalController,
+		private toastService: ToastService
 	) {
-		addIcons({ heart, heartOutline, chatbubbleOutline, paperPlaneOutline, bookmarkOutline });
+		addIcons({ heart, heartOutline, chatbubbleOutline, shareSocialOutline, bookmarkOutline });
 	}
 
 	ngOnInit() {
@@ -103,6 +105,30 @@ export class FeedItemCardComponent implements OnInit {
 		});
 
 		await modal.present();
+	}
+
+	async sharePost() {
+		const shareData = {
+			title: this.item.title || 'Inspiration from Regen28',
+			text: this.item.body || 'Check out this post on ReGen28!',
+			url: window.location.href // Fallback to current URL since we don't have deep links yet
+		};
+
+		try {
+			if (navigator.share) {
+				await navigator.share(shareData);
+				this.toastService.showSuccess('Post shared successfully!');
+			} else {
+				// Fallback: Copy link to clipboard
+				await navigator.clipboard.writeText(shareData.url);
+				this.toastService.showInfo('Link copied to clipboard');
+			}
+		} catch (error) {
+			console.error('Error sharing post:', error);
+			if ((error as any).name !== 'AbortError') {
+				this.toastService.showError('Unable to share post');
+			}
+		}
 	}
 
 	get timeAgo(): string {

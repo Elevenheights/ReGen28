@@ -47,8 +47,7 @@
 	<main *ngIf="!isLoading" class="relative z-10 pb-32">
 		<!-- 1. Activities Header -->
 		<app-page-header title="Trackers" subtitle="Your Goals" theme="indigo" actionIcon="fa-plus"
-			(actionClick)="openQuickLogModal()" [historyIcon]="'fa-clock-rotate-left'"
-			(historyClick)="navigateToArchivedTrackers()">
+			(actionClick)="openQuickLogModal()">
 
 			<!-- Today's Flow Progress (Projected) -->
 			<div class="bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-6 border border-white/10 shadow-2xl">
@@ -127,7 +126,8 @@
 
 
 			<!-- Premium Add Activity Button (Moved from FAB) -->
-			<div class="pt-8 animate-entry delay-500">
+			<div class="pt-8 space-y-4 animate-entry delay-500">
+				<!-- Add New Tracker -->
 				<div
 					class="bg-gradient-to-br from-indigo-600 to-violet-600 p-px rounded-[2.5rem] shadow-xl shadow-indigo-500/10">
 					<button (click)="onAddTracker()"
@@ -149,6 +149,31 @@
 						</div>
 						<i
 							class="fa-solid fa-chevron-right text-white/30 group-hover:translate-x-1 transition-transform"></i>
+					</button>
+				</div>
+
+				<!-- Achieved Trackers -->
+				<div
+					class="bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800 p-px rounded-[2.5rem] shadow-lg shadow-black/5">
+					<button (click)="navigateToArchivedTrackers()"
+						class="w-full bg-white dark:bg-neutral-900 rounded-[2.4rem] p-6 flex items-center justify-between active:scale-95 transition-all group overflow-hidden relative">
+						<div
+							class="absolute inset-0 bg-neutral-500/5 opacity-0 group-hover:opacity-100 transition-opacity">
+						</div>
+						<div class="flex items-center gap-5 relative z-10">
+							<div
+								class="w-12 h-12 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 rounded-2xl flex items-center justify-center shadow-sm transform group-hover:-rotate-12 transition-transform">
+								<i class="fa-solid fa-clock-rotate-left text-xl"></i>
+							</div>
+							<div class="text-left">
+								<p class="font-black text-neutral-900 dark:text-white uppercase tracking-tight">Achieved
+									Trackers</p>
+								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">View your
+									past accomplishments</p>
+							</div>
+						</div>
+						<i
+							class="fa-solid fa-chevron-right text-neutral-300 group-hover:translate-x-1 transition-transform"></i>
 					</button>
 				</div>
 			</div>
