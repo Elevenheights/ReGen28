@@ -1,14 +1,13 @@
 {
-	"appId": "com.regen28labs",
+	"appId": "com.regen28.app",
 	"appName": "ReGen28",
 	"webDir": "www",
 	"plugins": {
 		"FirebaseAuthentication": {
-			"skipNativeAuth": false,
+			"skipNativeAuth": true,
 			"providers": [
 				"google.com"
-			],
-			"googleClientId": "980859994035-9ah4unhkfdqf1c4l24dnfp6l0oa2bk4b.apps.googleusercontent.com"
+			]
 		},
 		"PushNotifications": {
 			"presentationOptions": [
