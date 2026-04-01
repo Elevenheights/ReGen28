@@ -20,7 +20,7 @@ import { calculateAllDailyStats, calculateUserStatsTask, getStatistics, triggerS
 // import { scheduleWeeklyWrapped } from './feed/wrapped-scheduler'; // DELETED
 // import { processWrappedVideoJobs } from './feed/wrapped-jobs'; // DELETED
 import { feedInteractions } from './feed/interactions';
-import { generateFeedPostTask, triggerFeedPost } from './feed/unified-feed';
+import { generateFeedPostTask, triggerFeedPost, queueUnifiedFeedCadence } from './feed/unified-feed';
 const db = getFirestore();
 
 // Export all functions
@@ -54,7 +54,8 @@ export {
 	// Action & Insight Generation
 	// Unified Feed Functions
 	generateFeedPostTask,
-	triggerFeedPost
+	triggerFeedPost,
+	queueUnifiedFeedCadence
 };
 
 // Define the OpenAI API key secret

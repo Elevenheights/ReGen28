@@ -362,17 +362,42 @@ export class Tab4Page implements OnInit, OnDestroy {
 		}
 	}
 
-	// Developer: Trigger Motivational Posts
-	async triggerMotivationalPosts() {
+	// Developer: Trigger Morning Boost (Motivational)
+	async triggerMorningBoost() {
 		try {
-			this.logging.info('Manually triggering motivational posts');
-			await this.toastService.showInfo('🚀 Generating motivational posts...');
-			// Increase timeout to 9 minutes (540000ms) to match backend
-			await firstValueFrom(this.db.callFunction('triggerFeedPost', { type: 'motivational', force: true }, { timeout: 540000 }));
-			await this.toastService.showSuccess('Motivational posts generated!');
+			this.logging.info('Manually triggering morning boost');
+			await this.toastService.showInfo('🚀 Generating morning boost...');
+			await firstValueFrom(this.db.callFunction('triggerFeedPost', { type: 'morning', force: true }, { timeout: 540000 }));
+			await this.toastService.showSuccess('Morning boost generated!');
 		} catch (error) {
-			this.logging.error('Failed to trigger motivational posts', error);
-			await this.toastService.showError('Failed to generate motivational posts.');
+			this.logging.error('Failed to trigger morning boost', error);
+			await this.toastService.showError('Failed to generate morning boost.');
+		}
+	}
+
+	// Developer: Trigger Midday Check
+	async triggerMiddayCheck() {
+		try {
+			this.logging.info('Manually triggering midday check');
+			await this.toastService.showInfo('🚀 Generating midday check...');
+			await firstValueFrom(this.db.callFunction('triggerFeedPost', { type: 'midday', force: true }, { timeout: 540000 }));
+			await this.toastService.showSuccess('Midday check generated!');
+		} catch (error) {
+			this.logging.error('Failed to trigger midday check', error);
+			await this.toastService.showError('Failed to generate midday check.');
+		}
+	}
+
+	// Developer: Trigger Evening Summary
+	async triggerEveningSummary() {
+		try {
+			this.logging.info('Manually triggering evening summary');
+			await this.toastService.showInfo('🚀 Generating evening summary...');
+			await firstValueFrom(this.db.callFunction('triggerFeedPost', { type: 'evening', force: true }, { timeout: 540000 }));
+			await this.toastService.showSuccess('Evening summary generated!');
+		} catch (error) {
+			this.logging.error('Failed to trigger evening summary', error);
+			await this.toastService.showError('Failed to generate evening summary.');
 		}
 	}
 
@@ -382,7 +407,7 @@ export class Tab4Page implements OnInit, OnDestroy {
 			this.logging.info('Manually triggering contextual posts');
 			await this.toastService.showInfo('🚀 Generating contextual posts...');
 			// Increase timeout to 9 minutes (540000ms) to match backend
-			await firstValueFrom(this.db.callFunction('triggerFeedPost', { type: 'contextual', force: true }, { timeout: 540000 }));
+			await firstValueFrom(this.db.callFunction('triggerFeedPost', { type: 'contextual', force: true, subType: 'general' }, { timeout: 540000 }));
 			await this.toastService.showSuccess('Contextual posts generated!');
 		} catch (error) {
 			this.logging.error('Failed to trigger contextual posts', error);

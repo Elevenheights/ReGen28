@@ -92,26 +92,28 @@ export async function createWelcomeFeed(userId: string, userName: string) {
 		logger.info(`Created static welcome posts for user ${userId}`);
 
 		// 3. Trigger AI Posts via Task Queue
-		// We use tasks to ensure the onboarding function returns quickly
-		const queueFunctions = getFunctions();
+		// We use the unified generateFeedPostTask for all initial content
+		const queue = getFunctions().taskQueue("generateFeedPostTask");
 
 		// Morning Motivation (Immediate)
-		await queueFunctions.taskQueue("generateMotivationalPostTask").enqueue({
+		await queue.enqueue({
 			userId,
 			force: true,
-			type: 'morning' // Treat first login like a morning wake-up
+			type: 'morning'
 		});
 
 		// Daily Action (Force generation for today)
-		await queueFunctions.taskQueue("generateActionPostTask").enqueue({
+		await queue.enqueue({
 			userId,
-			force: true
+			force: true,
+			type: 'action'
 		});
 
-		// Daily Insight (Force generation, though might be skipped if 0 data, but worth trying for "New Journey" insight)
-		await queueFunctions.taskQueue("generateInsightPostTask").enqueue({
+		// Daily Insight
+		await queue.enqueue({
 			userId,
-			force: true
+			force: true,
+			type: 'insight'
 		});
 
 		logger.info(`Queued initial AI posts for user ${userId}`);
