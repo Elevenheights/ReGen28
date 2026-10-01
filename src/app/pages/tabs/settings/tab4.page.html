@@ -68,6 +68,26 @@
 		<!-- 2. Settings Sections -->
 		<div class="px-6 -mt-8 relative z-20 space-y-10">
 
+			<!-- Subscription Banner (If not Pro) -->
+			<div *ngIf="!(isPro$ | async)" class="mb-10 animate-entry delay-400">
+				<div (click)="goToSubscription()" 
+					class="p-6 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-[2.5rem] shadow-xl shadow-indigo-500/20 active:scale-95 transition-all relative overflow-hidden group cursor-pointer border border-white/10">
+					<div class="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+					<div class="flex items-center justify-between relative z-10">
+						<div class="flex items-center gap-4">
+							<div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/10 group-hover:scale-110 transition-transform">
+								<ion-icon name="sparkles" class="text-2xl text-white"></ion-icon>
+							</div>
+							<div>
+								<h3 class="text-sm font-black text-white uppercase tracking-tight text-left">Try ReGen28 Pro</h3>
+								<p class="text-[10px] text-indigo-100 font-bold uppercase tracking-widest opacity-80 text-left">7-Day Free Trial Offered</p>
+							</div>
+						</div>
+						<ion-icon name="chevron-forward" class="text-white opacity-50"></ion-icon>
+					</div>
+				</div>
+			</div>
+
 			<!-- Achievements Preview -->
 			<section class="space-y-4 animate-entry delay-300" *ngIf="achievements.length > 0">
 				<div class="flex items-center justify-between px-1">
@@ -357,7 +377,7 @@
 							(ionChange)="onToggleSetting('Reminders', $event)"></ion-toggle>
 					</div>
 
-					<div class="p-6 flex items-center justify-between border-b border-neutral-50">
+					<div class="p-6 flex items-center justify-between border-b border-neutral-50" *ngIf="isAdmin$ | async">
 						<div class="flex items-center gap-4">
 							<div
 								class="w-11 h-11 rounded-2xl bg-neutral-50 flex items-center justify-center text-neutral-400">
@@ -373,6 +393,119 @@
 						<ion-toggle color="dark" [checked]="user?.preferences?.newFeedPostNotifications"
 							(ionChange)="onToggleSetting('Feed Posts', $event)"></ion-toggle>
 					</div>
+
+				</div>
+			</section>
+
+			<!-- Notification Preferences (New Section) -->
+			<section class="space-y-4 animate-entry delay-300">
+				<div class="flex items-center gap-3 px-1">
+					<div
+						class="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm">
+						<i class="fa-solid fa-bell text-xs"></i>
+					</div>
+					<h3 class="text-xs font-black text-neutral-400 uppercase tracking-widest">Notification Channels</h3>
+				</div>
+
+				<div class="bg-white shadow-xl rounded-[2.5rem] border border-neutral-100 overflow-hidden">
+					<!-- Morning Boost -->
+					<div class="p-6 flex items-center justify-between border-b border-neutral-50">
+						<div class="flex items-center gap-4">
+							<div class="w-11 h-11 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-400">
+								<i class="fa-solid fa-sun"></i>
+							</div>
+							<div>
+								<p class="text-sm font-black text-neutral-900 uppercase tracking-tight">Morning Boost</p>
+								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Daily 6 AM motivation</p>
+							</div>
+						</div>
+						<ion-toggle color="dark" [checked]="user?.preferences?.morningCoachBoost" (ionChange)="onToggleSetting('Morning Boost', $event)"></ion-toggle>
+					</div>
+
+					<!-- Midday Insight -->
+					<div class="p-6 flex items-center justify-between border-b border-neutral-50">
+						<div class="flex items-center gap-4">
+							<div class="w-11 h-11 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-400">
+								<i class="fa-solid fa-lightbulb"></i>
+							</div>
+							<div>
+								<p class="text-sm font-black text-neutral-900 uppercase tracking-tight">Midday Insights</p>
+								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Strategic wellness tips</p>
+							</div>
+						</div>
+						<ion-toggle color="dark" [checked]="user?.preferences?.middayInsight" (ionChange)="onToggleSetting('Midday Insight', $event)"></ion-toggle>
+					</div>
+
+					<!-- Daily Actions -->
+					<div class="p-6 flex items-center justify-between border-b border-neutral-50">
+						<div class="flex items-center gap-4">
+							<div class="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-400">
+								<i class="fa-solid fa-check-double"></i>
+							</div>
+							<div>
+								<p class="text-sm font-black text-neutral-900 uppercase tracking-tight">Ritual Actions</p>
+								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Morning ritual nudges</p>
+							</div>
+						</div>
+						<ion-toggle color="dark" [checked]="user?.preferences?.dailyActionReminders" (ionChange)="onToggleSetting('Daily Actions', $event)"></ion-toggle>
+					</div>
+
+					<!-- Streak Protection -->
+					<div class="p-6 flex items-center justify-between border-b border-neutral-50">
+						<div class="flex items-center gap-4">
+							<div class="w-11 h-11 rounded-2xl bg-purple-50 flex items-center justify-center text-purple-400">
+								<i class="fa-solid fa-fire"></i>
+							</div>
+							<div>
+								<p class="text-sm font-black text-neutral-900 uppercase tracking-tight">Streak Protection</p>
+								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Reminders if you forget to log</p>
+							</div>
+						</div>
+						<ion-toggle color="dark" [checked]="user?.preferences?.streakProtection" (ionChange)="onToggleSetting('Streak Protection', $event)"></ion-toggle>
+					</div>
+
+					<!-- Milestones -->
+					<div class="p-6 flex items-center justify-between border-b border-neutral-50">
+						<div class="flex items-center gap-4">
+							<div class="w-11 h-11 rounded-2xl bg-yellow-50 flex items-center justify-center text-yellow-400">
+								<i class="fa-solid fa-trophy"></i>
+							</div>
+							<div>
+								<p class="text-sm font-black text-neutral-900 uppercase tracking-tight">Achievements</p>
+								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Milestone celebrations</p>
+							</div>
+						</div>
+						<ion-toggle color="dark" [checked]="user?.preferences?.milestoneNotifications" (ionChange)="onToggleSetting('Milestones', $event)"></ion-toggle>
+					</div>
+
+					<!-- Trial Alerts -->
+					<div class="p-6 flex items-center justify-between">
+						<div class="flex items-center gap-4">
+							<div class="w-11 h-11 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-400">
+								<i class="fa-solid fa-clock"></i>
+							</div>
+							<div>
+								<p class="text-sm font-black text-neutral-900 uppercase tracking-tight">Trial Updates</p>
+								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Expiration alerts</p>
+							</div>
+						</div>
+						<ion-toggle color="dark" [checked]="user?.preferences?.trialExpiryAlerts" (ionChange)="onToggleSetting('Trial Alerts', $event)"></ion-toggle>
+					</div>
+				</div>
+			</section>
+
+			<!-- UI Preferences -->
+			<section class="space-y-4 animate-entry delay-400">
+				<div class="flex items-center gap-3 px-1">
+					<div
+						class="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center text-slate-600 shadow-sm">
+						<i class="fa-solid fa-sliders text-xs"></i>
+					</div>
+					<h3 class="text-xs font-black text-neutral-400 uppercase tracking-widest">Display Preferences</h3>
+				</div>
+
+				<div class="bg-white shadow-xl rounded-[2.5rem] border border-neutral-100 overflow-hidden">
+
 
 					<div class="p-6 flex items-center justify-between border-b border-neutral-50">
 						<div class="flex items-center gap-4">
@@ -391,7 +524,7 @@
 							(ionChange)="onToggleSetting('Dark Mode', $event)"></ion-toggle>
 					</div>
 
-					<div class="p-6 flex items-center justify-between">
+					<div class="p-6 flex items-center justify-between" *ngIf="isAdmin$ | async">
 						<div class="flex items-center gap-4">
 							<div
 								class="w-11 h-11 rounded-2xl bg-neutral-50 flex items-center justify-center text-neutral-400">
@@ -407,6 +540,7 @@
 						<ion-toggle color="dark" [checked]="user?.preferences?.developerMode"
 							(ionChange)="onToggleSetting('Developer Mode', $event)"></ion-toggle>
 					</div>
+
 				</div>
 			</section>
 
@@ -438,7 +572,7 @@
 										<p class="text-[9px] text-orange-700">Standard vs Pro</p>
 									</div>
 									<ion-segment [value]="user?.preferences?.devSettings?.nanoModelType || 'standard'"
-										(ionChange)="toggleNanoModelType($event)" mode="ios"
+										(ionChange)="toggleVisionModelType($event)" mode="ios"
 										style="width: 120px; --background: rgba(255,255,255,0.5);">
 										<ion-segment-button value="standard">
 											<ion-label class="text-[9px] font-bold">STD</ion-label>
@@ -454,13 +588,13 @@
 									class="bg-white rounded-xl p-3 border border-orange-100 flex items-center justify-between">
 									<div>
 										<p class="text-[10px] font-bold text-orange-900 uppercase">Image Model</p>
-										<p class="text-[9px] text-orange-700">Nano vs GPT</p>
+										<p class="text-[9px] text-orange-700">Standard vs GPT</p>
 									</div>
 									<ion-segment [value]="user?.preferences?.devSettings?.imageModel || 'nano-banana'"
 										(ionChange)="toggleImageModel($event)" mode="ios"
 										style="width: 120px; --background: rgba(255,255,255,0.5);">
 										<ion-segment-button value="nano-banana">
-											<ion-label class="text-[9px] font-bold">NANO</ion-label>
+											<ion-label class="text-[9px] font-bold">STD</ion-label>
 										</ion-segment-button>
 										<ion-segment-button value="dall-e">
 											<ion-label class="text-[9px] font-bold">GPT</ion-label>
@@ -579,6 +713,13 @@
 			</section>
 
 			<!-- Sign Out -->
+			<section class="pt-6 space-y-4">
+				<a routerLink="/ai-consent" class="block text-center text-indigo-600 font-bold">AI data-sharing choices</a>
+				<button (click)="onDeleteAccount()" [disabled]="isDeletingAccount"
+					class="w-full p-4 rounded-2xl border border-red-200 text-red-700 font-bold disabled:opacity-50">
+					{{ isDeletingAccount ? 'Deleting your account...' : 'Delete account permanently' }}
+				</button>
+			</section>
 			<section class="pt-10 animate-entry delay-500">
 				<button (click)="onSignOut()"
 					class="w-full p-6 bg-red-50 text-red-600 rounded-[2.5rem] border border-red-100 font-black text-xs uppercase tracking-[0.2em] shadow-sm active:scale-95 transition-all flex items-center justify-center gap-4 group">

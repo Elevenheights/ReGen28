@@ -5,12 +5,14 @@ import { onDocumentCreated } from 'firebase-functions/v2/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
 import { OpenAIService } from './openai.service';
+import { requireAiConsent } from './services/ai-consent';
 import { getWeatherForLocation } from "./weather.service";
 import {
 	createTrackerFromTemplate,
 	TrackerFrequency
 } from './shared-config';
 import { createWelcomeFeed } from './onboarding-helpers';
+import { verifySubscription, hasBillingOverride } from './services/subscription-verification';
 
 // Define the OpenAI API key secret
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
@@ -46,8 +48,12 @@ export const completeUserOnboarding = onCall({
 
 		// 1. Update user profile with all onboarding data
 		const userRef = db.collection('users').doc(userId);
+		// Allow only profile fields; onboarding must never grant billing access or roles.
+		const safeProfile = Object.fromEntries(Object.entries(profileData || {}).filter(([key]) =>
+			['displayName', 'photoURL', 'gender', 'birthday', 'location', 'referenceImageFace', 'referenceImageBody', 'postStyle'].includes(key)
+		));
 		batch.set(userRef, {
-			...profileData,
+			...safeProfile,
 			wellnessGoals: wellnessGoals.primaryGoals || [],
 			focusAreas: wellnessGoals.focusAreas || [],
 			commitmentLevel: wellnessGoals.commitmentLevel || 'moderate',
@@ -232,6 +238,7 @@ export const getTrackerSpecificSuggestions = onCall({
 
 	const { trackerId, forceRefresh = false } = data;
 	const userId = auth.uid;
+	await requireAiConsent(userId);
 
 	console.log('DEV: getTrackerSpecificSuggestions called', {
 		userId,
@@ -624,6 +631,7 @@ export const getDailyJournalPrompt = onCall({
 
 	const { forceRefresh = false } = data || {};
 	const userId = auth.uid;
+	await requireAiConsent(userId);
 
 	console.log('DEV: getDailyJournalPrompt called', {
 		userId,
@@ -915,6 +923,7 @@ export const getReflectionPrompts = onCall({
 
 	const { forceRefresh = false } = data || {};
 	const userId = auth.uid;
+	await requireAiConsent(userId);
 
 	console.log('DEV: getReflectionPrompts called', {
 		userId,
@@ -1490,6 +1499,7 @@ async function generateSingleJournalPrompt(
 ): Promise<{ success: boolean; error?: string }> {
 	try {
 		// Get user data
+		await requireAiConsent(userId);
 		const userDoc = await db.collection('users').doc(userId).get();
 
 		if (!userDoc.exists) {
@@ -2134,48 +2144,37 @@ function getUserCurrentDateTime(userTimezone: string): { formattedDateTime: stri
 }
 
 /**
- * Update user subscription status
- * Call this when user subscribes, trial expires, or cancels subscription
+ * Verify the authenticated user's current entitlement directly with RevenueCat.
+ * Client-supplied status, expiration, and user IDs are never trusted.
  */
 export const updateUserSubscriptionStatus = onCall({
 	invoker: 'public',
 }, async (request) => {
 	const db = getFirestore();
-	const { auth, data } = request;
-
-	if (!auth) {
-		throw new HttpsError('unauthenticated', 'User must be authenticated');
-	}
-
-	const { subscriptionType, status, trialEndsAt } = data;
-	const userId = auth.uid;
-
+	if (!request.auth) throw new HttpsError('unauthenticated', 'User must be authenticated');
+	const ref = db.collection('users').doc(request.auth.uid);
+	const profile = await ref.get();
+	if (!profile.exists) throw new HttpsError('failed-precondition', 'Complete account setup first');
+	if (profile.data()?.status === 'suspended') return { active: false };
+	if (hasBillingOverride(profile.data() || {})) return { active: true };
 	try {
-		const updateData: any = {
-			updatedAt: FieldValue.serverTimestamp(),
-			lastActiveAt: FieldValue.serverTimestamp()
-		};
-
-		// Update subscription fields
-		if (subscriptionType) {
-			updateData.subscriptionType = subscriptionType;
-		}
-		if (status) {
-			updateData.status = status;
-		}
-		if (trialEndsAt) {
-			updateData.trialEndsAt = new Date(trialEndsAt);
-		}
-
-		await db.collection('users').doc(userId).update(updateData);
-
-		console.log(`Updated subscription status for user ${userId}:`, { subscriptionType, status });
-
-		return { success: true, message: 'Subscription status updated' };
-
+		const verifiedAt = new Date();
+		const verified = await verifySubscription(request.auth.uid);
+		const active = await db.runTransaction(async transaction => {
+			const current = await transaction.get(ref);
+			if (!current.exists) throw new HttpsError('failed-precondition', 'Account no longer exists');
+			const data = current.data()!;
+			if (data.status === 'suspended') return false;
+			if (hasBillingOverride(data)) return true;
+			if (data.subscriptionVerifiedAt?.toDate() > verifiedAt) return data.status === 'active';
+			transaction.update(ref, { ...verified, subscriptionVerifiedAt: verifiedAt, updatedAt: FieldValue.serverTimestamp() });
+			return verified.status === 'active';
+		});
+		return { active };
 	} catch (error) {
-		console.error('Error updating subscription status:', error);
-		throw new HttpsError('internal', 'Failed to update subscription status');
+		console.error('Subscription verification failed', error);
+		if (error instanceof HttpsError) throw error;
+		throw new HttpsError('unavailable', 'Subscription verification is temporarily unavailable. Please retry.');
 	}
 });
 
@@ -2186,37 +2185,56 @@ export const updateUserSubscriptionStatus = onCall({
 export const checkExpiredTrials = onSchedule('0 3 * * *', async () => {
 	const db = getFirestore();
 	try {
-		console.log('Checking for expired trials...');
+		console.log('Checking for expired trials and subscriptions...');
 
 		const now = new Date();
 
-		// Find users with expired trials
-		const expiredTrialsSnapshot = await db.collection('users')
-			.where('subscriptionType', '==', 'trial')
+		// Find users who are active
+		const activeUsersSnapshot = await db.collection('users')
 			.where('status', '==', 'active')
-			.where('trialEndsAt', '<=', now)
 			.get();
 
-		if (expiredTrialsSnapshot.empty) {
-			console.log('No expired trials found');
+		if (activeUsersSnapshot.empty) {
+			console.log('No active users found');
 			return;
 		}
 
 		const batch = db.batch();
 		let processedUsers = 0;
 
-		expiredTrialsSnapshot.docs.forEach(doc => {
-			batch.update(doc.ref, {
-				status: 'inactive', // Deactivate AI suggestions
-				subscriptionType: 'expired', // Mark as expired trial
-				updatedAt: FieldValue.serverTimestamp()
-			});
-			processedUsers++;
+		activeUsersSnapshot.docs.forEach(doc => {
+			const user = doc.data();
+			let expirationDate: Date | null = null;
+
+			// Determine expiration date
+			if (user.subscriptionType === 'trial') {
+				const targetDate = user.subscriptionExpiration || user.trialEndsAt;
+				if (targetDate) {
+					expirationDate = typeof targetDate.toDate === 'function' ? targetDate.toDate() : new Date(targetDate);
+				}
+			} else if (user.subscriptionType === 'premium') {
+				if (user.subscriptionExpiration) {
+					expirationDate = typeof user.subscriptionExpiration.toDate === 'function' ? user.subscriptionExpiration.toDate() : new Date(user.subscriptionExpiration);
+				}
+			}
+
+			if (expirationDate && expirationDate < now) {
+				batch.update(doc.ref, {
+					status: 'inactive', // Deactivate AI suggestions
+					subscriptionType: 'expired', // Mark as expired
+					updatedAt: FieldValue.serverTimestamp()
+				});
+				processedUsers++;
+				console.log(`Deactivated expired user ${doc.id} (${user.subscriptionType})`);
+			}
 		});
 
-		await batch.commit();
-
-		console.log(`Processed ${processedUsers} expired trials`);
+		if (processedUsers > 0) {
+			await batch.commit();
+			console.log(`Processed ${processedUsers} expired trials/subscriptions`);
+		} else {
+			console.log('No expired trials or subscriptions detected');
+		}
 
 	} catch (error) {
 		console.error('Error checking expired trials:', error);
@@ -2871,4 +2889,4 @@ async function callTrackerSpecificSuggestionsForBatch(
 		console.error(`Error calling tracker suggestions for batch - user ${userId}, tracker ${trackerId}:`, error);
 		return { success: false, error: (error as Error).message };
 	}
-} 
+}

@@ -4,6 +4,10 @@
 
 export const environment = {
   production: false,
+  revenueCat: {
+    iosApiKey: 'appl_IeOlLFjbuMRZDpfFWGbgiKfDfFy',
+    androidApiKey: '' // Set the Google Play public SDK key (goog_) before release.
+  },
   firebase: {
     apiKey: "AIzaSyABvaoL_19kPgCA8pVMG5Dph5-_GDHZZ3U",
     authDomain: "regen28-2fe51.firebaseapp.com",

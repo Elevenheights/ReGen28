@@ -50,6 +50,10 @@ export class OnboardingGuard implements CanActivate {
 						}
 
 						// Check if onboarding is complete
+						if (userProfile.aiConsentVersion !== 1) {
+							this.router.navigate(['/ai-consent']);
+							return false;
+						}
 						if (!userProfile.isOnboardingComplete) {
 							console.log('🛡️ OnboardingGuard: Onboarding incomplete, redirecting to onboarding');
 							this.router.navigate(['/onboarding']);

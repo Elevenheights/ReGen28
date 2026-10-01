@@ -8,6 +8,14 @@
         ".git",
         "firebase-debug.log",
         "firebase-debug.*.log",
+        "tests",
+        "scripts",
+        "create-review-account.js",
+        "test-*.js",
+        "seed.js",
+        "*.png",
+        "*.txt",
+        "*.log",
         "*.local",
         "package-lock.json"
       ],
@@ -22,5 +30,22 @@
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "hosting": {
+    "site": "regen28",
+    "public": "landing-page",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
   }
 }
+
+

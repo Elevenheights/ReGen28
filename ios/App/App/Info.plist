@@ -58,5 +58,11 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>ReGen28 uses your camera to capture progress photos for your wellness journey.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ReGen28 accesses your photo library so you can select reference and progress photos.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>ReGen28 saves your progress photos to your photo library.</string>
 </dict>
 </plist>

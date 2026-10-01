@@ -140,6 +140,15 @@ export class DatabaseService {
 		);
 	}
 
+	/** Create a document with a known ID; security rules protect billing fields. */
+	createDocumentWithId<T>(collectionName: string, id: string, data: Omit<T, 'id'>): Observable<void> {
+		return from(setDoc(doc(this.firestore, collectionName, id), {
+			...data,
+			createdAt: serverTimestamp(),
+			updatedAt: serverTimestamp()
+		}));
+	}
+
 	/**
 	 * Update an existing document
 	 */
@@ -446,4 +455,4 @@ export class DatabaseService {
 			})
 		);
 	}
-} 
+}

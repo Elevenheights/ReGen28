@@ -97,10 +97,6 @@ export class WelcomePage implements OnInit {
 					currentDay: 1,
 					streakCount: 0,
 					isOnboardingComplete: false, // NOT complete yet - will complete after onboarding
-					// Subscription defaults
-					status: 'active', // New users start with trial
-					subscriptionType: 'trial', // Everyone gets a trial period
-					trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
 					lastActiveAt: new Date(),
 					preferences: {
 						dailyReminders: true,
@@ -138,6 +134,11 @@ export class WelcomePage implements OnInit {
 			}
 
 			// Initialize onboarding and move to next step
+			const privacyProfile = await this.userService.getCurrentUserProfile().pipe(take(1)).toPromise();
+			if (privacyProfile?.aiConsentVersion !== 1) {
+				await this.router.navigate(['/ai-consent']);
+				return;
+			}
 			console.log('🔄 Starting onboarding flow...');
 			this.onboardingService.initializeOnboarding();
 			this.onboardingService.nextStep(); // Go to profile page
@@ -175,10 +176,6 @@ export class WelcomePage implements OnInit {
 					currentDay: 1,
 					streakCount: 0,
 					isOnboardingComplete: true, // Skip - mark as complete immediately
-					// Subscription defaults
-					status: 'active', // New users start with trial
-					subscriptionType: 'trial', // Everyone gets a trial period
-					trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
 					lastActiveAt: new Date(),
 					preferences: {
 						dailyReminders: true,
@@ -230,4 +227,4 @@ export class WelcomePage implements OnInit {
 			this.router.navigate(['/tabs/dashboard']);
 		}
 	}
-} 
+}

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReGen28 | The Elite 28-Day AI Wellness Transformation</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,900;1,900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- GSAP for Smooth Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <style>
+        :root {
+            --bg-base: #020204;
+            --surface-low: #0A0A0F;
+            --surface-high: #12121A;
+            --accent-indigo: #6366F1;
+            --accent-gold: #FFB800;
+            --text-primary: #FFFFFF;
+            --text-secondary: #94A3B8;
+            --glass-white: rgba(255, 255, 255, 0.03);
+            --border-glow: rgba(99, 102, 241, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- Scroll Progress Bar --- */
+        #progress {
+            position: fixed;
+            top: 0; left: 0; height: 3px;
+            background: linear-gradient(to right, var(--accent-indigo), var(--accent-gold));
+            z-index: 1000;
+            width: 0%;
+        }
+
+        /* --- Global Image Styles --- */
+        .img-cover {
+            width: 100%; height: 100%; object-fit: cover;
+            border-radius: inherit;
+        }
+
+        .img-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        }
+
+        /* --- Animations --- */
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease-out; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        /* --- Layout --- */
+        .container { max-width: 1300px; margin: 0 auto; padding: 0 2rem; }
+
+        nav {
+            padding: 2.5rem 0;
+            display: flex; justify-content: space-between; align-items: center;
+            position: absolute; top: 0; left: 0; right: 0; z-index: 100;
+        }
+
+        .logo { font-family: 'Playfair Display', serif; font-weight: 900; font-size: 2rem; letter-spacing: -2px; font-style: italic; }
+
+        .btn {
+            padding: 1.2rem 3rem; border-radius: 100px; font-weight: 850; text-decoration: none;
+            display: inline-block; transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            text-transform: uppercase; font-size: 0.85rem; letter-spacing: 2px; border: none; cursor: pointer;
+        }
+
+        .btn-primary { background: white; color: black; box-shadow: 0 20px 40px rgba(255,255,255,0.1); }
+        .btn-primary:hover { background: var(--accent-gold); color: black; transform: scale(1.05); }
+
+        .btn-glass { background: var(--glass-white); color: white; border: 1px solid var(--border-glow); backdrop-filter: blur(20px); }
+        .btn-glass:hover { border-color: rgba(255,255,255,0.5); }
+
+        /* --- Hero --- */
+        .hero {
+            height: 100vh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; position: relative; overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute; inset: 0; z-index: -1;
+            background: url('https://images.unsplash.com/photo-1549576490-b0b4831da60a?q=80&w=2670&auto=format&fit=crop') center/cover;
+            filter: brightness(0.3) contrast(1.1);
+        }
+
+        h1 { font-family: 'Playfair Display', serif; font-size: 7.5rem; line-height: 0.9; font-weight: 900; margin-bottom: 2.5rem; letter-spacing: -3px; }
+        .sub-hero { font-size: 1.4rem; color: var(--text-secondary); max-width: 700px; margin-bottom: 4rem; }
+
+        /* --- The Split Comparison --- */
+        .comparison-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; padding: 10rem 0; align-items: center;
+        }
+
+        .comp-img {
+            height: 600px; border-radius: 4rem; overflow: hidden; border: 1px solid var(--border-glow);
+            position: relative; box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+        }
+
+        /* --- Bento Features --- */
+        .bento-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 350px);
+            gap: 1.5rem; margin-top: 5rem;
+        }
+
+        .bento-card {
+            background: var(--surface-high); border-radius: 3rem; overflow: hidden;
+            position: relative; border: 1px solid var(--glass-white);
+        }
+
+        .bento-1 { grid-column: span 2; grid-row: span 1; }
+        .bento-2 { grid-column: span 2; grid-row: span 2; }
+        .bento-3 { grid-column: span 2; grid-row: span 1; }
+
+        .bento-text {
+            position: absolute; bottom: 0; left: 0; right: 0; padding: 3rem; z-index: 5;
+        }
+
+        /* --- Transformation Detail --- */
+        .transform-detail {
+            background: linear-gradient(to bottom, var(--bg-base), var(--surface-low)); padding: 12rem 0;
+        }
+
+        .side-visual { display: flex; gap: 4rem; border-radius: 4rem; padding: 6rem; background: var(--surface-high); border: 1px solid var(--border-glow); }
+
+        /* --- Mobile Reveal --- */
+        .mobile-showcase { padding: 10rem 0; text-align: center; }
+        .app-mock { width: 320px; height: 650px; background: #000; border: 10px solid #222; border-radius: 3rem; margin: 0 auto; overflow: hidden; box-shadow: 0 80px 150px rgba(99,102,241,0.2); }
+
+        /* --- Footer --- */
+        footer { padding: 10rem 0 4rem; text-align: center; background: #000; }
+        .footer-logo { font-size: 3rem; margin-bottom: 2rem; color: var(--accent-gold); }
+
+        @media (max-width: 900px) {
+            h1 { font-size: 4rem; } .comparison-grid { grid-template-columns: 1fr; } .bento-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+            .side-visual { flex-direction: column; padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="progress"></div>
+    <div class="container">
+        <nav>
+            <div class="logo">ReGen28</div>
+            <a href="mailto:hello@regen28.com" class="btn btn-glass">Request Invitation</a>
+        </nav>
+    </div>
+
+    <!-- HERO SECTION -->
+    <header class="hero">
+        <div class="hero-bg"></div>
+        <div class="container" style="z-index: 10;">
+            <div style="font-size: 0.8rem; font-weight: 900; letter-spacing: 5px; text-transform: uppercase; color: var(--accent-gold); margin-bottom: 2rem;">Only For Those Who Seek Peak Performance</div>
+            <h1 id="hero-title" style="font-size: 6rem;">Transform yourself<br> <span style="font-style: italic; color: var(--accent-indigo);">in 28 days.</span></h1>
+                    <p style="color: var(--text-dim); font-size: 1.2rem; margin-bottom: 3.5rem;">An elite holistic AI wellness protocol. Rebuild your mindset, optimize your rituals, and unlock your ultimate potential through daily discipline.</p>
+            <div style="display: flex; gap: 2rem; justify-content: center;">
+                <a href="#join" class="btn btn-primary">Start Your Transformation</a>
+                <a href="#features" class="btn btn-glass">Explore Arsenal</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- THE TRANSFORMATION REALITY -->
+    <section class="container">
+        <div class="comparison-grid">
+            <div class="reveal">
+                <h2 style="font-family: 'Playfair Display'; font-size: 4.5rem; line-height: 0.9; margin-bottom: 2rem;">Total <br> <span style="color: var(--accent-gold);">Optimization.</span></h2>
+                <p style="color: var(--text-secondary); font-size: 1.3rem; margin-bottom: 3rem;">ReGen28 isn't just about how you look; it's about how you operate. Our advanced AI mentor guides you through a strict 28-day regimen of mental clarity, physical discipline, and deep reflection to manifest the best version of yourself.</p>
+                <div style="padding: 2rem; border-left: 2px solid var(--accent-indigo); background: var(--glass-white); border-radius: 0 2rem 2rem 0;">
+                    <div style="font-weight: 900; font-size: 0.7rem; color: var(--accent-indigo); text-transform: uppercase; letter-spacing: 2px;">Core Protocol</div>
+                    <div style="font-size: 1.2rem; font-weight: 600; margin-top: 0.5rem;">Mind, Body, Soul & Radiance</div>
+                </div>
+            </div>
+            <div class="reveal">
+                <div class="comp-img">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=2564&auto=format&fit=crop" class="img-cover" alt="Peak Self Visualization">
+                    <div class="img-overlay"></div>
+                    <div style="position: absolute; bottom: 3rem; left: 3rem;">
+                        <div style="font-weight: 900; font-size: 0.6rem; letter-spacing: 2px; color: var(--accent-gold);">Visual Motivation</div>
+                        <div style="font-family: 'Playfair Display'; font-size: 2rem;">See The Future You</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BENTO FEATURES (Visual-Heavy) -->
+    <section style="background: var(--surface-low); padding: 12rem 0;">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 6rem;">
+                <h2 style="font-family: 'Playfair Display'; font-size: 4rem;">The 4 Pillars of Excellence</h2>
+            </div>
+            
+            <div class="bento-grid">
+                <!-- MIND -->
+                <div class="bento-card bento-1 reveal">
+                    <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=2599&auto=format&fit=crop" class="img-cover">
+                    <div class="img-overlay"></div>
+                    <div class="bento-text">
+                        <h4 style="font-family: 'Playfair Display'; font-size: 2rem;">Elite Mindset</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Daily cognitive drills managed by your AI mentor.</p>
+                    </div>
+                </div>
+                <!-- BEAUTY/RADIANCE -->
+                <div class="bento-card bento-2 reveal">
+                    <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?q=80&w=2670&auto=format&fit=crop" class="img-cover">
+                    <div class="img-overlay"></div>
+                    <div class="bento-text">
+                        <h4 style="font-family: 'Playfair Display'; font-size: 2.5rem;">Radiant Glow</h4>
+                        <p style="color: var(--text-secondary); font-size: 1rem;">Facial analysis and skincare rituals that revitalize your appearance as your health improves.</p>
+                    </div>
+                </div>
+                <!-- BODY -->
+                <div class="bento-card bento-3 reveal">
+                    <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?q=80&w=2670&auto=format&fit=crop" class="img-cover">
+                    <div class="img-overlay"></div>
+                    <div class="bento-text">
+                        <h4 style="font-family: 'Playfair Display'; font-size: 2rem;">Peak Kinetic</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Adaptive rituals tracked to your metabolic rhythm.</p>
+                    </div>
+                </div>
+                <!-- SOUL -->
+                <div class="bento-card reveal" style="grid-column: span 2;">
+                    <img src="https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?q=80&w=2500&auto=format&fit=crop" class="img-cover">
+                    <div class="img-overlay"></div>
+                    <div class="bento-text">
+                        <h4 style="font-family: 'Playfair Display'; font-size: 2rem;">Spiritual Alignment</h4>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Deep gratitude integration for modern ambition.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FULL FEATURE SHOWCASE -->
+    <section class="container" style="padding: 8rem 0;" id="features">
+        <div style="text-align: center; margin-bottom: 6rem;">
+            <div style="font-weight: 900; font-size: 0.8rem; color: var(--accent-indigo); text-transform: uppercase; letter-spacing: 3px; margin-bottom: 1rem;">The Arsenal</div>
+            <h2 style="font-family: 'Playfair Display'; font-size: 4rem;">Everything You Need To <br> <span style="color: var(--accent-gold);">Reengineer Your Baseline</span></h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <!-- Feature 1 -->
+            <div class="reveal" style="background: var(--surface-high); padding: 3rem; border-radius: 2rem; border: 1px solid var(--glass-white); transition: all 0.3s; cursor: pointer;">
+                <div style="width: 50px; height: 50px; border-radius: 1rem; background: rgba(99, 102, 241, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                    <i class="fa-solid fa-brain" style="color: var(--accent-indigo); font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">AI Persona Coach</h3>
+                <p style="color: var(--text-secondary); font-size: 1rem;">Your personal AI mentor orchestrates your 28-day journey, providing dynamic morning motivations, midday insights, and tough-love accountability based on your real-time progress.</p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="reveal" style="background: var(--surface-high); padding: 3rem; border-radius: 2rem; border: 1px solid var(--glass-white); transition: all 0.3s; cursor: pointer;">
+                <div style="width: 50px; height: 50px; border-radius: 1rem; background: rgba(255, 184, 0, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                    <i class="fa-solid fa-list-check" style="color: var(--accent-gold); font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Dynamic Habit Rhythms</h3>
+                <p style="color: var(--text-secondary); font-size: 1rem;">Track daily micro-commitments across Mind, Body, Soul, and Radiance. Build unbreakable streaks and visualize your consistency over the 28-day cycle.</p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="reveal" style="background: var(--surface-high); padding: 3rem; border-radius: 2rem; border: 1px solid var(--glass-white); transition: all 0.3s; cursor: pointer;">
+                <div style="width: 50px; height: 50px; border-radius: 1rem; background: rgba(236, 72, 153, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                    <i class="fa-solid fa-pen-nib" style="color: #EC4899; font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Deep Reflection Journal</h3>
+                <p style="color: var(--text-secondary); font-size: 1rem;">Guided cognitive unburdening. Log your thoughts, moods, and energy levels. The AI analyzes your entries to provide contextual guidance and recognize emotional blind spots.</p>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="reveal" style="background: var(--surface-high); padding: 3rem; border-radius: 2rem; border: 1px solid var(--glass-white); transition: all 0.3s; cursor: pointer;">
+                <div style="width: 50px; height: 50px; border-radius: 1rem; background: rgba(16, 185, 129, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                    <i class="fa-solid fa-chart-pie" style="color: #10B981; font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Performance Analytics</h3>
+                <p style="color: var(--text-secondary); font-size: 1rem;">Monitor your vital statistics with precision. Weekly consistency scores, total activity load, and historical streak mapping allow you to quantify your self-mastery.</p>
+            </div>
+
+             <!-- Feature 5 -->
+             <div class="reveal" style="background: var(--surface-high); padding: 3rem; border-radius: 2rem; border: 1px solid var(--glass-white); transition: all 0.3s; cursor: pointer;">
+                <div style="width: 50px; height: 50px; border-radius: 1rem; background: rgba(99, 102, 241, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                    <i class="fa-solid fa-bolt" style="color: var(--accent-indigo); font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">The Obsidian UI</h3>
+                <p style="color: var(--text-secondary); font-size: 1rem;">A premium, distraction-free interface perfectly calibrated for focused execution. Designed with stark contrasts and fluid micro-animations to make daily interaction frictionless.</p>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="reveal" style="background: var(--surface-high); padding: 3rem; border-radius: 2rem; border: 1px solid var(--glass-white); transition: all 0.3s; cursor: pointer;">
+                <div style="width: 50px; height: 50px; border-radius: 1rem; background: rgba(255, 184, 0, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 2rem;">
+                    <i class="fa-solid fa-crown" style="color: var(--accent-gold); font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">ReGen28 Premium</h3>
+                <p style="color: var(--text-secondary); font-size: 1rem;">Unlock unrestricted access to advanced AI coaching insights, unlimited high-fidelity visual motivation, and granular data export. Your first 7 days are on us.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="container" style="padding: 12rem 0; text-align: center;" id="join">
+        <div class="reveal" style="background: var(--surface-high); padding: 8rem; border-radius: 4rem; border: 1px solid var(--border-glow); position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -100px; left: -100px; width: 400px; height: 400px; background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);"></div>
+            
+            <h2 style="font-family: 'Playfair Display'; font-size: 5rem; line-height: 1; margin-bottom: 2rem;">Your Future You <br> is Waiting.</h2>
+            <p style="color: var(--text-secondary); font-size: 1.3rem; margin-bottom: 4rem; max-width: 600px; margin-left: auto; margin-right: auto;">Join an exclusive cohort of high-achievers redefining their personal baseline. The next 28 days will happen regardless. Make them count.</p>
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+                <a href="mailto:hello@regen28.com" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.5rem 4rem;">Secure Your Invitation</a>
+                <div style="font-weight: 900; font-size: 0.7rem; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 3px;">Limited Access: April Cohort Now Open</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-logo">ReGen28</div>
+            <div style="display: flex; justify-content: center; gap: 4rem; margin-bottom: 6rem;">
+                <a href="privacy.html" style="color: var(--text-secondary); text-decoration: none; font-weight: 800; font-size: 0.8rem; text-transform: uppercase;">Privacy</a>
+                <a href="terms.html" style="color: var(--text-secondary); text-decoration: none; font-weight: 800; font-size: 0.8rem; text-transform: uppercase;">Terms</a>
+                <a href="mailto:support@regen28.com" style="color: var(--text-secondary); text-decoration: none; font-weight: 800; font-size: 0.8rem; text-transform: uppercase;">Support</a>
+            </div>
+            <div style="color: #111; font-weight: 900; font-size: 0.8rem; letter-spacing: 5px; text-transform: uppercase;">Build the masterpiece. Be the masterpiece.</div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth Reveal Logic
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+        // Scroll Progress Bar
+        window.onscroll = function() {
+            let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrolled = (winScroll / height) * 100;
+            document.getElementById("progress").style.width = scrolled + "%";
+        };
+    </script>
+</body>
+</html>

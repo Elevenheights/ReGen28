@@ -6,7 +6,8 @@
 		"FirebaseAuthentication": {
 			"skipNativeAuth": true,
 			"providers": [
-				"google.com"
+				"google.com",
+				"apple.com"
 			]
 		},
 		"PushNotifications": {
@@ -20,6 +21,13 @@
 			"smallIcon": "ic_stat_icon_config_sample",
 			"iconColor": "#488AFF",
 			"sound": "beep.wav"
+		},
+		"SplashScreen": {
+			"launchShowDuration": 2000,
+			"launchAutoHide": true,
+			"backgroundColor": "#020617",
+			"androidSplashResourceName": "splash",
+			"showSpinner": false
 		}
 	},
 	"ios": {

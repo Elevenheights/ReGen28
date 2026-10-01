@@ -3,7 +3,27 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // User data is private to the user
     match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+      // Billing and role changes are made only by the Admin SDK on the server.
+      allow read: if isOwner();
+      allow create: if isOwner()
+        && request.resource.data.status == 'inactive'
+        && request.resource.data.role == 'user'
+        && request.resource.data.subscriptionType == 'expired'
+        && !request.resource.data.keys().hasAny([
+          'trialEndsAt', 'subscriptionExpiration', 'billingAccessOverride',
+          'subscriptionVerifiedAt', 'deletionPending'
+        ]);
+      allow update: if isOwner()
+        && resource.data.get('deletionPending', false) != true
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+          'status', 'role', 'subscriptionType', 'trialEndsAt',
+          'subscriptionExpiration', 'billingAccessOverride', 'subscriptionVerifiedAt', 'deletionPending'
+        ]);
+      // Account deletion must use the authenticated server cleanup function.
+      allow delete: if false;
     }
     
     // Trackers belong to a user

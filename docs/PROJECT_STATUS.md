@@ -1,7 +1,7 @@
 # ReGen28 Wellness App – Project Checklist
 
 > **Tech Stack**: Ionic 8 + Angular 20 + Firebase + Capacitor  
-> **Last Updated**: 2026-02-14
+> **Last Updated**: 2026-09-30
 
 ---
 
@@ -251,13 +251,20 @@ Components → Services → DatabaseService → Firebase
 
 ---
 
-## 📅 Upcoming Phases
-
 ### Phase 8: Settings & User Management ✅ COMPLETED
-- Profile management with edit modal
-- Image upload functionality
-- Preference persistence
-- Developer mode toggle
+- ✅ Profile management with edit modal
+- ✅ Image upload functionality
+- ✅ Preference persistence
+- ✅ Developer mode toggle
+
+### Phase 9: Mobile Subscription & Access Control (iOS & Android) ✅ COMPLETED
+- ✅ **RevenueCat Integration**: Integrated @revenuecat/purchases-capacitor for native iOS billing.
+- ✅ **Subscription Service**: Centralized state management for Entitlement and Firestore synchronization.
+- ✅ **Access Control (Guard)**: Implemented SubscriptionGuard for strict app-wide protection.
+- ✅ **Premium Paywall**: Implemented /subscription page with high-fidelity design and benefits list.
+- ✅ **Auto-Deactivation**: Updated daily-maintenance Cloud Function to automatically flip expired accounts to inactive.
+- ✅ **Backend Guardrails**: Verified all AI generation and stats jobs strictly filter for status == 'active'.
+- ✅ **Standard Trial Flow**: Users must initiate the 7-day App Store trial on Day 1 (No manual grace period).
 
 ### Phase 8.5: Social Feed Enhancements ✅ COMPLETED
 **Feed Post Types** (`src/app/components/feed/cards/`):
@@ -384,21 +391,103 @@ Components → Services → DatabaseService → Firebase
 - ✅ **Frontend Refactor**: Updated `DatabaseService` and developer triggers to use the single `triggerFeedPost` endpoint.
 - ✅ **Code Quality**: Deleted redundant files (`feed-jobs.ts`, `card-templates.ts`) and streamlined `index.ts` exports.
 
+### Phase 10: Store Submission Prep — iOS & Android ✅ COMPLETED (2026-06-16)
+**Cold-Start / Stability Fixes**:
+- ✅ **White-Screen Fix (Android & iOS)**: RevenueCat `getOfferings()` `ConfigurationError` no longer crashes boot — wrapped in `catchError(() => of(null))` in `subscription.service.ts`. App now reliably shows the paywall on cold start.
+- ✅ **iOS Native Firebase**: Resolved iOS simulator white screen via native Firebase plugin URL schemes + AngularFire JS LocalPersistence hang fix (commit `066ba0`).
+
+**iOS Submission Requirements**:
+- ✅ **Privacy Usage Strings** (`ios/App/App/Info.plist`): Added `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription`, `NSPhotoLibraryAddUsageDescription` (required for App Review).
+- ✅ **Push Entitlements** (`ios/App/App/App.entitlements`): `aps-environment: production` created. ⏳ Still needs Xcode on a Mac to link the entitlements file to the target + APNs key wired to Firebase.
+- ✅ **Bundle / Team**: `com.regen28labs`, Team ID `3GNC95S8K6`.
+
+**Branded Splash Screens**:
+- ✅ **Source Art**: `resources/splash-source.png` (2732×2732, dark `#020617` bg, indigo→emerald gradient sparkle, "ReGen28" + "28 Day Wellness Reset").
+- ✅ **iOS**: Replaced all three `Splash.imageset` slots.
+- ✅ **Android 12+ SplashScreen API**: `styles.xml` uses `windowSplashScreenBackground` + `windowSplashScreenAnimatedIcon`; new `colors.xml`; `ic_splash_icon.png` + `splash.png` generated at all densities (mdpi→xxxhdpi, port + land).
+- ✅ **Capacitor**: `SplashScreen` plugin config (2000ms, `#020617`, no spinner) in `capacitor.config.json`.
+
+**Ionic Appflow Cloud iOS Builds**:
+- ✅ **Appflow Connected**: App `5b497d73` building from `main` (commit `a4ac76`).
+- ✅ **Signing Fixed**: Replaced Ad Hoc profile with a proper **App Store** profile (`Regen28_App_Store.mobileprovision`) matched to the "Apple Distribution: ReGen28 Labs INC." cert on the "Regen 28 Distribution" credential. App Store build (#35) triggered successfully.
+- ⏳ Appflow email (`info@regen28labs.com`) still needs verification for full functionality.
+
+**Reviewer Access (Apple & Google)**:
+- ✅ **Demo Account**: `applereview@regen28labs.com` created via `functions/create-review-account.js` (idempotent Admin SDK script).
+- ✅ **Paywall Bypass**: Firestore `users/<uid>` set to `status: "active"` + `isOnboardingComplete: true` + far-future `trialEndsAt` so reviewers land directly in the full app past `SubscriptionGuard`. Email pre-verified.
+- ⏳ Credentials still need to be entered into App Store Connect → App Review Information and Play Console → App access.
+
 ---
 
 ## 🚧 Current Work in Progress
+
+### Release stabilization — 2026-09-30 (backend deployed; iOS release still blocked)
+
+- ✅ Subscription status callable now verifies the authenticated UID against RevenueCat instead of accepting client-supplied access grants.
+- ✅ Firestore rules prevent client changes to billing fields and roles; signup starts inactive. Onboarding cannot grant trials or admin roles.
+- ✅ Removed the production web developer bypass, fabricated active profiles, and forced onboarding completion.
+- ✅ Billing initialization waits for platform readiness and selects an iOS or Google Play SDK key. Android billing intentionally remains unavailable until its actual `goog_` key is configured in both environment files.
+- ✅ Webhook retries remain possible after failure, profile updates and deduplication markers commit atomically, and TRANSFER events refresh both owners. Current RevenueCat state is used to handle delayed events.
+- ✅ Paywall uses the actual store price, disables unavailable purchases, displays confirmation errors, and navigates after a verified restore. Trial eligibility and terms are confirmed by the store rather than guaranteed by the app.
+- ✅ iOS Debug and Release signing settings now reference development and production push entitlements respectively. Native iOS signing is not validated on Windows.
+- ✅ Production web build and Firebase Functions build pass. Android debug APK rebuilt successfully.
+- ✅ 45 automated checks pass: 18 targeted ChromeHeadless tests, 12 backend unit tests, and 15 emulator rules/integration tests. RevenueCat responses are mocked in automated tests; live store transactions are still unverified.
+- ✅ Added explicit optional AI data-sharing consent with server-side enforcement and revocation. Scheduled feed generation skips users without current consent.
+- ✅ Added in-app account deletion, including an account route accessible without a subscription, recent-sign-in confirmation, user-owned Firestore/media cleanup, and Apple token revocation for linked Apple accounts. Actual deletion and Apple revocation still require native device testing.
+- ✅ Deployed billing verification/webhook, onboarding, account deletion, AI consent enforcement, affected AI workers, and hourly unified feed cadence. No RunPod capacity was increased.
+- ✅ Deployed Firestore rules and public privacy, terms, and support pages. All three hosted pages return HTTP 200.
+- ✅ Existing reviewer login and server-granted billing access pass against production. Guard-only live requests confirm account deletion requires explicit confirmation and AI generation rejects missing consent; no production account was deleted.
+- ✅ Corrected client-callable Cloud Run invocation configuration so Firebase user JWTs reach the handler. Callable authentication remains mandatory; background worker invocation was not opened. Recheck this after future deployments.
+- ✅ Saved Apple listing description/promo text, support URL, reviewer instructions, English (Canada) subscription group/product localization, and subscription review notes. Existing prices and release mode were preserved. Nothing was submitted for review.
+
+**Commands** (from repository root):
+
+```powershell
+npm.cmd run build
+npm.cmd run test:release
+npm.cmd --prefix functions run test:billing
+# Requires Java 21 on PATH; emulator uses demo-regen28-release, never production.
+npm.cmd run test:billing-emulator
+```
+
+**Deployment dependencies / required rollout order**:
+
+**RevenueCat dashboard verified on 2026-09-30** (read-only; no external settings changed):
+
+- Project `Regen28` (`b7899005`) has an App Store app and Test Store only; no Google Play app or `goog_` SDK key exists yet. The Apps page states this login does not have permission to add app configurations.
+- Apple bundle ID `com.regen28labs` and public SDK key match the local app configuration. The in-app purchase credentials show **Valid credentials**; the separate App Store Connect API key upload is empty, and no Apple server notifications have been received.
+- Default offering `default` contains `$rc_monthly`, linked to Apple product `com.regen28labs.pro.monthly` and Test Store product `monthly`. Both products are attached to entitlement `Regen28 Pro`.
+- Active webhook connection `Firebase Backend` targets `https://us-central1-regen28-2fe51.cloudfunctions.net/revenueCatWebhook`. The revised handler is deployed: a secret-authenticated TEST event returned 200 and an unauthenticated TEST returned 401. An actual store transaction/webhook remains unverified.
+- Live overview shows zero active subscriptions/trials and no live transactions. Real store purchase testing remains outstanding.
+
+1. An authorized RevenueCat owner/admin must add the Google Play app, confirm package `com.regen28.app` against Play Console, configure store credentials and products, and attach its monthly product to the existing offering and entitlement. Then fill the new Android SDK key in `src/environments/environment.ts` and `environment.prod.ts`. The server's `REVENUECAT_API_KEY` parameter defaults to the verified existing public project SDK key, which is supported by the [customer-info GET endpoint](https://www.revenuecat.com/docs/customers/customer-info).
+2. Completed: marked only the existing active reviewer profile `billingAccessOverride: true` using the Admin SDK, preserving its password and other profile data. Verified its existing credentials and live callable access. Do not run the provisioning script unnecessarily.
+3. Completed backend/rules deployment with `REVENUECAT_WEBHOOK_SECRET`. Distribution of the updated mobile client remains outstanding. Old clients write billing fields directly and are denied by the new rules. The production audit found four profiles (one active reviewer, one inactive, two without status); historical profiles were not modified.
+4. Test a sandbox purchase, restore, renewal, cancellation, refund, and expiry on real iOS/Android store builds, including reviewer sign-in. Verify RevenueCat API access to both apps in the same project.
+5. Confirm the Android listing uses the actual native/Firebase package `com.regen28.app`. iOS and Capacitor config use `com.regen28labs`; do not change an existing store package without confirming its identity. The older checklist's Android package reference was inaccurate.
+6. Complete Apple signing/provisioning (including Sign in with Apple and push entitlements), APNs configuration, a fresh signed iOS build/upload, and device testing. Capacitor copy/build passed on Windows; this is not a native iOS archive or signing check.
+7. App Store Connect TestFlight reports **No Builds**. Version 1.0 has no attached build and zero iPhone screenshots. The subscription still needs a genuine review screenshot. Existing Android screenshots are not suitable substitutes. Appflow login is now confirmed for the existing connected app `5b497d73`, but the dashboard still requests email verification. Its latest available commit is `a4ac76`; successful iOS build #35 from June 16 does not contain these changes. Existing production/development signing entries expire February 7, 2027; profile capabilities and a fresh archive remain unverified.
+8. Apple displays a requirement to add Canadian Part XX Income Tax Act compliance information before submitting a new app. The owner must supply the company's legal/tax details and handle any legal acknowledgments. Category is Health & Fitness (secondary Productivity), rating is 9+ in most regions, and trader status is already declared; these were inspected, not changed.
+9. Before any release source push, review existing tracked private signing certificates/keys and environment files. Do not include secrets or the reviewer provisioning script in a new source upload. Firebase function packaging now excludes that script and diagnostic assets. Added Git ignore protection for new local credentials, environment files, reviewer provisioning, and Firebase cache; this does not remove existing tracked files or historical exposure. No Git commit/push or signing-credential rotation was performed.
 
 ### Phase 9: Offline Support & PWA
 - [ ] Service worker implementation
 - [ ] Offline data caching
 - [ ] Background sync
 
-### Phase 10: Native Features & Mobile Optimization
+### Phase 10b: Native Features & Mobile Optimization
 - ✅ Push notifications
 - [ ] Biometric authentication
 - [ ] Camera integration for progress photos
 - ✅ iOS platform setup (Capacitor Sync & Config)
-- [ ] App Store / Play Store production builds
+- ✅ iOS privacy usage strings (camera/photo) for App Review
+- ✅ Branded splash screens (iOS + Android 12 SplashScreen API)
+- ✅ iOS App Store build via Ionic Appflow (signing/profile fixed)
+- ✅ Store reviewer demo account with active-subscription bypass
+- ✅ Link development/production push entitlements to the Xcode target (local configuration)
+- [ ] Validate iOS provisioning on a Mac/Appflow + wire APNs key to Firebase
+- [ ] App Store Connect listing + submit for review
+- [ ] Play Store production AAB + listing
 
 ### Phase 11: Advanced Analytics & AI Insights
 - [ ] Enhanced mood correlation analysis
@@ -444,7 +533,7 @@ regen28/
 │   └── services/            # 18 service files
 ├── functions/src/           # Firebase Cloud Functions
 │   ├── index.ts             # Function exports
-│   ├── feed/                # Feed generation & media jobs
+│   ├── feed/                # Unified feed generation (unified-feed.ts)
 │   ├── services/            # GeminiImageService, etc.
 │   ├── statistics.service.ts
 │   ├── shared-config.ts
@@ -472,17 +561,24 @@ npm run lint:fix            # Fix linting issues
 - `tracker-daily-stats` – Tracker-specific daily stats
 - `journal-daily-stats` – Journal analytics
 - `feed-items` – AI-generated feed content (actions, insights, motivational, contextual)
-- `feed-media-jobs` – Queued media generation jobs
 
 ---
 
 ## 🎯 Current Priority
 
-**Next Immediate Steps**:
-1. Implement PWA support for offline caching and background sync
-2. Push notification system for ritual reminders
+**Active Focus: App Store & Play Store Submission**
+1. Enter reviewer demo creds (`applereview@regen28labs.com`) into App Store Connect → App Review Information and Play Console → App access
+2. Validate the linked iOS push entitlements with the provisioning profile, add the APNs key in the Apple Developer portal, and wire it to Firebase Console for production push
+3. Sign in to Appflow, build/upload the updated source with validated Apple provisioning, and test through TestFlight; Apple currently has no builds. Then attach the verified build, genuine iPhone screenshots, and subscription review screenshot. Complete the owner-only Canadian tax compliance requirement before submission.
+4. Configure the Google Play public SDK key in both environment files; confirm the store app package `com.regen28.app` and its subscription product; build a signed Play AAB
+5. Store listing assets: descriptions, screenshots, Android feature graphic (1024×500), content rating, privacy policy URL
+
+**Post-Launch Backlog**:
+1. PWA support for offline caching and background sync
+2. Advanced pattern recognition for habit-mood correlations
 3. Biometric authentication for enhanced security
-4. Advanced pattern recognition for habit-mood correlations
+4. Camera integration for personalized AI generation (Face/Body)
+
 
 ---
 

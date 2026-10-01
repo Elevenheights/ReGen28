@@ -12,6 +12,7 @@ import { ImageGenerationService } from '../services/image-generation.service';
 import { notificationService } from '../services/notification.service';
 import { calculateAge, getUserCurrentDateTime, calculateTrackerAnalytics, getUserLocalTime } from './feed-helpers';
 import { getWeatherForLocation } from '../weather.service';
+import { hasAiConsent, requireAiConsent } from '../services/ai-consent';
 
 const db = getFirestore();
 const openaiApiKey = defineSecret("OPENAI_API_KEY");
@@ -74,6 +75,7 @@ export const triggerFeedPost = onCall({
 	const { type, force, subType } = data as FeedPostRequest;
 
 	if (!auth) throw new HttpsError('unauthenticated', 'User must be authenticated');
+	await requireAiConsent(auth.uid);
 
 	logger.info(`[UNIFIED] Manual trigger: ${type} for user ${auth.uid}`);
 	await dispatchPostGeneration(auth.uid, type, force === true, subType);
@@ -158,6 +160,7 @@ async function dispatchPostGeneration(userId: string, type: string, force: boole
 		return;
 	}
 	const userData = userDoc.data();
+	if (!hasAiConsent(userData)) return;
 
 	try {
 		switch (type) {
@@ -317,7 +320,8 @@ Incorporate elements of ${focus.join(' and ')}. Photorealistic yet aspirational.
 		userId,
 		contextType === 'morning' ? 'Good Morning ☀️' : 'Personal Insight 💡',
 		content.length > 100 ? content.substring(0, 97) + '...' : content,
-		{ type: 'motivational', subType: contextType }
+		{ type: 'motivational', subType: contextType },
+		contextType === 'morning' ? 'morningCoachBoost' : (contextType === 'midday' ? 'middayInsight' : 'eveningSummary')
 	);
 }
 
@@ -379,7 +383,8 @@ Return JSON: { "tip": "...", "reason": "...", "icon": "..." }`;
 				userId,
 				`Action for ${tracker.name} ⚡`,
 				res.tip,
-				{ type: 'action', trackerId: doc.id }
+				{ type: 'action', trackerId: doc.id },
+				'dailyActionReminders'
 			);
 		} catch (e) {
 			logger.error(`Error generating action for tracker ${doc.id}`, e);
@@ -439,7 +444,8 @@ Return JSON: { "insight": "...", "dataPoint": "...", "type": "correlation|discov
 			userId,
 			'New Pattern Discovered 💡',
 			res.insight,
-			{ type: 'insight' }
+			{ type: 'insight' },
+			'middayInsight'
 		);
 	} catch (e) {
 		logger.error("Error generating insight", e);
@@ -475,7 +481,8 @@ async function generateSummaryPost(userId: string, user: any, force: boolean) {
 		userId,
 		'Daily Summary 📊',
 		"Your daily summary is ready",
-		{ type: 'summary' }
+		{ type: 'summary' },
+		'eveningSummary'
 	);
 }
 

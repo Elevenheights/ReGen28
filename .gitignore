@@ -68,3 +68,12 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Local signing credentials and private release configuration.
+# Existing tracked copies require a separate repository/history review.
+/certs/
+.env
+.env.*
+functions/.env*
+functions/create-review-account.js
+.firebase/

@@ -6,6 +6,8 @@ export interface User {
 	birthday?: string;
 	photoURL?: string;
 	location?: string; // e.g. "New York, USA"
+	aiConsent?: boolean;
+	aiConsentVersion?: number;
 
 	// Wellness journey data
 	joinDate: Date;
@@ -37,7 +39,9 @@ export interface User {
 	status: 'active' | 'inactive' | 'suspended'; // active = paid/trial users, inactive = expired trial users without AI suggestions
 	subscriptionType?: 'trial' | 'premium' | 'expired'; // Track subscription type
 	trialEndsAt?: Date; // When free trial expires
+	subscriptionExpiration?: Date; // When the paid subscription or trial expires
 	lastActiveAt?: Date; // Track when user was last active
+	role?: 'admin' | 'user'; // User role for permission control
 
 	// Push Notifications
 	fcmTokens?: string[]; // Array of FMC tokens for multiple devices
@@ -67,7 +71,13 @@ export interface UserPreferences {
 	reminderTime: string; // Format: "09:00"
 	weeklyReports: boolean;
 	milestoneNotifications: boolean;
-	newFeedPostNotifications?: boolean; // New AI Coach post notifications
+	morningCoachBoost?: boolean;      // 6 AM motivation
+	middayInsight?: boolean;          // 12 PM insights
+	eveningSummary?: boolean;         // 8 PM reflection
+	dailyActionReminders?: boolean;   // Morning action nudges
+	streakProtection?: boolean;       // 1 PM check-in nudge
+	trialExpiryAlerts?: boolean;      // 24h before trial ends
+	newFeedPostNotifications?: boolean; // Legacy/Master feed toggle
 
 	// App settings
 	darkMode: boolean;

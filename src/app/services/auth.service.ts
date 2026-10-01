@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import {
 	Auth,
 	signInWithEmailAndPassword,
@@ -16,7 +16,8 @@ import {
 	sendEmailVerification,
 	updateProfile,
 	onAuthStateChanged,
-	signInWithCredential
+	signInWithCredential,
+	reauthenticateWithCredential
 } from '@angular/fire/auth';
 import { Observable, BehaviorSubject, from, of, switchMap, firstValueFrom, take } from 'rxjs';
 import { UserService } from './user.service';
@@ -54,7 +55,8 @@ export class AuthService {
 
 	constructor(
 		private auth: Auth,
-		private toastService: ToastService
+		private toastService: ToastService,
+		private injector: Injector
 	) {
 		this.user$ = user(this.auth);
 
@@ -190,9 +192,17 @@ export class AuthService {
 					loading: false,
 					error: null
 				});
+
+				// Sync with RevenueCat (lazy to avoid circular dep)
+				const { SubscriptionService } = await import('./subscription.service');
+				this.injector.get(SubscriptionService).refreshCustomerInfo();
 			} else {
 				// User is signed out
 				console.log('User signed out');
+
+				// Sync with RevenueCat
+				// We don't have logIn/logOut exposed here,
+				// but SubscriptionService handles this via authState$.
 
 				// If we are waiting for a redirect, DON'T set loading to false yet
 				// Let handleRedirectResult finish its work
@@ -255,16 +265,19 @@ export class AuthService {
 					currentDay: 1,
 					streakCount: 0,
 					isOnboardingComplete: false, // Will be set to true after onboarding
-					// Subscription defaults
-					status: 'active', // New users start with trial
-					subscriptionType: 'trial', // Everyone gets a trial period
-					trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
 					lastActiveAt: new Date(),
 					preferences: {
 						dailyReminders: true,
 						reminderTime: '09:00',
 						weeklyReports: true,
 						milestoneNotifications: true,
+						morningCoachBoost: true,
+						middayInsight: true,
+						eveningSummary: true,
+						dailyActionReminders: true,
+						streakProtection: true,
+						trialExpiryAlerts: true,
+						newFeedPostNotifications: true,
 						darkMode: false,
 						language: 'en',
 						timezone: 'UTC', // Default fallback, will be updated during onboarding
@@ -580,12 +593,36 @@ export class AuthService {
 		this.setError(null);
 
 		try {
+			if (Capacitor.isNativePlatform()) await FirebaseAuthentication.signOut();
 			await signOut(this.auth);
 		} catch (error: any) {
 			const authError = this.handleAuthError(error);
 			this.setError(authError.message);
 			throw authError;
 		}
+	}
+
+	async prepareAccountDeletion(): Promise<void> {
+		const current = this.getCurrentUser();
+		if (!current) throw new Error('Sign in before deleting your account.');
+		if (!current.providerData.some(provider => provider.providerId === 'apple.com')) return;
+		if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'ios') {
+			throw new Error('Please delete your Apple-linked account in the ReGen28 iOS app.');
+		}
+		const result = await FirebaseAuthentication.signInWithApple();
+		// skipNativeAuth intentionally returns credentials without a native user.
+		if (!result.credential?.authorizationCode || !result.credential.idToken || !result.credential.nonce) {
+			throw new Error('Apple authorization was incomplete. Deletion cancelled.');
+		}
+		const credential = new OAuthProvider('apple.com').credential({
+			idToken: result.credential.idToken, rawNonce: result.credential.nonce
+		});
+		// Reauthentication rejects a different Apple identity without switching accounts.
+		const signedIn = await reauthenticateWithCredential(current, credential);
+		if (signedIn.user.uid !== current.uid) throw new Error('The signed-in account changed. Deletion cancelled.');
+		await signedIn.user.getIdToken(true);
+		// The installed iOS plugin passes this authorization code to Firebase's revokeToken API.
+		await FirebaseAuthentication.revokeAccessToken({ token: result.credential.authorizationCode });
 	}
 
 	async sendPasswordResetEmail(email: string): Promise<void> {
@@ -671,4 +708,4 @@ export class AuthService {
 			switchMap(state => of(!state.loading))
 		);
 	}
-} 
+}

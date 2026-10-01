@@ -24,6 +24,13 @@ export class UserService {
 		this.authService.setUserService(this);
 	}
 
+	// Getter for admin status
+	get isAdmin$(): Observable<boolean> {
+		return this.getCurrentUserProfile().pipe(
+			map(user => user?.role === 'admin')
+		);
+	}
+
 	// Get current user profile with real-time updates (no caching)
 	getCurrentUserProfile(): Observable<User | null> {
 		return this.authService.user$.pipe(
@@ -36,58 +43,9 @@ export class UserService {
 				return this.db.getDocument<User>('users', authUser.uid).pipe(
 					map(userData => {
 						if (userData) {
-							// FORCE ONBOARDING COMPLETE FOR DEV DEBUGGING
-							// This fixes the redirect loop for existing users with outdated flags
-							userData.isOnboardingComplete = true;
 							return userData as User;
 						} else {
-							// If no Firestore doc exists, return user data from auth
-							return {
-								id: authUser.uid,
-								email: authUser.email || '',
-								displayName: authUser.displayName || '',
-								photoURL: authUser.photoURL || '',
-								joinDate: new Date(),
-								currentDay: 1,
-								streakCount: 0,
-								// Initialize wellness goals and focus areas for fallback
-								wellnessGoals: [],
-								focusAreas: [],
-								commitmentLevel: 'moderate',
-								preferences: {
-									dailyReminders: true,
-									reminderTime: '09:00',
-									weeklyReports: true,
-									milestoneNotifications: true,
-									darkMode: false,
-									language: 'en',
-									timezone: 'UTC', // Default fallback
-									dataSharing: false,
-									analytics: true,
-									backupEnabled: true,
-									schedule: {
-										wakeTime: "06:00",
-										midDayTime: "12:00",
-										bedTime: "22:00"
-									}
-								},
-								stats: {
-									totalTrackerEntries: 0,
-									totalJournalEntries: 0,
-									completedTrackers: 0,
-									currentStreaks: 0,
-									longestStreak: 0,
-									weeklyActivityScore: 0,
-									monthlyGoalsCompleted: 0
-								},
-								isOnboardingComplete: true, // Auto-complete onboarding for fallback/new users during dev
-								status: 'active', // New users start with trial
-								subscriptionType: 'trial', // Everyone gets a trial period
-								trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
-								lastActiveAt: new Date(),
-								createdAt: new Date(),
-								updatedAt: new Date()
-							} as User;
+							return null;
 						}
 					})
 				);
@@ -142,18 +100,21 @@ export class UserService {
 			preferences: { ...defaultPreferences, ...userData.preferences },
 			stats: { ...defaultStats, ...userData.stats },
 			isOnboardingComplete: false,
-			// Subscription defaults
-			status: 'active', // New users start with trial
-			subscriptionType: 'trial', // Everyone gets a trial period
-			trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
 			lastActiveAt: new Date(),
+
 			createdAt: new Date(),
 			updatedAt: new Date(),
-			...userData
+			...userData,
+			// Never accept access grants in client-supplied profile data.
+			status: 'inactive',
+			subscriptionType: 'expired',
+			role: 'user'
 		};
 
 		// Use DatabaseService to create with the specific ID
-		await firstValueFrom(this.db.updateDocument<User>('users', authUser.uid, userProfile));
+		delete userProfile.trialEndsAt;
+		delete userProfile.subscriptionExpiration;
+		await firstValueFrom(this.db.createDocumentWithId<User>('users', authUser.uid, userProfile));
 	}
 
 	// Update user profile
@@ -379,10 +340,10 @@ export class UserService {
 
 		try {
 			// Call Firebase Function to handle complete user deletion
-			await firstValueFrom(this.db.callFunction('deleteUserAccount', {}));
+			await firstValueFrom(this.db.callFunction('deleteUserAccount', { confirm: true }));
 		} catch (error) {
 			this.errorHandler.handleError('deleteUserAccount', error);
-			throw new Error('Failed to delete user account. Please try again or contact support.');
+			throw new Error('Account deletion could not finish. Sign out and sign in again, then retry. Contact support if this continues.');
 		}
 	}
-} 
+}

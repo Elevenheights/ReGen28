@@ -2,8 +2,19 @@ import { Routes } from '@angular/router';
 import { GuestGuard } from './guards/guest.guard';
 import { AuthGuard } from './guards/auth.guard';
 import { OnboardingGuard } from './guards/onboarding.guard';
+import { SubscriptionGuard } from './guards/subscription.guard';
 
 export const routes: Routes = [
+	{
+		path: 'ai-consent',
+		loadComponent: () => import('./pages/ai-consent/ai-consent.page').then(m => m.AiConsentPage),
+		canActivate: [AuthGuard]
+	},
+	{
+		path: 'account',
+		loadComponent: () => import('./pages/tabs/settings/tab4.page').then(m => m.Tab4Page),
+		canActivate: [AuthGuard]
+	},
 	// Intro page (first time visitors)
 	{
 		path: '',
@@ -19,28 +30,29 @@ export const routes: Routes = [
 	// Main app routes - delegates to tabs.routes.ts which handles guards
 	{
 		path: 'tabs',
-		loadChildren: () => import('./pages/tabs/tabs.routes').then((m) => m.routes)
+		loadChildren: () => import('./pages/tabs/tabs.routes').then((m) => m.routes),
+		canActivate: [AuthGuard, OnboardingGuard, SubscriptionGuard]
 	},
 
 	// Tracker detail page (requires auth and completed onboarding)
 	{
 		path: 'tracker-detail/:id',
 		loadComponent: () => import('./pages/tracker-detail/tracker-detail.page').then(m => m.TrackerDetailPage),
-		canActivate: [AuthGuard, OnboardingGuard]
+		canActivate: [AuthGuard, OnboardingGuard, SubscriptionGuard]
 	},
 
 	// Journal entry page (requires auth and completed onboarding)
 	{
 		path: 'journal-entry/:id',
 		loadComponent: () => import('./pages/journal-entry/journal-entry.page').then(m => m.JournalEntryPage),
-		canActivate: [AuthGuard, OnboardingGuard]
+		canActivate: [AuthGuard, OnboardingGuard, SubscriptionGuard]
 	},
 
 	// Activities history page
 	{
 		path: 'activities',
 		loadComponent: () => import('./pages/activities/activities.page').then(m => m.ActivitiesPage),
-		canActivate: [AuthGuard, OnboardingGuard]
+		canActivate: [AuthGuard, OnboardingGuard, SubscriptionGuard]
 	},
 
 	// Authentication routes (only for non-authenticated users)
@@ -99,15 +111,29 @@ export const routes: Routes = [
 
 	{
 		path: 'goals',
-		loadComponent: () => import('./pages/goals/goals.page').then(m => m.GoalsPage)
+		loadComponent: () => import('./pages/goals/goals.page').then(m => m.GoalsPage),
+		canActivate: [AuthGuard, SubscriptionGuard]
 	},
 	{
 		path: 'archived-trackers',
 		loadComponent: () => import('./pages/archived-trackers/archived-trackers.page').then(m => m.ArchivedTrackersPage),
-		canActivate: [AuthGuard]
+		canActivate: [AuthGuard, SubscriptionGuard]
 	},
 
-	// Fallback route
+  {
+    path: 'subscription',
+    loadComponent: () => import('./pages/subscription/subscription.page').then(m => m.SubscriptionPage)
+  },
+  {
+    path: 'privacy',
+    loadComponent: () => import('./pages/privacy/privacy.page').then(m => m.PrivacyPage)
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./pages/terms/terms.page').then(m => m.TermsPage)
+  },
+
+	// Fallback route (must be last)
 	{
 		path: '**',
 		redirectTo: '/intro'

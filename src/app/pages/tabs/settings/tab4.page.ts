@@ -10,9 +10,10 @@ import {
 	IonSpinner,
 	IonAccordion,
 	IonAccordionGroup,
-	IonItem
+	IonItem,
+	IonIcon
 } from '@ionic/angular/standalone';
-import { ModalController } from '@ionic/angular/standalone';
+import { ModalController, AlertController } from '@ionic/angular/standalone';
 import { Subject, takeUntil } from 'rxjs';
 
 // Components
@@ -25,7 +26,8 @@ import { LoggingService } from '../../../services/logging.service';
 import { ToastService } from '../../../services/toast.service';
 import { DatabaseService } from '../../../services/database.service';
 import { StatisticsService } from '../../../services/statistics.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
+import { SubscriptionService } from '../../../services/subscription.service';
 import { firstValueFrom } from 'rxjs';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
@@ -55,11 +57,18 @@ import { CountUpDirective } from '../../../directives/count-up.directive';
 		IonSpinner,
 		IonAccordion,
 		IonAccordionGroup,
-		IonItem
+		IonItem,
+		IonIcon,
+		RouterModule
 	]
 })
 export class Tab4Page implements OnInit, OnDestroy {
+	isDeletingAccount = false;
 	private destroy$ = new Subject<void>();
+
+	// Subscription
+	isPro$ = this.subscriptionService.isPro$;
+	isAdmin$ = this.userService.isAdmin$;
 
 	// User data
 	user: User | null = null;
@@ -85,9 +94,11 @@ export class Tab4Page implements OnInit, OnDestroy {
 		private db: DatabaseService,
 		private router: Router,
 		private modalCtrl: ModalController,
+		private alertCtrl: AlertController,
 		private achievementService: AchievementService,
 		private statsService: StatisticsService,
-		private notificationService: NotificationService
+		private notificationService: NotificationService,
+		private subscriptionService: SubscriptionService
 	) { }
 
 	ngOnInit() {
@@ -161,6 +172,10 @@ export class Tab4Page implements OnInit, OnDestroy {
 		return this.profileImageUrl;
 	}
 
+	async goToSubscription() {
+		this.router.navigate(['/subscription']);
+	}
+
 	async onSignOut() {
 		try {
 			this.logging.info('User signing out from settings');
@@ -170,6 +185,29 @@ export class Tab4Page implements OnInit, OnDestroy {
 		} catch (error) {
 			this.logging.error('Error signing out', error);
 			this.toastService.showError('Failed to sign out. Please try again.');
+		}
+	}
+
+	async onDeleteAccount() {
+		const alert = await this.alertCtrl.create({
+			header: 'Permanently delete account?',
+			message: 'This removes your account, wellness records, journal entries, and uploaded/generated images. It cannot be undone. Deleting your account does not cancel an App Store subscription. Cancel it in Apple Settings > Subscriptions first. For security, you must have signed in within the last 10 minutes.',
+			buttons: [{ text: 'Keep account', role: 'cancel' }, { text: 'Delete account', role: 'destructive' }]
+		});
+		await alert.present();
+		if ((await alert.onDidDismiss()).role !== 'destructive') return;
+		this.isDeletingAccount = true;
+		try {
+			await this.authService.prepareAccountDeletion();
+			await this.userService.deleteUserAccount();
+			await this.authService.logout();
+			await this.router.navigate(['/login'], { replaceUrl: true });
+			this.toastService.showSuccess('Your account and personal app data have been deleted.');
+		} catch (error) {
+			this.logging.error('Account deletion failed', error);
+			this.toastService.showError(error instanceof Error ? error.message : 'Deletion failed. Please sign in again and retry.');
+		} finally {
+			this.isDeletingAccount = false;
 		}
 	}
 
@@ -222,6 +260,24 @@ export class Tab4Page implements OnInit, OnDestroy {
 			case 'Reminders':
 				preferenceUpdate.dailyReminders = value;
 				break;
+			case 'Morning Boost':
+				preferenceUpdate.morningCoachBoost = value;
+				break;
+			case 'Midday Insight':
+				preferenceUpdate.middayInsight = value;
+				break;
+			case 'Daily Actions':
+				preferenceUpdate.dailyActionReminders = value;
+				break;
+			case 'Streak Protection':
+				preferenceUpdate.streakProtection = value;
+				break;
+			case 'Milestones':
+				preferenceUpdate.milestoneNotifications = value;
+				break;
+			case 'Trial Alerts':
+				preferenceUpdate.trialExpiryAlerts = value;
+				break;
 			case 'Feed Posts':
 				preferenceUpdate.newFeedPostNotifications = value;
 				if (value) {
@@ -236,6 +292,7 @@ export class Tab4Page implements OnInit, OnDestroy {
 				preferenceUpdate.developerMode = value;
 				break;
 		}
+
 
 		this.userService.updatePreferences(preferenceUpdate).then(() => {
 			this.toastService.showSuccess(`${setting} updated`);
@@ -338,8 +395,8 @@ export class Tab4Page implements OnInit, OnDestroy {
 		}
 	}
 
-	// Developer: Toggle Nano Model Type (Standard/Pro)
-	async toggleNanoModelType(event: any) {
+	// Developer: Toggle Vision Model Type (Standard/Pro)
+	async toggleVisionModelType(event: any) {
 		const modelType = event.detail.value;
 		if (this.user) {
 			const currentDevSettings = this.user.preferences?.devSettings || { nanoModelType: 'standard' };
@@ -358,7 +415,7 @@ export class Tab4Page implements OnInit, OnDestroy {
 			await this.userService.updatePreferences({
 				devSettings: { ...currentDevSettings, imageModel: model }
 			});
-			await this.toastService.showSuccess(`Image generator switched to ${model === 'dall-e' ? 'GPT Image 1.5' : 'Nano Banana'}`);
+			await this.toastService.showSuccess(`Image generator switched to ${model === 'dall-e' ? 'Advanced GPT' : 'Standard Vision'}`);
 		}
 	}
 

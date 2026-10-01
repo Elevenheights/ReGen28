@@ -325,9 +325,9 @@ export class OnboardingService {
 			// Mark onboarding as complete locally
 			this.updateData({ isComplete: true });
 
-			console.log('🎯 OnboardingService: Navigating to dashboard...');
-			// Navigate to main app
-			this.router.navigate(['/tabs/dashboard']);
+			console.log('🎯 OnboardingService: Navigating to subscription offer...');
+			// Navigate to subscription offer before dashboard
+			this.router.navigate(['/subscription']);
 
 		} catch (error) {
 			console.error('Failed to complete onboarding:', error);
@@ -367,10 +367,6 @@ export class OnboardingService {
 				focusAreas: [],
 				commitmentLevel: 'moderate',
 				isOnboardingComplete: true,
-				// Subscription defaults
-				status: 'active', // New users start with trial
-				subscriptionType: 'trial', // Everyone gets a trial period
-				trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 day trial
 				lastActiveAt: new Date(),
 				preferences: {
 					dailyReminders: true,
@@ -402,4 +398,4 @@ export class OnboardingService {
 			throw new Error('Failed to set up minimal profile. Please try again or contact support.');
 		}
 	}
-} 
+}

@@ -6,7 +6,7 @@
 
 import './init';
 import { setGlobalOptions } from "firebase-functions";
-import { onCall } from "firebase-functions/v2/https";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import * as logger from "firebase-functions/logger";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
@@ -21,6 +21,9 @@ import { calculateAllDailyStats, calculateUserStatsTask, getStatistics, triggerS
 // import { processWrappedVideoJobs } from './feed/wrapped-jobs'; // DELETED
 import { feedInteractions } from './feed/interactions';
 import { generateFeedPostTask, triggerFeedPost, queueUnifiedFeedCadence } from './feed/unified-feed';
+import { revenueCatWebhook } from './revenuecat-webhook';
+import { requireAiConsent } from './services/ai-consent';
+export { deleteUserAccount } from './account-deletion';
 const db = getFirestore();
 
 // Export all functions
@@ -55,7 +58,9 @@ export {
 	// Unified Feed Functions
 	generateFeedPostTask,
 	triggerFeedPost,
-	queueUnifiedFeedCadence
+	queueUnifiedFeedCadence,
+	// Webhooks
+	revenueCatWebhook
 };
 
 // Define the OpenAI API key secret
@@ -385,6 +390,8 @@ export const getTrackerRecommendations = onCall<RecommendationRequest>(
 		invoker: 'public',
 	},
 	async (request) => {
+		if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in before using AI.');
+		await requireAiConsent(request.auth.uid);
 		try {
 			const { focusAreas, goals, commitmentLevel } = request.data;
 
