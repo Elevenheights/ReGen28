@@ -814,7 +814,8 @@ ion-label {
 
 /* Spiritual section header styling */
 h2 {
-	color: var(--color-midnight-plum) !important;
+	/* Default only: colored surfaces and explicit text utilities own their contrast. */
+	color: var(--color-midnight-plum);
 	margin-bottom: 1rem !important;
 }
 

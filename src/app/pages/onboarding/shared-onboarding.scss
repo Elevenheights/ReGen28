@@ -9,8 +9,8 @@
   }
   
   &.goals-gradient {
-    --background: linear-gradient(135deg, #10b981, #10b981aa);
-    background: linear-gradient(135deg, #10b981, #10b981aa) !important;
+    --background: linear-gradient(135deg, #047857, #065f46);
+    background: linear-gradient(135deg, #047857, #065f46) !important;
   }
   
   &.trackers-gradient {
@@ -19,8 +19,8 @@
   }
   
   &.complete-gradient {
-    --background: linear-gradient(135deg, #3b82f6, #3b82f6aa);
-    background: linear-gradient(135deg, #3b82f6, #3b82f6aa) !important;
+    --background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
   }
 }
 
@@ -121,6 +121,11 @@
   
   ion-card-content {
     --color: white;
+    color: white;
+
+    > h3 {
+      color: white;
+    }
   }
   
   // Interactive cards
@@ -477,4 +482,4 @@
   .onboarding-container {
     padding: 0 12px 24px;
   }
-} 
+}

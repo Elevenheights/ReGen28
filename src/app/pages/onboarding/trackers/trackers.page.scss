@@ -1,6 +1,67 @@
 // Import shared onboarding styles
 @import '../shared-onboarding.scss';
 
+// Keep the original orange/glass design; improve only control contrast.
+:host {
+  .onboarding-progress ion-progress-bar {
+    --progress-background: #fff;
+    --buffer-background: rgba(255, 255, 255, 0.3);
+  }
+
+  .trackers-section {
+    .onboarding-card.interactive {
+      background: rgba(255, 255, 255, 0.08) !important;
+      &.selected { border-color: rgba(255, 255, 255, 0.65); }
+    }
+
+    .target-section {
+      .target-controls {
+        .target-input {
+          background: rgba(92, 40, 5, 0.28);
+          ion-button { --color: #fff; --background: rgba(255, 255, 255, 0.2); }
+        }
+      }
+    }
+
+    .tracker-mode-section {
+      .mode-toggle-container {
+        background: rgba(92, 40, 5, 0.22);
+        .mode-option {
+          min-width: 0;
+          text-align: left;
+          .mode-icon { opacity: 1; }
+          .mode-text {
+            h4, p { color: #fff; opacity: 1; }
+          }
+          &.selected {
+            background: #fff;
+            border-color: #fff;
+            box-shadow: 0 2px 8px rgba(92, 40, 5, 0.15);
+            .mode-text h4, .mode-text p { color: #7c2d12; opacity: 1; }
+          }
+          &:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+        }
+      }
+      .duration-settings {
+        .duration-presets {
+          flex-wrap: wrap;
+          ion-chip {
+            --background: rgba(92, 40, 5, 0.25);
+            --color: #fff;
+            border-color: rgba(255, 255, 255, 0.4);
+            &.preset-selected { --background: #fff; --color: #7c2d12; border-color: #fff; transform: none; }
+          }
+        }
+      }
+    }
+
+    .target-label, .mode-section-label, .duration-label, .duration-description {
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(69, 26, 3, 0.4);
+    }
+  }
+}
+
 // Tracker-specific styles only
 .tracker-content {
   display: flex;

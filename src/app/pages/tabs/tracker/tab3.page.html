@@ -70,7 +70,7 @@
 
 		<!-- 2. Performance Stats -->
 		<div class="px-6 -mt-4 relative z-20 animate-entry delay-100">
-			<app-tracker-stats></app-tracker-stats>
+			<app-tracker-stats [stats]="trackerStats" [isLoading]="isLoading"></app-tracker-stats>
 		</div>
 
 		<!-- 3. Activities List (Grouped) -->

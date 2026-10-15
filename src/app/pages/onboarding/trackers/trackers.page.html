@@ -76,7 +76,8 @@
                        
                        <!-- Segmented Mode Toggle -->
                        <div class="mode-toggle-container">
-                         <div class="mode-option" 
+                         <button type="button" class="mode-option"
+                              [attr.aria-pressed]="!isTrackerOngoing(tracker.id)"
                               [class.selected]="!isTrackerOngoing(tracker.id)"
                               (click)="setTrackerMode(tracker.id, false); $event.stopPropagation()">
                            <div class="mode-icon">🎯</div>
@@ -84,9 +85,10 @@
                              <h4>Challenge</h4>
                              <p>Time-limited goal</p>
                            </div>
-                         </div>
+                         </button>
                          
-                         <div class="mode-option" 
+                         <button type="button" class="mode-option"
+                              [attr.aria-pressed]="isTrackerOngoing(tracker.id)"
                               [class.selected]="isTrackerOngoing(tracker.id)"
                               (click)="setTrackerMode(tracker.id, true); $event.stopPropagation()">
                            <div class="mode-icon">♾️</div>
@@ -94,7 +96,7 @@
                              <h4>Ongoing</h4>
                              <p>Continuous habit</p>
                            </div>
-                         </div>
+                         </button>
                        </div>
 
                        <!-- Challenge Duration Controls -->
