@@ -32,7 +32,7 @@ import { IonicModule, NavController } from '@ionic/angular';
           <section class="space-y-3">
             <h2 class="text-base font-bold text-white">2. Subscription & Billing</h2>
             <p class="text-slate-400 text-sm leading-relaxed">
-              Regen28 offers a monthly subscription ("Regen28 Pro") that includes a 7-day free trial. After the trial period, your subscription will automatically renew at the then-current price ($19.99/month) unless cancelled at least 24 hours before the end of the trial period.
+              Regen28 offers a monthly subscription ("Regen28 Pro"). Your app store displays the localized price and any eligible introductory offer before you confirm purchase. After any free trial, the subscription automatically renews at the price shown by your app store unless cancelled at least 24 hours before the trial or current subscription period ends.
             </p>
             <p class="text-slate-400 text-sm leading-relaxed">
               Payment is charged to your Apple ID account at confirmation of purchase. Your subscription automatically renews unless auto-renew is turned off at least 24 hours before the end of the current period. You can manage and cancel your subscription in your Apple ID account settings.
