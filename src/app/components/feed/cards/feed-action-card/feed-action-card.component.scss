@@ -1,4 +1,7 @@
+:host { display: block; width: 100%; min-width: 0; }
+
 .action-card {
+  box-sizing: border-box;
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 0;
@@ -9,6 +12,14 @@
   position: relative;
   overflow: hidden;
 }
+
+.action-card.expanded {
+  aspect-ratio: auto;
+  .action-text { display: block; -webkit-line-clamp: unset; overflow: visible; }
+}
+
+.action-content, .reason-section { min-width: 0; flex-shrink: 0; }
+.tracker-name, .action-text, .reason-text { overflow-wrap: anywhere; }
 
 .action-header {
   display: flex;

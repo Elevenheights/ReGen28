@@ -1,4 +1,4 @@
-<div class="insight-card" [style.background]="categoryGradient">
+<div class="insight-card" [class.expanded]="isExpanded" [style.background]="categoryGradient">
   <div class="insight-header">
     <div class="icon-circle" [style.border-color]="categoryColor">
       <span class="icon-emoji">{{ item.metadata?.icon || '📊' }}</span>
@@ -13,6 +13,7 @@
     <button 
       class="expand-button" 
       (click)="toggleExpand()"
+      type="button" [attr.aria-expanded]="isExpanded"
       *ngIf="item.metadata?.dataPoint"
     >
       <ion-icon [name]="isExpanded ? 'chevron-up' : 'chevron-down'"></ion-icon>

@@ -1,4 +1,7 @@
+:host { display: block; width: 100%; min-width: 0; }
+
 .insight-card {
+  box-sizing: border-box;
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 0;
@@ -9,6 +12,14 @@
   position: relative;
   overflow: hidden;
 }
+
+.insight-card.expanded {
+  aspect-ratio: auto;
+  .insight-text { display: block; -webkit-line-clamp: unset; overflow: visible; }
+}
+
+.insight-content, .data-section { min-width: 0; flex-shrink: 0; }
+.tracker-name, .insight-text, .data-text { overflow-wrap: anywhere; }
 
 .insight-header {
   display: flex;

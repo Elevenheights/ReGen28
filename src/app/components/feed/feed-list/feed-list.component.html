@@ -9,7 +9,7 @@
 			[item]="item"></app-feed-item-card>
 
 		<!-- Empty state -->
-		<div *ngIf="(feedItems$ | async)?.length === 0" class="empty-state">
+		<div *ngIf="!hasPinnedGuidance && (feedItems$ | async)?.length === 0" class="empty-state">
 			<ion-icon name="newspaper-outline"></ion-icon>
 			<p>No activity yet. Start tracking to see your feed!</p>
 		</div>

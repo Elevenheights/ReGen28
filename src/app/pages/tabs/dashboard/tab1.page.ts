@@ -8,7 +8,7 @@ import { FeedService } from '../../../services/feed.service';
 import { FeedItem } from '../../../models/feed-item.interface';
 import { FeedItemCardComponent } from '../../../components/feed/feed-item-card/feed-item-card.component';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, shareReplay } from 'rxjs/operators';
 import { addIcons } from 'ionicons';
 import { sparkles } from 'ionicons/icons';
 
@@ -26,9 +26,11 @@ import { sparkles } from 'ionicons/icons';
 	],
 })
 export class Tab1Page implements OnInit {
+	private readonly noticeKey = 'regen28.feed.sanctuary-notice-dismissed.v1';
+	showFeedNotice = true;
 	userDisplayName$: Observable<string>;
 	profileImageUrl$: Observable<string>;
-	todaysGuidance$: Observable<{ actions: FeedItem[]; insights: FeedItem[] }>;
+	todaysGuidance$: Observable<{ actions: FeedItem[]; insights: FeedItem[]; ids: string[] }>;
 
 	constructor(
 		private userService: UserService,
@@ -42,10 +44,19 @@ export class Tab1Page implements OnInit {
 			map(user => user?.photoURL || `https://api.dicebear.com/7.x/notionists/svg?scale=200&seed=${user?.displayName || 'user'}`)
 		);
 
-		this.todaysGuidance$ = this.feedService.getTodaysActionsAndInsights();
+		this.todaysGuidance$ = this.feedService.getTodaysActionsAndInsights().pipe(
+			map(guidance => ({ ...guidance, ids: [...guidance.actions, ...guidance.insights].map(item => item.id).filter((id): id is string => !!id) })),
+			shareReplay({ bufferSize: 1, refCount: true })
+		);
+		try { this.showFeedNotice = localStorage.getItem(this.noticeKey) !== 'true'; } catch { /* Storage may be unavailable. */ }
 
 		addIcons({ sparkles });
 	}
 
 	ngOnInit() { }
+
+	dismissFeedNotice(): void {
+		this.showFeedNotice = false;
+		try { localStorage.setItem(this.noticeKey, 'true'); } catch { /* Dismiss for this session even without storage. */ }
+	}
 }
