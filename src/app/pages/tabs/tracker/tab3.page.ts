@@ -7,7 +7,7 @@ import {
 	IonRefresher,
 	IonRefresherContent
 } from '@ionic/angular/standalone';
-import { Subject, takeUntil, combineLatest, map, firstValueFrom } from 'rxjs';
+import { Subject, Subscription, takeUntil, combineLatest, map, firstValueFrom, of, catchError, startWith, timeout } from 'rxjs';
 
 // Services
 import { TrackerService } from '../../../services/tracker.service';
@@ -56,6 +56,9 @@ import { CountUpDirective } from '../../../directives/count-up.directive';
 })
 export class Tab3Page implements OnInit, OnDestroy {
 	private destroy$ = new Subject<void>();
+	private trackerDataSubscription?: Subscription;
+	loadError = '';
+	statisticsUnavailable = false;
 
 	// Data
 	activeTrackers: TrackerData[] = [];
@@ -161,15 +164,26 @@ export class Tab3Page implements OnInit, OnDestroy {
 	}
 
 	private loadTrackerData() {
+		this.trackerDataSubscription?.unsubscribe();
 		this.isLoading = true;
+		this.loadError = '';
+		this.statisticsUnavailable = false;
 
 		// Load user profile and trackers
 		const userProfile$ = this.userService.getCurrentUserProfile();
 		const trackers$ = this.trackerService.getUserTrackers();
-		const stats$ = this.statisticsService.getRecentStats(7);
+		const stats$ = this.statisticsService.getRecentStats(7).pipe(
+			timeout(10000),
+			catchError(error => {
+				this.logging.warn('Statistics unavailable; keeping trackers visible', error);
+				this.statisticsUnavailable = true;
+				return of([]);
+			}),
+			startWith([])
+		);
 
 		// Combine user profile, trackers, and stats
-		combineLatest([userProfile$, trackers$, stats$]).pipe(
+		this.trackerDataSubscription = combineLatest([userProfile$, trackers$, stats$]).pipe(
 			takeUntil(this.destroy$)
 		).subscribe({
 			next: async ([user, trackers, stats]: [User | null, Tracker[], any[]]) => {
@@ -195,6 +209,7 @@ export class Tab3Page implements OnInit, OnDestroy {
 					await this.processTrackers(trackers); // Now properly awaited
 				} catch (error) {
 					this.logging.error('Error in tracker processing', error);
+					this.loadError = 'Your trackers could not be displayed. Pull down to retry. Your saved trackers have not been removed.';
 				}
 
 				this.isLoading = false;
@@ -202,6 +217,7 @@ export class Tab3Page implements OnInit, OnDestroy {
 			},
 			error: (error) => {
 				this.logging.error('Error loading trackers', error);
+				this.loadError = 'Your trackers could not be loaded. Check your connection and pull down to retry. Your saved trackers have not been removed.';
 				this.isLoading = false;
 				this.cdr.detectChanges();
 			}
@@ -221,7 +237,13 @@ export class Tab3Page implements OnInit, OnDestroy {
 			}
 
 			// Get today's entries
-			const todaysEntries = await firstValueFrom(this.trackerService.getTodaysEntries());
+			const todaysEntries = await firstValueFrom(this.trackerService.getTodaysEntries().pipe(
+				timeout(10000),
+				catchError(error => {
+					this.logging.warn('Today’s entries unavailable; keeping trackers visible', error);
+					return of([]);
+				})
+			));
 
 			if (todaysEntries.length > 0) {
 				await this.processTrackersWithData(validTrackers, todaysEntries); // Now properly awaited
@@ -234,6 +256,7 @@ export class Tab3Page implements OnInit, OnDestroy {
 			this.activeTrackers = [];
 			this.completedTrackers = [];
 			this.archivedTrackers = [];
+			throw error;
 		}
 	}
 

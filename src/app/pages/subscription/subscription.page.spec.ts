@@ -13,9 +13,10 @@ describe('SubscriptionPage', () => {
 
   beforeEach(async () => {
     billing = jasmine.createSpyObj('SubscriptionService', [
-      'isNativePlatform', 'getOfferings', 'purchasePackage', 'restorePurchases'
+      'isNativePlatform', 'getOfferings', 'getEligibleFreeTrial', 'purchasePackage', 'restorePurchases'
     ]);
     billing.isNativePlatform.and.returnValue(true);
+    billing.getEligibleFreeTrial.and.resolveTo(null);
     billing.getOfferings.and.returnValue(of({ monthly: { product: { priceString: 'CA$24.99' } } } as any));
     billing.purchasePackage.and.resolveTo(true);
     billing.restorePurchases.and.resolveTo(true);
@@ -31,6 +32,8 @@ describe('SubscriptionPage', () => {
     fixture = TestBed.createComponent(SubscriptionPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {
@@ -40,6 +43,27 @@ describe('SubscriptionPage', () => {
   it('shows the store-provided localized price', () => {
     expect(fixture.nativeElement.textContent).toContain('CA$24.99');
     expect(component.loading).toBeFalse();
+  });
+
+  it('explains eligible trial, renewal price, currency and cancellation before purchase', async () => {
+    billing.getEligibleFreeTrial.and.resolveTo('1-week');
+    billing.getOfferings.and.returnValue(of({ monthly: { product: { priceString: '$24.99', currencyCode: 'CAD' } } } as any));
+    component.ngOnInit();
+    await Promise.resolve();
+    await Promise.resolve();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('1-week free trial');
+    expect(text).toContain('No charge today');
+    expect(text).toContain('$24.99 CAD per month');
+    expect(text).toContain('24 hours before the trial ends');
+    expect(text).toContain('Start 1-week free trial');
+  });
+
+  it('does not promise a trial when eligibility is not confirmed', () => {
+    expect(fixture.nativeElement.textContent).not.toContain('No charge today');
+    expect(fixture.nativeElement.textContent).toContain('Any eligible free trial');
   });
 
   it('disables purchase and restore controls on the web', () => {

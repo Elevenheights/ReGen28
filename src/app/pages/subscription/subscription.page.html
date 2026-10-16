@@ -51,15 +51,28 @@
               Most Popular
             </div>
             <h3 class="text-lg font-bold mb-1">Monthly Access</h3>
+            <p *ngIf="freeTrial" class="text-xl font-bold text-emerald-300 mb-3">{{ freeTrial }} free trial</p>
+            <p *ngIf="freeTrial" class="text-sm text-slate-200">Then</p>
             <div class="flex items-center justify-center mb-1">
               <span class="text-4xl font-black" *ngIf="offerings?.monthly">{{ offerings.monthly.product.priceString }}</span>
               <span class="text-lg" *ngIf="!offerings?.monthly">{{ loading ? 'Loading subscription…' : 'Subscription unavailable' }}</span>
               <span class="text-slate-500 ml-1" *ngIf="offerings?.monthly">/mo</span>
+              <span class="text-sm text-slate-200 ml-2" *ngIf="offerings?.monthly?.product?.currencyCode">{{ offerings.monthly.product.currencyCode }}</span>
             </div>
             <p class="text-emerald-400 font-bold block mb-2 underline decoration-emerald-500/30 decoration-2 underline-offset-4 decoration-skip-ink-none">
               Monthly subscription
             </p>
-            <p class="text-xs text-slate-500 px-4">Cancel anytime in your app store settings.</p>
+            <p *ngIf="freeTrial" class="text-sm text-slate-200 px-2 leading-relaxed">
+              No charge today. After your {{ freeTrial }} free trial, your subscription automatically renews at
+              {{ offerings.monthly.product.priceString }} {{ offerings.monthly.product.currencyCode }} per month
+              unless you cancel at least 24 hours before the trial ends.
+            </p>
+            <p *ngIf="!freeTrial && offerings?.monthly" class="text-sm text-slate-200 px-2 leading-relaxed">
+              Automatically renews at {{ offerings.monthly.product.priceString }} {{ offerings.monthly.product.currencyCode }} per month
+              unless cancelled at least 24 hours before the current period ends.
+              Any eligible free trial will be shown by your app store before you confirm.
+            </p>
+            <p class="text-sm text-slate-200 px-4 mt-3">Manage or cancel in your app store subscription settings.</p>
           </div>
         </div>
       </div>
@@ -69,7 +82,7 @@
         <button (click)="startTrial()" 
                 [disabled]="loading || purchasing || !offerings?.monthly || isWeb"
                 class="w-full py-4 bg-gradient-to-r from-indigo-600 to-emerald-600 rounded-2xl font-black text-lg shadow-xl shadow-indigo-600/20 active:scale-95 transition-all flex items-center justify-center gap-2 mb-2">
-          <span *ngIf="!purchasing">Continue</span>
+          <span *ngIf="!purchasing">{{ freeTrial ? 'Start ' + freeTrial + ' free trial' : 'Continue' }}</span>
           <ion-spinner *ngIf="purchasing" name="crescent" color="light"></ion-spinner>
         </button>
 

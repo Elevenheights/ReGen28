@@ -104,6 +104,7 @@ export class TrackerService {
 				if (!authUser) return of([]);
 
 				return this.db.getUserDocuments<Tracker>('trackers', authUser.uid, {
+					throwOnError: true,
 					orderBy: [{ field: 'createdAt', direction: 'asc' }] // Database ordering for performance
 				}).pipe(
 					map(trackers => {
@@ -118,8 +119,8 @@ export class TrackerService {
 						if (this.cachedTrackers) {
 							return of(this.cachedTrackers);
 						}
-						// If no cache available, return empty array
-						return of([]);
+						// A failed read is not proof the user has no trackers.
+						throw error;
 					})
 				);
 			}),
@@ -1370,4 +1371,4 @@ export class TrackerService {
 
 		return Math.min(100, (totalValue / tracker.target) * 100);
 	}
-} 
+}

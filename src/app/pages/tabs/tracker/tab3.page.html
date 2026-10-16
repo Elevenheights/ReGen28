@@ -69,6 +69,8 @@
 		</app-page-header>
 
 		<!-- 2. Performance Stats -->
+		<p *ngIf="loadError" role="alert" class="mx-6 my-6 p-4 rounded-2xl bg-red-50 text-red-800">{{ loadError }}</p>
+		<p *ngIf="statisticsUnavailable && !loadError" role="status" class="mx-6 my-4 text-sm text-neutral-600">Progress statistics are temporarily unavailable. Your trackers are still available below.</p>
 		<div class="px-6 -mt-4 relative z-20 animate-entry delay-100">
 			<app-tracker-stats [stats]="trackerStats" [isLoading]="isLoading"></app-tracker-stats>
 		</div>
@@ -112,7 +114,7 @@
 			</div>
 
 			<!-- Empty State -->
-			<div *ngIf="activeTrackers.length === 0" class="py-16 text-center animate-entry">
+			<div *ngIf="!loadError && activeTrackers.length === 0" class="py-16 text-center animate-entry">
 				<div
 					class="w-24 h-24 bg-neutral-100 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
 					<i class="fa-solid fa-list-check text-4xl text-neutral-200"></i>

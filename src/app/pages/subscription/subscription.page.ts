@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController } from '@ionic/angular';
 import { RouterLink } from '@angular/router';
 import { SubscriptionService } from '../../services/subscription.service';
-import { finalize } from 'rxjs/operators';
+import { finalize, switchMap } from 'rxjs/operators';
 import { addIcons } from 'ionicons';
 import { sparkles, camera, analytics, notifications } from 'ionicons/icons';
 
@@ -21,6 +21,7 @@ export class SubscriptionPage implements OnInit {
   purchasing = false;
   isWeb = false;
   errorMessage = '';
+  freeTrial: string | null = null;
 
   features = [
     { icon: 'sparkles', title: 'Unlimited AI Guidance', description: 'Get daily personalized wellness insights' },
@@ -40,7 +41,14 @@ export class SubscriptionPage implements OnInit {
     this.isWeb = !this.subscriptionService.isNativePlatform();
     
     this.subscriptionService.getOfferings()
-      .pipe(finalize(() => this.loading = false))
+      .pipe(
+        switchMap(async offering => {
+          this.freeTrial = offering?.monthly?.product
+            ? await this.subscriptionService.getEligibleFreeTrial(offering.monthly.product) : null;
+          return offering;
+        }),
+        finalize(() => this.loading = false)
+      )
       .subscribe(offering => {
         this.offerings = offering;
       });

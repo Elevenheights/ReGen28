@@ -21,7 +21,7 @@ describe('SubscriptionService', () => {
     android = false;
     originalAndroidKey = environment.revenueCat.androidApiKey;
     db = { callFunction: jasmine.createSpy().and.returnValue(of({ active: true })) };
-    purchases = jasmine.createSpyObj('Purchases', ['setLogLevel', 'configure', 'addCustomerInfoUpdateListener', 'isAnonymous', 'getOfferings', 'logIn', 'purchasePackage', 'restorePurchases']);
+    purchases = jasmine.createSpyObj('Purchases', ['setLogLevel', 'configure', 'addCustomerInfoUpdateListener', 'isAnonymous', 'getOfferings', 'logIn', 'purchasePackage', 'restorePurchases', 'checkTrialOrIntroductoryPriceEligibility']);
     purchases.setLogLevel.and.resolveTo();
     purchases.configure.and.resolveTo();
     purchases.addCustomerInfoUpdateListener.and.resolveTo('listener');
@@ -47,6 +47,23 @@ describe('SubscriptionService', () => {
   it('uses the iOS SDK key on iOS', async () => {
     await firstValueFrom(service().getOfferings());
     expect(purchases.configure).toHaveBeenCalledWith({ apiKey: environment.revenueCat.iosApiKey });
+  });
+
+  const trialProduct = { identifier: 'monthly', introPrice: { price: 0, cycles: 1, periodUnit: 'WEEK', periodNumberOfUnits: 1 } } as any;
+  it('returns the store trial duration only for eligible customers', async () => {
+    purchases.checkTrialOrIntroductoryPriceEligibility.and.resolveTo({ monthly: { status: 2 } } as any);
+    expect(await service().getEligibleFreeTrial(trialProduct)).toBe('1-week');
+  });
+  it('does not promise a trial for ineligible or unknown eligibility', async () => {
+    for (const status of [0, 1, 3]) {
+      purchases.checkTrialOrIntroductoryPriceEligibility.and.resolveTo({ monthly: { status } } as any);
+      expect(await service().getEligibleFreeTrial(trialProduct)).toBeNull();
+    }
+  });
+  it('falls back safely when eligibility fails or the introduction is paid', async () => {
+    purchases.checkTrialOrIntroductoryPriceEligibility.and.rejectWith(new Error('offline'));
+    expect(await service().getEligibleFreeTrial(trialProduct)).toBeNull();
+    expect(await service().getEligibleFreeTrial({ ...trialProduct, introPrice: { ...trialProduct.introPrice, price: 1 } })).toBeNull();
   });
   it('uses the Google Play SDK key on Android', async () => {
     android = true;

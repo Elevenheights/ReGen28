@@ -33,6 +33,7 @@ export interface DatabaseConfig {
 }
 
 export interface QueryOptions {
+	throwOnError?: boolean;
 	where?: { field: string; operator: any; value: any }[];
 	orderBy?: { field: string; direction?: 'asc' | 'desc' }[];
 	limit?: number;
@@ -217,6 +218,7 @@ export class DatabaseService {
 			),
 			catchError(error => {
 				console.error(`Error querying ${collectionName}:`, error);
+				if (options.throwOnError) throw error;
 				return of([]);
 			})
 		);

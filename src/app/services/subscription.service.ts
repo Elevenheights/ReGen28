@@ -1,5 +1,5 @@
 import { Injectable, Inject, InjectionToken } from '@angular/core';
-import { Purchases, CustomerInfo, LOG_LEVEL } from '@revenuecat/purchases-capacitor';
+import { Purchases, CustomerInfo, LOG_LEVEL, PurchasesStoreProduct, INTRO_ELIGIBILITY_STATUS } from '@revenuecat/purchases-capacitor';
 import { RevenueCatUI, PAYWALL_RESULT } from '@revenuecat/purchases-capacitor-ui';
 import { BehaviorSubject, Observable, from, of, map, catchError, firstValueFrom, switchMap, distinctUntilChanged } from 'rxjs';
 import { Platform } from '@ionic/angular';
@@ -106,6 +106,24 @@ export class SubscriptionService {
 	}
 
 	public isNativePlatform(): boolean { return this.platform.is('capacitor'); }
+
+	public async getEligibleFreeTrial(product: PurchasesStoreProduct): Promise<string | null> {
+		const intro = product.introPrice;
+		if (!this.isNativePlatform() || this.platform.is('android') || !intro || intro.price !== 0) return null;
+		const units: Record<string, string> = { DAY: 'day', WEEK: 'week', MONTH: 'month', YEAR: 'year' };
+		const unit = units[intro.periodUnit];
+		const count = intro.periodNumberOfUnits * intro.cycles;
+		if (!unit || !Number.isInteger(count) || count < 1) return null;
+		try {
+			await this.identifyCurrentUser();
+			const eligibility = await this.purchases.checkTrialOrIntroductoryPriceEligibility({ productIdentifiers: [product.identifier] });
+			return eligibility[product.identifier]?.status === INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE
+				? `${count}-${unit}` : null;
+		} catch (error) {
+			this.logging.warn('Could not check free trial eligibility', error);
+			return null;
+		}
+	}
 
 	public async presentPaywall(): Promise<boolean> {
 		const uid = await this.identifyCurrentUser();
