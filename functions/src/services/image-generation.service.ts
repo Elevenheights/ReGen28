@@ -30,10 +30,12 @@ export class ImageGenerationService {
 
 		logger.info(`Starting universal image generation for user ${options.userId}`, { modelType, hasReferences: referenceImages.length > 0 });
 
+		const styledPrompt = style ? `${prompt} (style: ${style})` : prompt;
+
 		// 1. Try OpenAI DALL-E 3 High Fidelity first (as it's usually preferred for quality)
 		if (this.openai.isAvailable()) {
 			try {
-				const imageUrl = await this.openai.generateImage(prompt, referenceImages);
+				const imageUrl = await this.openai.generateImage(styledPrompt, referenceImages);
 				if (imageUrl) {
 					logger.info("UniversalImage: Successfully generated with OpenAI (High Fidelity)");
 					return { imageUrl, source: 'openai', model: 'dall-e-3' };
@@ -43,10 +45,10 @@ export class ImageGenerationService {
 			}
 		}
 
-		// 2. Fallback to Gemini (Nano Banana)
+		// 2. Fallback to Gemini Vision
 		try {
 			const geminiModel = modelType === 'pro' ? 'pro' : 'standard';
-			const imageUrl = await this.gemini.generateImage(prompt, geminiModel, referenceImages);
+			const imageUrl = await this.gemini.generateImage(styledPrompt, geminiModel, referenceImages);
 
 			if (imageUrl) {
 				logger.info(`UniversalImage: Successfully generated with Gemini (${geminiModel})`);

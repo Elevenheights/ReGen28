@@ -6,10 +6,15 @@ export class NotificationService {
 
 	/**
 	 * Send a push notification to a user's registered devices
+	 * @param userId The user's ID
+	 * @param title Notification title
+	 * @param body Notification body
+	 * @param data Additional data for the notification
+	 * @param preferenceKey Optional: the user preference key to check before sending
 	 */
-	async sendPushNotification(userId: string, title: string, body: string, data: any = {}): Promise<void> {
+	async sendPushNotification(userId: string, title: string, body: string, data: any = {}, preferenceKey?: string): Promise<void> {
 		try {
-			// Get user tokens
+			// Get user tokens and preferences
 			const userDoc = await this.db.collection('users').doc(userId).get();
 			if (!userDoc.exists) return;
 
@@ -21,9 +26,21 @@ export class NotificationService {
 				return;
 			}
 
-			// Check user preferences
+			// Check master notification toggle
+			if (userData?.preferences?.dailyReminders === false) {
+				console.log(`User ${userId} has disabled all notifications`);
+				return;
+			}
+
+			// Check specific granular preference if provided
+			// Preserve the legacy feed opt-out as well as the newer channel toggles.
 			if (userData?.preferences?.newFeedPostNotifications === false) {
 				console.log(`User ${userId} has disabled feed post notifications`);
+				return;
+			}
+
+			if (preferenceKey && userData?.preferences?.[preferenceKey] === false) {
+				console.log(`User ${userId} has disabled notifications for ${preferenceKey}`);
 				return;
 			}
 
