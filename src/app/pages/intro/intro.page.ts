@@ -1,16 +1,16 @@
 import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { 
-  IonContent, 
-  IonButton, 
+import {
+  IonContent,
+  IonButton,
   IonIcon
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { 
-  rocket, 
-  chevronBack, 
-  chevronForward 
+import {
+  rocket,
+  chevronBack,
+  chevronForward
 } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
@@ -39,47 +39,15 @@ interface FeatureSlide {
 })
 export class IntroPage implements OnInit {
   currentSlide = 0;
-  
+
   // Touch/swipe handling
   private startX = 0;
   private startY = 0;
-  
+
   featureSlides: FeatureSlide[] = [
-    {
-      title: 'Mind & Focus',
-      subtitle: 'Mental Wellness',
-      description: 'Track meditation, mindfulness practices, and mental clarity. Build focus and reduce stress with guided sessions.',
-      image: 'assets/intro/mind-focus.jpg',
-      color: '#8b5cf6'
-    },
-    {
-      title: 'Body & Health',
-      subtitle: 'Physical Wellness',
-      description: 'Monitor exercise, sleep quality, nutrition, and energy levels. Take control of your physical well-being.',
-      image: 'assets/intro/body-health.jpg',
-      color: '#10b981'
-    },
-    {
-      title: 'Soul & Spirit',
-      subtitle: 'Spiritual Wellness',
-      description: 'Cultivate gratitude, meaningful connections, and spiritual growth. Nourish your inner self.',
-      image: 'assets/intro/soul-spirit.jpg',
-      color: '#f59e0b'
-    },
-    {
-      title: 'Beauty & Self-Care',
-      subtitle: 'Personal Care',
-      description: 'Celebrate self-care routines, skincare practices, and personal confidence. You deserve to feel radiant.',
-      image: 'assets/intro/beauty-selfcare.jpg',
-      color: '#ec4899'
-    },
-    {
-      title: '28-Day Journey',
-      subtitle: 'Your Transformation',
-      description: 'Track your progress, earn achievements, and celebrate milestones on your wellness transformation journey.',
-      image: 'assets/intro/journey-progress.jpg',
-      color: '#3b82f6'
-    }
+    { title: 'Find your rhythm.', subtitle: 'Your 28-day journey', description: 'Explore your daily habits with trackers, reflections, and a private timeline made around you.', image: 'assets/images/indigo-muse/morning-light.webp', color: '#17132b' },
+    { title: 'Small actions. Your way.', subtitle: 'Trackers that fit your life', description: 'Choose what matters. Set your targets. Log a little progress, one day at a time.', image: 'assets/images/indigo-muse/movement.webp', color: '#17132b' },
+    { title: 'Your story, unfolding.', subtitle: 'Reflection meets progress', description: 'See what you’ve logged and reflect on your experience. Optional AI coaching offers ideas based on your activity.', image: 'assets/images/indigo-muse/reflection.webp', color: '#17132b' }
   ];
 
   constructor(
@@ -89,8 +57,8 @@ export class IntroPage implements OnInit {
   ) {
     // Add icons to the registry
     addIcons({
-      rocket, 
-      chevronBack, 
+      rocket,
+      chevronBack,
       chevronForward
     });
   }
@@ -144,7 +112,7 @@ export class IntroPage implements OnInit {
 
     const endX = event.changedTouches[0].clientX;
     const endY = event.changedTouches[0].clientY;
-    
+
     const deltaX = this.startX - endX;
     const deltaY = this.startY - endY;
 
@@ -176,4 +144,4 @@ export class IntroPage implements OnInit {
       this.nextSlide();
     }
   }
-} 
+}

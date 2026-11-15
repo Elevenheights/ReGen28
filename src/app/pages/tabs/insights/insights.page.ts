@@ -39,9 +39,12 @@ import { WriteEntryModalComponent } from '../../../components/journal/write-entr
 import { PageHeaderComponent } from '../../../components/page-header/page-header.component';
 import { SectionSeparatorComponent } from '../../../components/section-separator/section-separator.component';
 import { CountUpDirective } from '../../../directives/count-up.directive';
+import { FeedActionCardComponent } from '../../../components/feed/cards/feed-action-card/feed-action-card.component';
+import { FeedInsightCardComponent } from '../../../components/feed/cards/feed-insight-card/feed-insight-card.component';
+import { activityDays, chartDates, dailyMoods, MoodDay } from '../../../models/dashboard-chart';
 
 // RxJS
-import { Subject, combineLatest, of, firstValueFrom } from 'rxjs';
+import { Subject, Subscription, combineLatest, of, firstValueFrom } from 'rxjs';
 import { takeUntil, map, catchError, take, switchMap } from 'rxjs/operators';
 
 interface DashboardData {
@@ -101,9 +104,14 @@ interface DashboardData {
 		PageHeaderComponent,
 		SectionSeparatorComponent,
 		CountUpDirective
+		, FeedActionCardComponent, FeedInsightCardComponent
 	],
 })
 export class InsightsPage implements OnInit, OnDestroy {
+  jumpToSection(event: Event, id: string): void {
+    event.preventDefault();
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 	private destroy$ = new Subject<void>();
 
 	// Dashboard data
@@ -165,6 +173,12 @@ export class InsightsPage implements OnInit, OnDestroy {
 
 	// Mood Chart Timeframe
 	moodChartTimeframe: 'week' | 'month' = 'week';
+	moodChart: MoodDay[] = [];
+	moodChartLoading = false;
+	moodChartError = '';
+	private moodChartSubscription?: Subscription;
+	readonly dashboardCategories = ['mind', 'body', 'soul', 'beauty'] as const;
+	readonly journeyDays = Array.from({ length: 28 }, (_, i) => i + 1);
 
 	// Collapsed state for wellness journey section
 	isWellnessJourneyCollapsed = true;
@@ -340,10 +354,12 @@ export class InsightsPage implements OnInit, OnDestroy {
 	ngOnInit() {
 		this.loadEnhancedDashboardData();
 		this.loadTodaysActionsAndInsights();
+		this.loadMoodChart();
 		this.startQuoteSlideshow();
 	}
 
 	ngOnDestroy() {
+		this.moodChartSubscription?.unsubscribe();
 		this.destroy$.next();
 		this.destroy$.complete();
 		this.stopQuoteSlideshow();
@@ -1085,7 +1101,7 @@ export class InsightsPage implements OnInit, OnDestroy {
 
 		switch (commitmentLevel.toLowerCase()) {
 			case 'light': return '#10b981'; // Green for light
-			case 'moderate': return '#f59e0b'; // Orange for moderate  
+			case 'moderate': return '#f59e0b'; // Orange for moderate
 			case 'intensive': return '#dc2626'; // Red for intensive
 			default: return '#6b7280'; // Gray default
 		}
@@ -1359,6 +1375,7 @@ export class InsightsPage implements OnInit, OnDestroy {
 
 			// Reload enhanced dashboard data
 			this.loadEnhancedDashboardData();
+			this.loadMoodChart();
 
 			// Small delay to allow loading to start
 			await new Promise(resolve => setTimeout(resolve, 500));
@@ -1572,32 +1589,48 @@ export class InsightsPage implements OnInit, OnDestroy {
 		}, 250);
 	}
 
-	// Mood Chart Methods
+	// Period selection fetches the actual journal entries for that date range.
 	setMoodChartTimeframe(timeframe: 'week' | 'month') {
 		this.moodChartTimeframe = timeframe;
-		// In a real implementation, you would fetch different data here
-		// For now we'll just stick with the weekly data but update the view state
+		this.loadMoodChart();
+	}
+
+	private loadMoodChart(): void {
+		this.moodChartSubscription?.unsubscribe();
+		this.moodChartLoading = true;
+		this.moodChartError = '';
+		const days = this.moodChartTimeframe === 'month' ? 30 : 7;
+		const now = new Date();
+		const start = chartDates(days, now)[0];
+		const end = new Date(now); end.setHours(23, 59, 59, 999);
+		this.moodChartSubscription = this.journalService.getJournalEntriesByDateRange(start, end)
+			.pipe(takeUntil(this.destroy$))
+			.subscribe({
+				next: entries => { this.moodChart = dailyMoods(entries, days, now); this.moodChartLoading = false; },
+				error: () => {
+					this.moodChart = dailyMoods([], days, now);
+					this.moodChartError = 'Mood history is temporarily unavailable. Try refreshing.';
+					this.moodChartLoading = false;
+				}
+			});
+	}
+
+	get averageChartMood(): number | null {
+		const count = this.moodChart.reduce((sum, day) => sum + day.entries, 0);
+		return count ? this.moodChart.reduce((sum, day) => sum + (day.value || 0) * day.entries, 0) / count : null;
 	}
 
 	getMoodTrendLabel(): string {
-		const trend = this.dashboardData.weeklyMoodData.trend;
-		switch (trend) {
-			case 'improving': return 'Uplifting ↗';
-			case 'declining': return 'Declining ↘';
-			default: return 'Stable →';
-		}
+		const values = this.moodChart.flatMap(day => day.value === null ? [] : [day.value]);
+		if (values.length < 2) return 'Keep checking in';
+		const delta = values[values.length - 1] - values[0];
+		return delta > 0.5 ? 'Higher recently ↗' : delta < -0.5 ? 'Lower recently ↘' : 'Steady →';
 	}
 
 	getMoodInsightText(): string {
-		const trend = this.dashboardData.weeklyMoodData.trend;
-		const avg = this.dashboardData.weeklyMoodData.averageMood;
-
-		// Check for specific insights based on data
-		// This mirrors the hardcoded "peaks mid-week" logic but dynamic
-		if (avg >= 4) return "Your mood is radiating positivity! Keep honoring your rhythms.";
-		if (trend === 'improving') return "Your energy is shifting upward. Great consistency.";
-		if (trend === 'declining') return "You're facing some resistance. Consider a gentle check-in.";
-		return "Your mood is stable. You're finding your balance.";
+		const count = this.moodChart.reduce((sum, day) => sum + day.entries, 0);
+		return count ? count + ' journal mood check-ins. Each point is that day’s average; gaps mean no check-in.'
+			: 'Log how you feel to start seeing your mood over time.';
 	}
 
 	// Top Trackers
@@ -1617,7 +1650,7 @@ export class InsightsPage implements OnInit, OnDestroy {
 	}
 
 	hasMoodData(): boolean {
-		return this.dashboardData.weeklyMoodData.dailyMoods.some(m => m !== null);
+		return this.moodChart.some(day => day.value !== null);
 	}
 
 	private calculateCategoryPerformance(goals: Goal[], trackers: any[]) {
@@ -1654,28 +1687,21 @@ export class InsightsPage implements OnInit, OnDestroy {
 		return this.dashboardData.activeGoals.filter(g => (g.category || '').toLowerCase() === category.toLowerCase()).length;
 	}
 
-	// Engagement Chart Methods
+	// Align daily statistics by local date rather than array order.
+	get engagementDays() { return activityDays(this.dashboardData.weeklyActivityStats); }
+
 	getWeeklyEngagementCount(): number {
-		return this.dashboardData.weeklyActivityStats.filter(s => s.totalActivities > 0).length;
+		return this.engagementDays.filter(day => day.count > 0).length;
 	}
 
 	getWeeklyEngagementRate(): string {
-		const count = this.dashboardData.weeklyActivityStats.filter(s => s.totalActivities > 0).length;
-		const rate = Math.round((count / 7) * 100);
-		return `${rate}% rate`;
+		return Math.round(this.getWeeklyEngagementCount() / 7 * 100) + '% active days';
 	}
 
 	getDailyEngagementHeight(dayIndex: number): string {
-		// Map 0 (Mon) - 6 (Sun) to available stats
-		// Need to align stats with days. Assuming weeklyActivityStats is sorted date desc or asc?
-		// Ensure we map correctly to Mon-Sun visual
-		// For simplicity, let's just map index to index if we have 7 days
-		const stat = this.dashboardData.weeklyActivityStats[dayIndex];
-		if (!stat || !stat.totalActivities) return '4px'; // Minimal height for 0
-
-		// Scale 0-10 activities to 10-100%
-		const height = Math.min(100, Math.max(10, stat.totalActivities * 10));
-		return `${height}%`;
+		const days = this.engagementDays;
+		const max = Math.max(1, ...days.map(day => day.count));
+		return Math.max(2, (days[dayIndex]?.count || 0) / max * 100) + '%';
 	}
 
 	// Button Handlers
@@ -1692,60 +1718,23 @@ export class InsightsPage implements OnInit, OnDestroy {
 		this.router.navigate(['/goals']);
 	}
 
-	/**
-	 * Get SVG path for mood line chart
-	 */
 	getMoodPath(): string {
-		const moods = this.dashboardData.weeklyMoodData.dailyMoods;
-		if (moods.length === 0) return '';
-
 		let path = '';
-		moods.forEach((mood, i) => {
-			if (mood !== null) {
-				const x = 20 + i * 40;
-				const y = 100 - (mood - 1) * 20;
-				if (path === '') {
-					path = `M${x},${y}`;
-				} else {
-					path += ` L${x},${y}`;
-				}
-			}
+		let connected = false;
+		this.moodChart.forEach((day, index) => {
+			if (day.value === null) { connected = false; return; }
+			const x = 20 + index * 240 / Math.max(1, this.moodChart.length - 1);
+			const y = 100 - (day.value - 1) * 10;
+			path += (connected ? ' L' : ' M') + x + ',' + y;
+			connected = true;
 		});
-		return path;
+		return path.trim();
 	}
 
-	/**
-	 * Get SVG path for mood area chart
-	 */
-	getMoodAreaPath(): string {
-		const path = this.getMoodPath();
-		if (!path) return '';
-
-		// Get last point
-		const moods = this.dashboardData.weeklyMoodData.dailyMoods;
-		const lastIndex = moods.map((m, i) => m !== null ? i : -1).filter(i => i !== -1).pop();
-		const firstIndex = moods.map((m, i) => m !== null ? i : -1).filter(i => i !== -1).shift();
-
-		if (lastIndex === undefined || firstIndex === undefined) return '';
-
-		const firstX = 20 + firstIndex * 40;
-		const lastX = 20 + lastIndex * 40;
-
-		return `${path} L${lastX},120 L${firstX},120 Z`;
-	}
-
-	/**
-	 * Get points for mood dots
-	 */
-	getMoodPoints(): { cx: number; cy: number }[] {
-		return this.dashboardData.weeklyMoodData.dailyMoods
-			.map((mood, i) => {
-				if (mood === null) return null;
-				return {
-					cx: 20 + i * 40,
-					cy: 100 - (mood - 1) * 20
-				};
-			})
-			.filter((p): p is { cx: number; cy: number } => p !== null);
+	getMoodPoints(): { cx: number; cy: number; value: number; date: Date }[] {
+		return this.moodChart.flatMap((day, index) => day.value === null ? [] : [{
+			cx: 20 + index * 240 / Math.max(1, this.moodChart.length - 1),
+			cy: 100 - (day.value - 1) * 10, value: day.value, date: day.date
+		}]);
 	}
 }

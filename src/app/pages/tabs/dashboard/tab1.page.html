@@ -1,51 +1,141 @@
-<ion-content class="bg-neutral-50">
-	<app-page-header [title]="'Your Feed'" [subtitle]="'Daily Inspiration'" theme="indigo" [showProfile]="true"
-		[profileUrl]="(profileImageUrl$ | async) || ''" [userName]="(userDisplayName$ | async) || ''">
-	</app-page-header>
-
-	<!-- Feed Notice -->
-	<div *ngIf="showFeedNotice" class="px-4 pt-4 animate-entry">
-		<div
-			class="bg-gradient-to-br from-indigo-500/10 to-purple-600/10 border border-indigo-200/50 rounded-3xl p-5 flex items-start gap-4">
-			<div class="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center shrink-0 shadow-lg">
-				<i class="fa-solid fa-user-shield text-white text-lg"></i>
-			</div>
-			<div class="flex-1 min-w-0">
-				<h3 class="text-sm font-bold text-neutral-900 mb-1">Your Personalized Sanctuary</h3>
-				<p class="text-xs text-neutral-600 leading-relaxed font-medium">
-					This is your own private space. Every post and insight here is crafted specifically for you, based
-					on your journey and data. Optional AI features process selected data with AI providers when you give permission.
-				</p>
-			</div>
-			<button type="button" (click)="dismissFeedNotice()" aria-label="Dismiss personalized sanctuary notice"
-				class="shrink-0 w-9 h-9 rounded-full text-neutral-600 hover:bg-indigo-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-600">
-				<i class="fa-solid fa-xmark" aria-hidden="true"></i>
-			</button>
-		</div>
-	</div>
-
-	<!-- Today's Guidance Section -->
-	<div *ngIf="todaysGuidance$ | async as guidance" class="px-4 pt-4 pb-2">
-		<ng-container *ngIf="guidance.actions.length > 0 || guidance.insights.length > 0">
-			<h2 class="text-lg font-bold mb-3 ml-1 text-neutral-800 flex items-center gap-2">
-				<ion-icon name="sparkles" class="text-indigo-500"></ion-icon>
-				Today's Guidance
-			</h2>
-
-			<!-- Actions -->
-			<div *ngFor="let item of guidance.actions" class="mb-4 animate-fade-in-up">
-				<app-feed-item-card [item]="item"></app-feed-item-card>
-			</div>
-
-			<!-- Insights -->
-			<div *ngFor="let item of guidance.insights" class="mb-4 animate-fade-in-up"
-				[style.animation-delay]="'100ms'">
-				<app-feed-item-card [item]="item"></app-feed-item-card>
-			</div>
-		</ng-container>
-	</div>
-
-	<div class="feed-wrapper">
-		<app-feed-list [excludedItemIds]="(todaysGuidance$ | async)?.ids || []"></app-feed-list>
-	</div>
-</ion-content>
+<ion-content class="muse-content"
+  ><main class="today-page">
+    <section
+      class="today-stage"
+      *ngIf="journeyDay$ | async as day; else firstDay"
+    >
+      <ng-container
+        *ngTemplateOutlet="hero; context: {$implicit:day}"
+      ></ng-container>
+    </section>
+    <ng-template #firstDay
+      ><section class="today-stage">
+        <ng-container
+          *ngTemplateOutlet="hero; context: {$implicit:0}"
+        ></ng-container></section
+    ></ng-template>
+    <ng-template #hero let-day
+      ><img
+        src="assets/images/indigo-muse/morning-light.webp"
+        alt=""
+        class="hero-photo"
+        fetchpriority="high"
+      />
+      <header class="muse-topbar">
+        <span class="muse-wordmark">Regen <em>28</em></span>
+        <div>
+          <a routerLink="/tabs/insights" class="dashboard-access"
+            >Dashboard ↗</a
+          ><a
+            routerLink="/tabs/settings"
+            class="profile-access"
+            aria-label="Open account"
+            ><ion-icon name="person-outline" aria-hidden="true"></ion-icon
+          ></a>
+        </div>
+      </header>
+      <h1>In your<br /><em>rhythm.</em></h1>
+      <p class="journey-day"><strong>{{ day }}</strong> / 28 days</p>
+      <div class="journey-ticks" aria-hidden="true">
+        <span>28</span>
+        <div>
+          <i
+            *ngFor="let tick of journeyTicks"
+            [class.reached]="tick <= day"
+          ></i>
+        </div>
+        <span>1</span>
+      </div></ng-template
+    >
+    <section class="focus-panel" aria-labelledby="focus-title">
+      <svg
+        class="focus-curve"
+        viewBox="0 0 430 100"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M0,100 C0,53 96,43 210,27 S365,4 430,0 L430,101 L0,101Z"
+          fill="#e6dcfb"
+        />
+      </svg>
+      <div class="focus-content">
+        <p class="focus-kicker">Today’s focus</p>
+        <h2 id="focus-title">Move. Recharge.<br />Repeat.</h2>
+        <ng-container *ngIf="focus$ | async as focus"
+          ><div class="focus-checklist">
+            <button
+              type="button"
+              *ngFor="let item of focus.items.slice(0,3)"
+              (click)="logTracker(item.tracker)"
+              [attr.aria-label]="'Log ' + item.tracker.name"
+            >
+              <i
+                [class]="'fa-solid ' + (item.tracker.icon || 'fa-circle')"
+                aria-hidden="true"
+              ></i
+              ><span>{{ item.tracker.name }}</span
+              ><span class="focus-check" [class.complete]="item.completed"
+                >{{ item.completed ? '✓' : '' }}</span
+              >
+            </button>
+          </div>
+          <p *ngIf="focus.error" role="status" class="focus-error">
+            {{ focus.error }}
+          </p>
+          <p *ngIf="!focus.items.length && !focus.error" class="focus-error">
+            Choose your trackers to build a rhythm of your own.
+          </p>
+          <a
+            *ngIf="focus.items.length > 3"
+            routerLink="/tabs/tracker"
+            class="all-focus-link"
+            >All {{ focus.items.length }} trackers ↗</a
+          ></ng-container
+        ><a routerLink="/tabs/tracker" class="muse-primary"
+          >Log today <span aria-hidden="true">→</span></a
+        >
+      </div>
+    </section>
+    <nav class="today-secondary" aria-label="Your dashboard and journal">
+      <a routerLink="/tabs/insights">Your full dashboard ↗</a
+      ><a routerLink="/tabs/journal">Your journal ↗</a>
+    </nav>
+    <aside *ngIf="showFeedNotice" class="private-notice">
+      <div>
+        <strong>A space that’s yours.</strong>
+        <p>
+          Your timeline is private. Optional AI guidance uses selected data only
+          with your permission.
+        </p>
+      </div>
+      <button
+        type="button"
+        (click)="dismissFeedNotice()"
+        aria-label="Dismiss personalized sanctuary notice"
+      >
+        ×
+      </button>
+    </aside>
+    <section *ngIf="todaysGuidance$ | async as guidance" class="today-guidance">
+      <div
+        class="section-heading"
+        *ngIf="guidance.actions.length || guidance.insights.length"
+      >
+        <h2>Today’s guidance</h2>
+        <span aria-hidden="true">✦</span>
+      </div>
+      <app-feed-item-card
+        *ngFor="let item of guidance.actions"
+        [item]="item"
+      ></app-feed-item-card
+      ><app-feed-item-card
+        *ngFor="let item of guidance.insights"
+        [item]="item"
+      ></app-feed-item-card>
+    </section>
+    <a routerLink="/tabs/timeline" class="timeline-link"
+      >Your story, <em>unfolding.</em><span aria-hidden="true">→</span></a
+    >
+  </main></ion-content
+>

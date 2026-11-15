@@ -14,3 +14,6 @@ ion-spinner {
 	width: 32px;
 	height: 32px;
 }
+.challenge-icon { position:relative; background:#dccdef; border-radius:50%; }
+.challenge-icon i { color:#6d4e8b; }
+.challenge-icon::after { content:''; width:7px; height:7px; background:var(--tracker-accent,#a284ba); border-radius:50%; position:absolute; bottom:2px; right:2px; }

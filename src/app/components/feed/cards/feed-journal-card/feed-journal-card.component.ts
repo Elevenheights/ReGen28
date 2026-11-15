@@ -13,6 +13,12 @@ import { FeedItem } from 'src/app/models/feed-item.interface';
 export class FeedJournalCardComponent implements OnInit {
   @Input() item!: FeedItem;
 
+  get entryDate(): Date | null {
+    const value = this.item.createdAt;
+    const date = value?.toDate ? value.toDate() : new Date(value);
+    return Number.isFinite(date.getTime()) ? date : null;
+  }
+
   constructor() { }
 
   ngOnInit() {}

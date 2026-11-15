@@ -1,0 +1,34 @@
+<ion-content class="muse-content"
+  ><main class="timeline-page">
+    <header class="muse-topbar">
+      <span class="muse-wordmark">Regen <em>28</em></span>
+      <div>
+        <a routerLink="/tabs/insights" class="dashboard-access">Dashboard ↗</a
+        ><a
+          routerLink="/tabs/settings"
+          class="profile-access"
+          aria-label="Open account"
+          ><ion-icon name="person-outline" aria-hidden="true"></ion-icon
+        ></a>
+      </div>
+    </header>
+    <h1>Your story,<br /><em>unfolding.</em></h1>
+    <app-feed-list [timelineLayout]="true"></app-feed-list>
+    <section *ngIf="day$ | async as day" class="journey-keepsake">
+      <strong>{{ day }}</strong>
+      <p>days of<br /><em>choosing you.</em></p>
+      <button
+        type="button"
+        (click)="shareJourney(day)"
+        aria-label="Share journey progress"
+      >
+        ↥
+      </button>
+    </section>
+    <p *ngIf="shareError" role="alert">{{ shareError }}</p>
+    <nav class="secondary-destinations" aria-label="More tools">
+      <a routerLink="/tabs/insights">Full dashboard ↗</a
+      ><a routerLink="/tabs/journal">Journal ↗</a>
+    </nav>
+  </main></ion-content
+>

@@ -1,3 +1,9 @@
 :host {
 	display: block;
 }
+.stats-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.stats-grid > div { border-radius:22px; background:#eae3fc; padding:20px; display:flex; flex-direction:column; gap:8px; }
+.stats-grid span { color:#6e5386; font-size:11px; }
+.stats-grid strong { color:#3e2855; font:400 40px/1 Georgia,serif; }
+.stats-grid small { color:#795a90; font-size:10px; }
+.stats-grid ion-skeleton-text { height:40px; width:60%; border-radius:8px; --background:#d6c6e7; }

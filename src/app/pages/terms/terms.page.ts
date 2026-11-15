@@ -7,13 +7,13 @@ import { IonicModule, NavController } from '@ionic/angular';
   standalone: true,
   imports: [IonicModule, CommonModule],
   template: `
-    <ion-content [fullscreen]="true" class="ion-no-border">
-      <div class="min-h-screen bg-slate-950 text-white font-inter">
+    <ion-content [fullscreen]="true" class="ion-no-border muse-legal">
+      <div class="min-h-screen muse-legal-page">
 
         <!-- Header -->
-        <div class="sticky top-0 z-10 bg-slate-950/90 backdrop-blur-sm border-b border-white/[0.06] px-6 py-4 flex items-center gap-4">
-          <button (click)="back()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/[0.06] active:scale-95 transition-all">
-            <ion-icon name="chevron-back" class="text-lg text-slate-300"></ion-icon>
+        <div class="muse-legal-header sticky top-0 z-10 px-6 py-4 flex items-center gap-4">
+          <button aria-label="Go back" (click)="back()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white/[0.06] active:scale-95 transition-all">
+            <span aria-hidden="true" class="text-2xl">‹</span>
           </button>
           <h1 class="text-lg font-bold font-outfit">Terms of Use</h1>
         </div>

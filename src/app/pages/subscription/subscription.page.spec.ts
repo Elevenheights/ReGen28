@@ -70,9 +70,11 @@ describe('SubscriptionPage', () => {
     billing.isNativePlatform.and.returnValue(false);
     component.ngOnInit();
     fixture.detectChanges();
-    const buttons = Array.from(fixture.nativeElement.querySelectorAll('button')) as HTMLButtonElement[];
-    expect(buttons.find(button => button.textContent?.trim() === 'Continue')?.disabled).toBeTrue();
-    expect(buttons.find(button => button.textContent?.includes('Restore Purchases'))?.disabled).toBeTrue();
+    const purchase: HTMLButtonElement = fixture.nativeElement.querySelector('.subscribe-button');
+    const restore: HTMLButtonElement = fixture.nativeElement.querySelector('.membership-footer button');
+    expect(purchase.disabled).toBeTrue();
+    expect(restore.textContent?.toLowerCase()).toContain('restore purchases');
+    expect(restore.disabled).toBeTrue();
   });
 
   it('enters the app only after confirmed purchase access', async () => {

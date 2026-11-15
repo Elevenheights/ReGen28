@@ -1,32 +1,48 @@
-.milestone-card {
-  text-align: center;
-  border: 2px solid var(--ion-color-warning);
-  background: rgba(var(--ion-color-warning-rgb), 0.05);
+:host {
+  display: block;
 }
-
+ion-card {
+  margin: 0;
+  padding: 24px;
+  background:
+    linear-gradient(130deg, #eee7ffde, #ded3f1cc),
+    url("/assets/images/indigo-muse/satin.webp") center/cover;
+  box-shadow: none;
+  border-radius: 0;
+  color: #352248;
+}
 .milestone-badge {
-  width: 64px;
-  height: 64px;
-  background: var(--ion-color-warning);
+  width: 46px;
+  height: 46px;
+  border: 1px solid #9273b3;
+  display: grid;
+  place-items: center;
   border-radius: 50%;
-  margin: -32px auto 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 4px solid white;
-  
-  ion-icon {
-    font-size: 32px;
-    color: white;
-  }
+  color: #71519e;
+  font-size: 24px;
+  margin-bottom: 22px;
 }
-
-ion-card-header {
-  padding-top: 0;
+ion-card-header,
+ion-card-content {
+  padding: 0;
 }
-
 ion-card-subtitle {
-  color: var(--ion-color-warning);
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-size: 10px;
+  color: #6f5486;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+ion-card-title {
+  font:
+    italic 400 30px/1.1 Georgia,
+    serif;
+  color: #352248;
+  letter-spacing: -0.6px;
+}
+ion-card-content {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #5c4373;
+  margin-top: 14px;
 }

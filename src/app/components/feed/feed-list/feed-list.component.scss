@@ -1,24 +1,84 @@
 .feed-container {
-  padding: 0 8px 80px; // Bottom padding for tab bar
+  padding: 0 0 24px;
 }
-
+.spine-layout .timeline-entry {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 18px;
+  position: relative;
+}
+.timeline-time {
+  color: #e4d9f6;
+  font-size: 10px;
+  line-height: 1.6;
+  padding-top: 12px;
+}
+.spine-layout .timeline-entry-content {
+  position: relative;
+  min-width: 0;
+  padding-bottom: 5px;
+}
+.spine-layout .timeline-entry-content::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 22px;
+  bottom: -22px;
+  width: 1px;
+  background: #c4aedb;
+  opacity: 0.7;
+}
+.spine-layout .timeline-entry:last-of-type .timeline-entry-content::before {
+  bottom: 18px;
+}
+.timeline-node {
+  position: absolute;
+  z-index: 1;
+  left: -21px;
+  top: 14px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #b9f3d1;
+  color: #392957;
+  font-size: 12px;
+}
+.timeline-node.coaching {
+  background: #5f4bdd;
+  border: 2px solid #e1d3fc;
+  box-shadow: 0 0 0 3px #5f4bdd;
+  width: 15px;
+  height: 15px;
+  left: -18px;
+  top: 18px;
+}
+@media (max-width: 360px) {
+  .spine-layout .timeline-entry {
+    grid-template-columns: 40px minmax(0, 1fr);
+    gap: 14px;
+  }
+  .timeline-time {
+    font-size: 9px;
+  }
+}
 .feed-list {
   max-width: 100%;
   margin: 0 auto;
 }
-
 .empty-state {
+  border: 1px solid #b6a7d547;
+  border-radius: 24px;
+  padding: 32px 24px;
+  color: #c9bedf;
   text-align: center;
-  padding: 48px 16px;
-  color: var(--ion-color-medium);
-  
-  ion-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-    opacity: 0.5;
-  }
-  
-  p {
-    font-size: 16px;
-  }
+}
+.empty-state ion-icon {
+  font-size: 28px;
+  color: #b9f3d1;
+}
+.empty-state p {
+  font-size: 14px;
+  line-height: 1.6;
 }

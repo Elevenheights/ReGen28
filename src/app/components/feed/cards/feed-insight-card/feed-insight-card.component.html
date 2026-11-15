@@ -1,23 +1,24 @@
-<div class="insight-card" [class.expanded]="isExpanded" [style.background]="categoryGradient">
+<div class="insight-card" [class.expanded]="isExpanded">
   <div class="insight-header">
     <div class="icon-circle" [style.border-color]="categoryColor">
-      <span class="icon-emoji">{{ item.metadata?.icon || '📊' }}</span>
+      <span class="icon-emoji">{{ item.metadata?.icon || "📊" }}</span>
     </div>
-    <div class="tracker-name">{{ item.source.trackerName }}</div>
+    <div class="tracker-name">{{ item.source.trackerName || item.title }}</div>
   </div>
 
   <div class="insight-content">
     <div class="insight-badge">{{ insightTypeLabel }}</div>
     <p class="insight-text">{{ item.body }}</p>
-    
-    <button 
-      class="expand-button" 
+
+    <button
+      class="expand-button"
       (click)="toggleExpand()"
-      type="button" [attr.aria-expanded]="isExpanded"
+      type="button"
+      [attr.aria-expanded]="isExpanded"
       *ngIf="item.metadata?.dataPoint"
     >
       <ion-icon [name]="isExpanded ? 'chevron-up' : 'chevron-down'"></ion-icon>
-      {{ isExpanded ? 'Show less' : 'View data' }}
+      {{ isExpanded ? "Show less" : "View data" }}
     </button>
 
     <div class="data-section" *ngIf="isExpanded && item.metadata?.dataPoint">

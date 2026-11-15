@@ -1,4 +1,166 @@
+:host {
+  display: block;
+  min-width: 0;
+}
 .tracker-suggestions {
-  // Component-specific styles can be added here if needed
-  // Most styling is handled by Tailwind classes in the template
-} 
+  color: #302147;
+}
+.guidance-context {
+  margin: 0 0 16px;
+  color: #6d5685;
+  font-size: 11px;
+}
+.suggestion-action {
+  padding: 22px;
+  border-radius: 22px;
+  background:
+    linear-gradient(120deg, #eee8ffed, #ded3f4c7),
+    url("/assets/images/indigo-muse/satin.webp") center/cover;
+}
+.guidance-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #5b4378;
+}
+.guidance-eyebrow > span {
+  font-size: 24px;
+}
+.suggestion-action h3 {
+  font-size: 23px;
+  line-height: 1.25;
+  font-weight: 550;
+  letter-spacing: -0.7px;
+  margin: 14px 0 0;
+  color: #2c1e48;
+  overflow-wrap: anywhere;
+}
+.guidance-insights {
+  margin-top: 26px;
+}
+.guidance-insights > h3 {
+  font-size: 14px;
+  font-weight: 550;
+  margin: 0 0 6px;
+  color: #4b3564;
+}
+.suggestion-insight {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 12px;
+  padding: 20px 0;
+  border-bottom: 1px solid #b9a4ce66;
+}
+.insight-number {
+  font:
+    italic 400 25px/1 Georgia,
+    serif;
+  color: #785c9a;
+  padding-top: 3px;
+}
+.suggestion-insight p {
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0 0 12px;
+  color: #453156;
+  overflow-wrap: anywhere;
+}
+.insight-context {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.insight-context > span {
+  color: #315342;
+  background: #c4eed5;
+  border-radius: 20px;
+  padding: 5px 10px;
+  text-transform: capitalize;
+  font-size: 10px;
+}
+.insight-context small {
+  color: #6f5687;
+  font-size: 10px;
+  line-height: 1.6;
+}
+.guidance-quote {
+  margin: 24px 0;
+  padding: 4px 0 0;
+}
+.guidance-quote figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #6c5284;
+}
+.guidance-quote figcaption span {
+  font-size: 24px;
+}
+.guidance-quote blockquote {
+  font:
+    italic 400 25px/1.35 Georgia,
+    serif;
+  letter-spacing: -0.4px;
+  color: #3a2855;
+  margin: 16px 0;
+}
+.guidance-quote cite {
+  font-size: 11px;
+  font-style: normal;
+  color: #6f5687;
+}
+button {
+  cursor: pointer;
+  min-height: 44px;
+}
+.guidance-refresh,
+.guidance-disclosure,
+.suggestion-state button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid #9c84b5;
+  border-radius: 26px;
+  padding: 12px 18px;
+  color: #513672;
+  background: transparent;
+  font-size: 12px;
+  width: 100%;
+}
+.guidance-disclosure {
+  margin-top: 12px;
+  justify-content: space-between;
+}
+.guidance-refresh ion-icon {
+  font-size: 17px;
+}
+.suggestion-state {
+  padding: 28px 12px;
+  text-align: center;
+  color: #634b7a;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.suggestion-state > span {
+  font-size: 32px;
+  color: #7554aa;
+}
+.suggestion-state h3 {
+  font:
+    italic 400 25px/1.2 Georgia,
+    serif;
+  color: #38244e;
+}
+.suggestion-error {
+  border: 1px solid #b7607866;
+  border-radius: 20px;
+  color: #85384e;
+}
+button:focus-visible {
+  outline: 3px solid #7453b3;
+  outline-offset: 3px;
+}

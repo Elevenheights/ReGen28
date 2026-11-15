@@ -175,7 +175,7 @@ export class RichTextEditorComponent implements OnInit, OnDestroy, ControlValueA
     const toolbar = quill.getModule('toolbar');
     if (toolbar && toolbar.container) {
       toolbar.container.style.border = 'none';
-      toolbar.container.style.borderBottom = '1px solid #e5e5e5';
+      toolbar.container.style.borderBottom = '1px solid #bca5d166';
     }
 
     // Adjust editor height for mobile
@@ -223,4 +223,4 @@ export class RichTextEditorComponent implements OnInit, OnDestroy, ControlValueA
     this.onChange('');
     this.contentChange.emit('');
   }
-} 
+}

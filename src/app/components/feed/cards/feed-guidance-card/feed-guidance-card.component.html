@@ -1,15 +1,30 @@
 <div class="guidance-post">
   <!-- Carousel: 1 card at a time, square format -->
-  <div class="carousel-viewport" 
-       *ngIf="suggestions.length > 0"
-       (touchstart)="onTouchStart($event)"
-       (touchend)="onTouchEnd($event)">
-    <div class="carousel-track" [style.transform]="'translateX(-' + (currentIndex * 100) + '%)'">
-      <div *ngFor="let card of suggestions; let i = index" 
-           class="carousel-slide"
-           [ngClass]="card.color">
-        
-        <div class="slide-content" [class.expanded]="expandedIndex === i" (click)="toggleExpand(i)">
+  <div
+    class="carousel-viewport"
+    *ngIf="suggestions.length > 0"
+    (touchstart)="onTouchStart($event)"
+    (touchend)="onTouchEnd($event)"
+  >
+    <div
+      class="carousel-track"
+      [style.transform]="'translateX(-' + currentIndex * 100 + '%)'"
+    >
+      <div
+        *ngFor="let card of suggestions; let i = index"
+        class="carousel-slide"
+        [ngClass]="card.color"
+      >
+        <div
+          class="slide-content"
+          role="button"
+          tabindex="0"
+          [attr.aria-expanded]="expandedIndex === i"
+          [class.expanded]="expandedIndex === i"
+          (keydown.enter)="toggleExpand(i)"
+          (keydown.space)="$event.preventDefault(); toggleExpand(i)"
+          (click)="toggleExpand(i)"
+        >
           <!-- Tracker Name Header -->
           <div class="tracker-header">
             <span class="tracker-icon">{{ card.trackerIcon }}</span>
@@ -18,12 +33,14 @@
 
           <!-- Icon Circle -->
           <div class="icon-circle">
-            <span class="icon-emoji">{{ card.content.icon || '✨' }}</span>
+            <span class="icon-emoji">{{ card.content.icon || "✨" }}</span>
           </div>
 
           <!-- Card Type Badge -->
           <div class="card-badge">
-            <span>{{ card.type === 'action' ? 'Today\'s Action' : 'Strategic Insight' }}</span>
+            <span>{{
+              card.type === "action" ? "Today's Action" : "Strategic Insight"
+            }}</span>
           </div>
 
           <!-- Card Text -->
@@ -34,7 +51,10 @@
           <!-- Metadata (when expanded) -->
           <div class="card-metadata" *ngIf="expandedIndex === i">
             <!-- Type & Data Point for insights -->
-            <div class="metadata-row" *ngIf="card.type === 'insight' && card.content.type">
+            <div
+              class="metadata-row"
+              *ngIf="card.type === 'insight' && card.content.type"
+            >
               <span class="metadata-label">Type:</span>
               <span class="metadata-value">{{ card.content.type }}</span>
             </div>
@@ -50,7 +70,10 @@
           </div>
 
           <!-- Expand hint -->
-          <div class="expand-hint" *ngIf="expandedIndex !== i && hasExpandableContent(card)">
+          <div
+            class="expand-hint"
+            *ngIf="expandedIndex !== i && hasExpandableContent(card)"
+          >
             <span>Tap for details</span>
             <ion-icon name="chevron-down-outline"></ion-icon>
           </div>
@@ -65,21 +88,34 @@
 
     <!-- Navigation Arrows (if multiple) -->
     <div class="nav-arrows" *ngIf="suggestions.length > 1">
-      <button class="nav-btn nav-prev" (click)="prevSlide($event)" [disabled]="currentIndex === 0">
+      <button
+        aria-label="Previous guidance"
+        class="nav-btn nav-prev"
+        (click)="prevSlide($event)"
+        [disabled]="currentIndex === 0"
+      >
         <ion-icon name="chevron-back"></ion-icon>
       </button>
-      <button class="nav-btn nav-next" (click)="nextSlide($event)" [disabled]="currentIndex === suggestions.length - 1">
+      <button
+        aria-label="Next guidance"
+        class="nav-btn nav-next"
+        (click)="nextSlide($event)"
+        [disabled]="currentIndex === suggestions.length - 1"
+      >
         <ion-icon name="chevron-forward"></ion-icon>
       </button>
     </div>
 
     <!-- Dot Indicators -->
     <div class="dot-indicators" *ngIf="suggestions.length > 1">
-      <button *ngFor="let card of suggestions; let i = index"
-              class="dot"
-              [class.active]="i === currentIndex"
-              (click)="goToSlide(i)">
-      </button>
+      <button
+        *ngFor="let card of suggestions; let i = index"
+        class="dot"
+        [attr.aria-label]="'Show guidance ' + (i + 1)"
+        [attr.aria-current]="i === currentIndex ? 'true' : null"
+        [class.active]="i === currentIndex"
+        (click)="goToSlide(i)"
+      ></button>
     </div>
   </div>
 

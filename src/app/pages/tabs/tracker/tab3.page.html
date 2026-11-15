@@ -1,194 +1,198 @@
-<ion-content class="bg-neutral-50" [fullscreen]="true">
-	<!-- Pull to refresh -->
-	<ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
-		<ion-refresher-content></ion-refresher-content>
-	</ion-refresher>
-
-	<!-- Loading state (Skeletons) -->
-	<div *ngIf="isLoading" class="pb-24 px-6 pt-4 animate-entry">
-		<!-- Header Skeleton Area -->
-		<div class="mb-8">
-			<div class="w-24 h-4 bg-neutral-200 rounded-full animate-pulse mb-2"></div>
-			<div class="w-48 h-8 bg-neutral-200 rounded-full animate-pulse mb-6"></div>
-			<div
-				class="bg-neutral-200/50 backdrop-blur-xl rounded-[2.5rem] h-40 w-full p-6 border border-neutral-100 animate-pulse">
-				<div class="flex justify-between mb-6">
-					<div class="w-24 h-2 bg-neutral-200 rounded-full"></div>
-					<div class="w-12 h-4 bg-neutral-200 rounded-full"></div>
-				</div>
-				<div class="w-full h-2.5 bg-neutral-200 rounded-full"></div>
-			</div>
-		</div>
-
-		<!-- Performance Stats Skeleton -->
-		<div class="grid grid-cols-2 gap-3 mb-10 -mt-2">
-			<div class="h-28 bg-neutral-100/50 rounded-3xl animate-pulse shadow-sm" *ngFor="let i of [1,2]"></div>
-		</div>
-
-		<!-- Groups Skeleton -->
-		<div class="space-y-12">
-			<div *ngFor="let i of [1,2]" class="space-y-6">
-				<div class="flex items-center space-x-4">
-					<div class="w-12 h-12 bg-neutral-100 rounded-2xl animate-pulse"></div>
-					<div class="space-y-2">
-						<div class="w-24 h-5 bg-neutral-100 rounded-full animate-pulse"></div>
-						<div class="w-32 h-2.5 bg-neutral-100 rounded-full animate-pulse opacity-50"></div>
-					</div>
-				</div>
-				<div class="space-y-4">
-					<div class="h-36 bg-white rounded-[2rem] border border-neutral-100 shadow-sm animate-pulse"
-						*ngFor="let j of [1,2]"></div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<!-- Main Content -->
-	<main *ngIf="!isLoading" class="relative z-10 pb-32">
-		<!-- 1. Activities Header -->
-		<app-page-header title="Trackers" subtitle="Your Goals" theme="indigo" actionIcon="fa-plus"
-			(actionClick)="openQuickLogModal()">
-
-			<!-- Today's Flow Progress (Projected) -->
-			<div class="bg-white/5 backdrop-blur-xl rounded-[2.5rem] p-6 border border-white/10 shadow-2xl">
-				<div class="flex items-center justify-between mb-4">
-					<div class="flex items-center gap-2">
-						<div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
-						<span class="text-[10px] font-black text-white/60 uppercase tracking-[0.3em]">Today's
-							Progress</span>
-					</div>
-					<span class="text-sm font-black text-white tracking-tighter"><span
-							[appCountUp]="dailyProgress"></span>%</span>
-				</div>
-				<div class="h-2.5 bg-white/5 rounded-full overflow-hidden p-0.5 border border-white/5">
-					<div class="h-full bg-gradient-to-r from-emerald-400 via-blue-400 to-indigo-400 rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(52,211,153,0.3)]"
-						[style.width.%]="dailyProgress">
-					</div>
-				</div>
-			</div>
-		</app-page-header>
-
-		<!-- 2. Performance Stats -->
-		<p *ngIf="loadError" role="alert" class="mx-6 my-6 p-4 rounded-2xl bg-red-50 text-red-800">{{ loadError }}</p>
-		<p *ngIf="statisticsUnavailable && !loadError" role="status" class="mx-6 my-4 text-sm text-neutral-600">Progress statistics are temporarily unavailable. Your trackers are still available below.</p>
-		<div class="px-6 -mt-4 relative z-20 animate-entry delay-100">
-			<app-tracker-stats [stats]="trackerStats" [isLoading]="isLoading"></app-tracker-stats>
-		</div>
-
-		<!-- 3. Activities List (Grouped) -->
-		<div class="px-6 mt-8 space-y-12">
-
-			<!-- Dynamic Groups -->
-			<div *ngFor="let group of groupedTrackers; let i = index" class="space-y-6 animate-entry"
-				[class.delay-200]="i === 0" [class.delay-300]="i === 1" [class.delay-500]="i > 1">
-
-				<!-- Section Header -->
-				<div class="flex items-center gap-4">
-					<div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm"
-						[class.bg-blue-50]="group.category === 'mind'" [class.text-blue-600]="group.category === 'mind'"
-						[class.bg-emerald-50]="group.category === 'body'"
-						[class.text-emerald-600]="group.category === 'body'"
-						[class.bg-purple-50]="group.category === 'soul'"
-						[class.text-purple-600]="group.category === 'soul'"
-						[class.bg-pink-50]="group.category === 'beauty'"
-						[class.text-pink-600]="group.category === 'beauty'"
-						[class.bg-amber-50]="group.category === 'custom'"
-						[class.text-amber-600]="group.category === 'custom'">
-						<i class="fa-solid {{ getCategoryIconForGroup(group.category) }} text-xl"></i>
-					</div>
-					<div class="flex-1">
-						<h2 class="text-xl font-black text-neutral-900 tracking-tight leading-none mb-1">{{
-							group.category | titlecase }}</h2>
-						<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">{{
-							group.trackers.length }} Active Trackers</p>
-					</div>
-				</div>
-
-				<!-- Group Items Grid -->
-				<div class="grid grid-cols-1 gap-4">
-					<app-tracker-card *ngFor="let tracker of group.trackers; trackBy: trackByTrackerId"
-						[tracker]="tracker" (quickLog)="quickLog(tracker, 1)" (openLogModal)="openLogModal(tracker)"
-						(openDetail)="navigateToTrackerDetail(tracker)">
-					</app-tracker-card>
-				</div>
-			</div>
-
-			<!-- Empty State -->
-			<div *ngIf="!loadError && activeTrackers.length === 0" class="py-16 text-center animate-entry">
-				<div
-					class="w-24 h-24 bg-neutral-100 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
-					<i class="fa-solid fa-list-check text-4xl text-neutral-200"></i>
-				</div>
-				<h3 class="text-2xl font-black text-neutral-900 mb-3 tracking-tighter">No trackers active</h3>
-				<p class="text-xs text-neutral-400 max-w-xs mx-auto mb-10 font-bold uppercase tracking-widest">Create a
-					tracker to get started</p>
-
-				<!-- Button removed as requested -->
-			</div>
-
-
-			<!-- Premium Add Activity Button (Moved from FAB) -->
-			<div class="pt-8 space-y-4 animate-entry delay-500">
-				<!-- Add New Tracker -->
-				<div
-					class="bg-gradient-to-br from-indigo-600 to-violet-600 p-px rounded-[2.5rem] shadow-xl shadow-indigo-500/10">
-					<button (click)="onAddTracker()"
-						class="w-full bg-neutral-900 rounded-[2.4rem] p-6 flex items-center justify-between active:scale-95 transition-all group overflow-hidden relative">
-						<div
-							class="absolute inset-0 bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity">
-						</div>
-						<div class="flex items-center gap-5 relative z-10">
-							<div
-								class="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-lg transform group-hover:rotate-12 transition-transform">
-								<i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
-							</div>
-							<div class="text-left">
-								<p class="font-black text-white uppercase tracking-tight">Add New Tracker</p>
-								<p class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">Start
-									tracking
-									something new</p>
-							</div>
-						</div>
-						<i
-							class="fa-solid fa-chevron-right text-white/30 group-hover:translate-x-1 transition-transform"></i>
-					</button>
-				</div>
-
-				<!-- Achieved Trackers -->
-				<div
-					class="bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800 p-px rounded-[2.5rem] shadow-lg shadow-black/5">
-					<button (click)="navigateToArchivedTrackers()"
-						class="w-full bg-white dark:bg-neutral-900 rounded-[2.4rem] p-6 flex items-center justify-between active:scale-95 transition-all group overflow-hidden relative">
-						<div
-							class="absolute inset-0 bg-neutral-500/5 opacity-0 group-hover:opacity-100 transition-opacity">
-						</div>
-						<div class="flex items-center gap-5 relative z-10">
-							<div
-								class="w-12 h-12 bg-neutral-100 dark:bg-neutral-800 text-neutral-500 rounded-2xl flex items-center justify-center shadow-sm transform group-hover:-rotate-12 transition-transform">
-								<i class="fa-solid fa-clock-rotate-left text-xl"></i>
-							</div>
-							<div class="text-left">
-								<p class="font-black text-neutral-900 dark:text-white uppercase tracking-tight">Achieved
-									Trackers</p>
-								<p class="text-[10px] text-neutral-400 font-bold uppercase tracking-widest">View your
-									past accomplishments</p>
-							</div>
-						</div>
-						<i
-							class="fa-solid fa-chevron-right text-neutral-300 group-hover:translate-x-1 transition-transform"></i>
-					</button>
-				</div>
-			</div>
-
-			<!-- Celebrated Completions -->
-			<!-- Completed Trackers Section Removed -->
-
-			<!-- Archived Rituals -->
-			<!-- History Button Removed from Bottom -->
-
-		</div>
-
-		<!-- Bottom Spacer -->
-		<div class="h-32"></div>
-	</main>
+<ion-content class="muse-content" [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)"
+    ><ion-refresher-content></ion-refresher-content
+  ></ion-refresher>
+  <main class="trackers-page">
+    <header class="muse-topbar tracker-topbar">
+      <span class="muse-wordmark">Regen <em>28</em></span>
+      <div>
+        <a routerLink="/tabs/insights" class="dashboard-access">Dashboard ↗</a
+        ><a
+          routerLink="/tabs/settings"
+          class="profile-access"
+          aria-label="Open account"
+          ><i class="fa-regular fa-user" aria-hidden="true"></i
+        ></a>
+      </div>
+    </header>
+    <h1 class="trackers-headline">Make it <em>your own.</em></h1>
+    <div *ngIf="isLoading" class="loading-panel" role="status">
+      <div class="loading-orbit"></div>
+      <p>Bringing your trackers together…</p>
+    </div>
+    <ng-container *ngIf="!isLoading">
+      <nav
+        *ngIf="activeTrackers.length"
+        class="tracker-stories"
+        aria-label="Choose tracker"
+      >
+        <button
+          *ngFor="let tracker of activeTrackers"
+          type="button"
+          (click)="selectTracker(tracker)"
+          [attr.aria-pressed]="focusedTracker?.id === tracker.id"
+        >
+          <img [src]="categoryImage(tracker.category)" alt="" /><span
+            ><i
+              [class]="'fa-solid '+(tracker.icon||'fa-circle')"
+              aria-hidden="true"
+            ></i
+            >{{ tracker.name }}</span
+          >
+        </button>
+      </nav>
+      <section
+        *ngIf="focusedTracker as tracker"
+        class="focused-tracker"
+        aria-labelledby="focused-tracker-name"
+      >
+        <button
+          type="button"
+          class="focused-tracker-heading"
+          (click)="navigateToTrackerDetail(tracker)"
+        >
+          <i
+            [class]="'fa-solid '+(tracker.icon||'fa-circle')"
+            aria-hidden="true"
+          ></i>
+          <h2 id="focused-tracker-name">{{ tracker.name }}</h2>
+          <span aria-hidden="true">↗</span>
+        </button>
+        <div class="focused-target">
+          <div>
+            <strong
+              >{{ tracker.type === 'boolean' ? 1 : tracker.target }}</strong
+            ><em
+              >{{ tracker.type === 'boolean' ? 'today' : tracker.unit ===
+              'minutes' ? 'min' : tracker.unit }}</em
+            >
+          </div>
+          <button
+            type="button"
+            class="duration-play"
+            (click)="openLogModal(tracker)"
+            [attr.aria-label]="'Log '+tracker.name"
+          >
+            ▶
+          </button>
+        </div>
+        <div class="focused-history">
+          <p>{{ tracker.streak || 0 }}-day streak</p>
+          <div *ngIf="focusedHistory$ | async as history" class="week-history">
+            <span
+              *ngFor="let day of history.days"
+              [class.logged]="day.logged"
+              [attr.aria-label]="(day.date | date:'MMM d') + (day.logged ? ': logged' : ': no entry')"
+              >{{ day.logged ? '✓' : '' }}</span
+            ><small *ngIf="history.error" role="status"
+              >{{ history.error }}</small
+            >
+          </div>
+        </div>
+        <button type="button" class="add-note" (click)="openLogModal(tracker)">
+          <span aria-hidden="true">✎</span>Add a note
+        </button>
+        <button
+          type="button"
+          class="focused-complete"
+          [disabled]="tracker.todayCompleted"
+          (click)="quickLog(tracker,tracker.type === 'boolean' ? 1 : tracker.target || 1)"
+        >
+          {{ tracker.todayCompleted ? 'Completed today' : 'Mark complete' }}
+          <span aria-hidden="true">✓</span>
+        </button>
+      </section>
+      <section class="tracker-statistics" aria-label="Tracker statistics">
+        <div>
+          <strong>{{ trackerStats.weeklyCount }}</strong><span>this week</span>
+        </div>
+        <div>
+          <strong>{{ trackerStats.currentStreak }}</strong
+          ><span>current streak</span>
+        </div>
+        <div>
+          <strong>{{ trackerStats.totalSessions }}</strong
+          ><span>total sessions</span>
+        </div>
+        <div>
+          <strong>{{ trackerStats.longestStreak }}</strong
+          ><span>best streak</span>
+        </div>
+      </section>
+      <section class="today-completion">
+        <span>Today’s progress</span
+        ><strong>{{ dailyProgress | number:'1.0-0' }}%</strong>
+        <div
+          class="progress-rail"
+          role="progressbar"
+          aria-label="Today's progress"
+          [attr.aria-valuenow]="dailyProgress"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <span [style.width.%]="dailyProgress"></span>
+        </div>
+      </section>
+      <div class="tracker-all-heading">
+        <h2>All your trackers</h2>
+        <button type="button" (click)="openQuickLogModal()">
+          Quick log ＋
+        </button>
+      </div>
+      <p *ngIf="loadError" role="alert" class="status-panel">{{ loadError }}</p>
+      <p
+        *ngIf="statisticsUnavailable && !loadError"
+        role="status"
+        class="status-panel"
+      >
+        Statistics are temporarily unavailable. You can still log your trackers.
+      </p>
+      <div class="tracker-groups">
+        <section
+          *ngFor="let group of groupedTrackers"
+          class="tracker-group"
+          [hidden]="selectedCategory !== null && selectedCategory !== group.category"
+        >
+          <div class="group-heading">
+            <h2>{{ group.category | titlecase }}</h2>
+            <span>{{ group.trackers.length | number:'2.0-0' }}</span>
+          </div>
+          <div class="tracker-stack">
+            <app-tracker-card
+              *ngFor="let tracker of group.trackers; trackBy: trackByTrackerId"
+              [tracker]="tracker"
+              (quickLog)="quickLog(tracker, 1)"
+              (openLogModal)="openLogModal(tracker)"
+              (openDetail)="navigateToTrackerDetail(tracker)"
+            ></app-tracker-card>
+          </div>
+        </section>
+        <section
+          *ngIf="!loadError && activeTrackers.length === 0"
+          class="empty-trackers"
+        >
+          <span aria-hidden="true">✦</span>
+          <h2>Your next chapter<br />starts here.</h2>
+          <p>
+            Add your first tracker and make room for something that matters to
+            you.
+          </p>
+          <button type="button" (click)="onAddTracker()">
+            Create a tracker →
+          </button>
+        </section>
+      </div>
+      <div class="tracker-footer">
+        <button type="button" class="add-tracker" (click)="onAddTracker()">
+          Add a tracker <span aria-hidden="true">＋</span></button
+        ><button
+          type="button"
+          class="history-link"
+          (click)="navigateToArchivedTrackers()"
+        >
+          Achieved trackers <span aria-hidden="true">↗</span>
+        </button>
+      </div>
+    </ng-container>
+  </main>
 </ion-content>

@@ -24,10 +24,10 @@ export class SubscriptionPage implements OnInit {
   freeTrial: string | null = null;
 
   features = [
-    { icon: 'sparkles', title: 'Unlimited AI Guidance', description: 'Get daily personalized wellness insights' },
-    { icon: 'camera', title: 'High-Fidelity AI Images', description: 'See yourself in your wellness goals' },
-    { icon: 'analytics', title: 'Pro Analytics', description: 'Deep correlation between mood and activity' },
-    { icon: 'notifications', title: 'Custom Ritual Reminders', description: 'Never miss a session with smart alerts' }
+    { icon: 'sparkles', title: 'Optional AI coaching', description: 'Guidance ideas based on your logged activity' },
+    { icon: 'camera', title: 'Personalized AI visuals', description: 'Optional creative images, with your consent' },
+    { icon: 'analytics', title: 'Your progress, together', description: 'Review tracker entries and journal reflections' },
+    { icon: 'notifications', title: 'Tracker reminders', description: 'Choose reminders that fit your schedule' }
   ];
 
   constructor(
@@ -39,7 +39,7 @@ export class SubscriptionPage implements OnInit {
 
   ngOnInit() {
     this.isWeb = !this.subscriptionService.isNativePlatform();
-    
+
     this.subscriptionService.getOfferings()
       .pipe(
         switchMap(async offering => {

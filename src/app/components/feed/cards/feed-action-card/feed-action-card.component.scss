@@ -1,136 +1,88 @@
-:host { display: block; width: 100%; min-width: 0; }
-
-.action-card {
-  box-sizing: border-box;
+:host {
+  display: block;
   width: 100%;
-  aspect-ratio: 1 / 1;
-  border-radius: 0;
-  padding: 24px;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
+  min-width: 0;
 }
-
-.action-card.expanded {
-  aspect-ratio: auto;
-  .action-text { display: block; -webkit-line-clamp: unset; overflow: visible; }
+.action-card {
+  padding: 12px 22px 16px;
+  background: transparent;
+  color: #271d49;
+  min-width: 0;
 }
-
-.action-content, .reason-section { min-width: 0; flex-shrink: 0; }
-.tracker-name, .action-text, .reason-text { overflow-wrap: anywhere; }
-
 .action-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
-
 .icon-circle {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  display: none;
 }
-
-.icon-emoji {
-  font-size: 24px;
-}
-
 .tracker-name {
-  font-size: 14px;
-  font-weight: 600;
-  opacity: 0.9;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: #74618e;
+  font-size: 11px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
 }
-
 .action-content {
-  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
-
 .action-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(10px);
+  align-self: flex-start;
+  background: #d6cbf0;
+  color: #4f3b7b;
+  font-size: 10px;
+  padding: 5px 9px;
   border-radius: 20px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  letter-spacing: 0.04em;
+}
+.action-text {
+  display: block;
+  font-size: 21px;
+  line-height: 1.35;
+  font-weight: 500;
+  letter-spacing: -0.4px;
+  color: #271d49;
+  margin: 0 0 18px;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+.expand-button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #4a3677;
+  background: transparent;
+  border: 1px solid #a294c2;
+  border-radius: 24px;
+  font-size: 12px;
+  min-height: 44px;
+  padding: 10px 16px;
   align-self: flex-start;
 }
-
-.action-text {
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.5;
-  margin: 0 0 16px 0;
-  flex: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.expand-button:hover {
+  background: #d6cbf0;
 }
-
-.expand-button {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  padding: 10px 16px;
-  color: white;
-  font-size: 13px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-top: auto;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  ion-icon {
-    font-size: 16px;
-  }
-}
-
 .reason-section {
-  margin-top: 16px;
+  background: #dcd1f4;
+  border-radius: 16px;
+  color: #3a2c5c;
   padding: 16px;
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 16px;
+  overflow-wrap: anywhere;
 }
-
-.reason-label {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  opacity: 0.8;
-  margin-bottom: 8px;
-}
-
-.reason-text {
+.reason-section p {
   font-size: 14px;
   line-height: 1.6;
-  margin: 0;
-  opacity: 0.95;
+  margin: 8px 0 0;
+  white-space: pre-line;
+}
+.reason-label {
+  color: #685080;
+  font-size: 11px;
+  font-weight: 500;
+}
+button:focus-visible {
+  outline: 3px solid #7151a5;
+  outline-offset: 3px;
 }

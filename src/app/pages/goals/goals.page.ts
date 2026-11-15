@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
 	IonContent,
@@ -31,6 +32,7 @@ import { ToastService } from '../../services/toast.service';
 	standalone: true,
 	imports: [
 		CommonModule,
+		RouterLink,
 		FormsModule,
 		IonContent,
 		IonHeader,
@@ -53,6 +55,10 @@ export class GoalsPage implements OnInit, OnDestroy {
 
 	goals: Goal[] = [];
 	isLoading = true;
+	showGoalForm = false;
+	goalTitle = '';
+	goalCategory: Goal['category'] = 'mind';
+	savingGoal = false;
 
 	get activeGoals(): Goal[] {
 		return this.goals.filter(g => g.status === 'active');
@@ -97,16 +103,23 @@ export class GoalsPage implements OnInit, OnDestroy {
 	}
 
 	async onAddGoal() {
-		this.logging.info('User clicked Add Goal');
-		// For now, prompt for a title. Later we'll use a modal.
-		const title = prompt('Enter goal title:');
-		if (title) {
-			try {
-				await this.goalService.createGoal({ title, category: 'mind' });
-				this.toastService.showSuccess('Goal created!');
-			} catch (error) {
-				this.toastService.showError('Failed to create goal');
-			}
+		this.goalTitle = '';
+		this.showGoalForm = true;
+	}
+
+	async saveGoal(): Promise<void> {
+		const title = this.goalTitle.trim();
+		if (!title || this.savingGoal) return;
+		this.savingGoal = true;
+		try {
+			await this.goalService.createGoal({ title, category: this.goalCategory });
+			this.showGoalForm = false;
+			this.goalTitle = '';
+			this.toastService.showSuccess('Goal created!');
+		} catch {
+			this.toastService.showError('Could not create your goal. Please try again.');
+		} finally {
+			this.savingGoal = false;
 		}
 	}
 

@@ -1,340 +1,159 @@
 :host {
   display: block;
   width: 100%;
-  overflow: hidden;
+  min-width: 0;
 }
-
 .guidance-post {
-  width: 100%;
-  position: relative;
-  overflow: hidden;
+  min-width: 0;
 }
-
-// ── Carousel ──────────────────────────────────────────────
 .carousel-viewport {
-  width: 100%;
   overflow: hidden;
-  position: relative;
   touch-action: pan-y;
-  user-select: none;
 }
-
 .carousel-track {
   display: flex;
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  will-change: transform;
+  align-items: flex-start;
+  transition: transform 0.35s ease;
 }
-
 .carousel-slide {
   min-width: 100%;
   width: 100%;
   flex-shrink: 0;
-  aspect-ratio: 1 / 1;
-  max-height: 100vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  position: relative;
-  overflow: hidden;
-
-  &.emerald {
-    background: linear-gradient(135deg, #059669, #10b981, #34d399);
-  }
-
-  &.blue {
-    background: linear-gradient(135deg, #1d4ed8, #3b82f6, #60a5fa);
-  }
+  color: #342148;
+  background:
+    linear-gradient(120deg, #eee6ffed, #dfd4f3cc),
+    url("/assets/images/indigo-muse/satin.webp") center/cover;
 }
-
-// ── Slide Content ─────────────────────────────────────────
 .slide-content {
-  width: 100%;
-  height: 100%;
-  padding: 40px 24px 36px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+  padding: 24px;
+  min-width: 0;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  box-sizing: border-box;
-
-  &.expanded {
-    justify-content: flex-start;
-    padding-top: 40px;
-    padding-bottom: 44px;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
 }
-
-// ── Tracker Header ────────────────────────────────────────
 .tracker-header {
-  position: absolute;
-  top: 12px;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(8px);
-  padding: 4px 12px;
-  border-radius: 16px;
+  gap: 8px;
+  color: #72528a;
   font-size: 11px;
-  font-weight: 600;
-  opacity: 0.9;
-  z-index: 10;
-  white-space: nowrap;
-
-  .tracker-icon {
-    font-size: 14px;
-    line-height: 1;
-  }
-
-  .tracker-name {
-    text-transform: capitalize;
-  }
+  margin-bottom: 22px;
 }
-
-// ── Icon Circle ───────────────────────────────────────────
 .icon-circle {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  flex-shrink: 0;
-
-  .icon-emoji {
-    font-size: 28px;
-    line-height: 1;
-  }
+  display: none;
 }
-
-// ── Badge ─────────────────────────────────────────────────
 .card-badge {
   display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(8px);
-  padding: 6px 14px;
+  padding: 5px 10px;
+  background: #d6c7ed;
   border-radius: 20px;
   font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 16px;
-  flex-shrink: 0;
+  color: #5c3d7a;
+  margin-bottom: 14px;
 }
-
-// ── Card Text ─────────────────────────────────────────────
 .card-text {
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.5;
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.5px;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
   margin: 0;
-  padding: 0;
-  width: 100%;
-  word-break: break-word;
-  overflow-wrap: break-word;
-
-  &.truncated {
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
 }
-
-// ── Metadata ──────────────────────────────────────────────
+.card-text.truncated {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 .card-metadata {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.25);
-  width: 100%;
-  animation: fadeIn 0.3s ease;
+  border-top: 1px solid #b49aca66;
+  padding-top: 16px;
+  margin-top: 18px;
 }
-
 .metadata-row {
   display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 6px;
   font-size: 13px;
-  line-height: 1.4;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  .metadata-label {
-    font-weight: 700;
-    opacity: 0.8;
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-
-  .metadata-value {
-    opacity: 0.95;
-    text-align: left;
-    min-width: 0; // Allow flex child to shrink below content size
-    word-break: break-word;
-    overflow-wrap: break-word;
-  }
+  line-height: 1.65;
+  color: #5d4272;
+  margin-top: 8px;
 }
-
-// ── Expand / Collapse hints ───────────────────────────────
-.expand-hint {
-  position: absolute;
-  bottom: 16px;
+.metadata-label {
+  font-weight: 600;
+}
+.metadata-value {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.expand-hint,
+.collapse-hint {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  opacity: 0.7;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-
-  ion-icon {
-    font-size: 14px;
-    animation: bounceDown 1.5s infinite;
-  }
+  gap: 6px;
+  color: #6d4e85;
+  font-size: 11px;
+  margin-top: 18px;
+  min-height: 30px;
 }
-
-.collapse-hint {
-  position: absolute;
-  bottom: 12px;
-  opacity: 0.6;
-
-  ion-icon {
-    font-size: 20px;
-  }
-}
-
-// ── Navigation Arrows ─────────────────────────────────────
 .nav-arrows {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  transform: translateY(-50%);
   display: flex;
   justify-content: space-between;
-  padding: 0 8px;
-  pointer-events: none;
-  z-index: 3;
+  padding: 12px 20px 0;
 }
-
 .nav-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #ad92c5;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(8px);
-  border: none;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  pointer-events: auto;
-  transition: all 0.2s ease;
-  
-  &:active {
-    transform: scale(0.9);
-  }
-
-  &:disabled {
-    opacity: 0.3;
-    cursor: default;
-  }
-
-  ion-icon {
-    font-size: 18px;
-  }
+  background: transparent;
+  color: #61437d;
 }
-
-// ── Dot Indicators ────────────────────────────────────────
+.nav-btn:disabled {
+  opacity: 0.35;
+}
 .dot-indicators {
   display: flex;
   justify-content: center;
-  gap: 6px;
-  padding: 12px 0 4px;
+  gap: 4px;
+  padding: 4px;
 }
-
 .dot {
+  position: relative;
+  width: 32px;
+  height: 44px;
+  background: transparent;
+}
+.dot::after {
+  content: "";
+  position: absolute;
+  top: 20px;
+  left: 12px;
   width: 6px;
   height: 6px;
-  border-radius: 3px;
-  background: var(--ion-color-medium-tint);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 0;
-
-  &.active {
-    width: 18px;
-    background: var(--ion-color-primary);
-  }
+  border-radius: 50%;
+  background: #b29ac7;
 }
-
-// ── Loading ───────────────────────────────────────────────
+.dot.active::after {
+  background: #62439a;
+}
+.empty-state,
 .loading-state {
-  width: 100%;
+  padding: 30px 24px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #705585;
 }
-
 .skeleton-square {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  background: linear-gradient(135deg, var(--ion-color-light), var(--ion-color-light-tint));
-  animation: pulse 1.5s infinite;
+  height: 160px;
+  border-radius: 20px;
+  background: #d6c7eb;
+  animation: pulse 2s infinite;
 }
-
-// ── Empty State ───────────────────────────────────────────
-.empty-state {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--ion-color-light);
-  color: var(--ion-color-medium);
-  gap: 12px;
-
-  ion-icon {
-    font-size: 40px;
-    opacity: 0.5;
-  }
-
-  p {
-    font-size: 14px;
-    margin: 0;
-  }
-}
-
-// ── Animations ────────────────────────────────────────────
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes bounceDown {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(4px); }
-}
-
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
+button:focus-visible,
+.slide-content:focus-visible {
+  outline: 3px solid #7953aa;
+  outline-offset: -3px;
 }

@@ -64,6 +64,20 @@ import { CountUpDirective } from '../../../directives/count-up.directive';
 })
 export class Tab4Page implements OnInit, OnDestroy {
 	isDeletingAccount = false;
+	readonly developerActions = [
+		{label:'Morning boost',run:() => this.triggerMorningBoost()},
+		{label:'Midday check-in',run:() => this.triggerMiddayCheck()},
+		{label:'Evening summary',run:() => this.triggerEveningSummary()},
+		{label:'Daily inspiration',run:() => this.triggerDailyInspiration()},
+		{label:'Daily summary',run:() => this.triggerDailySummary()},
+		{label:'Action posts',run:() => this.triggerActionPostsGeneration()},
+		{label:'Insight posts',run:() => this.triggerInsightPostsGeneration()},
+		{label:'Contextual posts',run:() => this.triggerContextualPosts()},
+		{label:'Mid-week review',run:() => this.triggerMidWeekPost()},
+		{label:'Weekly wrap-up',run:() => this.triggerWeeklyWrapUp()},
+		{label:'Progress photo',run:() => this.triggerProgressPhotoPost()},
+		{label:'Cycle review',run:() => this.triggerCycleReview()}
+	];
 	private destroy$ = new Subject<void>();
 
 	// Subscription
@@ -217,8 +231,8 @@ export class Tab4Page implements OnInit, OnDestroy {
 			component: EditProfileModalComponent,
 			componentProps: { user: this.user },
 			cssClass: 'edit-profile-modal',
-			breakpoints: [0, 0.5, 0.9],
-			initialBreakpoint: 0.9
+			breakpoints: [0, 1],
+			initialBreakpoint: 1
 		});
 
 		await modal.present();
@@ -577,12 +591,12 @@ export class Tab4Page implements OnInit, OnDestroy {
 			// We can use a direct call if we expose it, using scheduleTrackerReminder logic but manual
 			// Or just use the capacitor plugin directly here for testing, but better to use service
 			// Since service methods are specific to trackers, we might need a generic one.
-			// For now, let's just log. 
+			// For now, let's just log.
 			// Actually, let's add a generic schedule method to NotificationService later.
 			// For this specific requirement, the user asked for "Test Notification" button.
 			// I'll add a temporary test method in NotificationService or just rely on console for now if I can't easily schedule.
-			// Wait, I can just use LocalNotifications directly here for a quick test if I import it, 
-			// OR I can add a `testNotification()` method to NotificationService. 
+			// Wait, I can just use LocalNotifications directly here for a quick test if I import it,
+			// OR I can add a `testNotification()` method to NotificationService.
 			// Let's call a method on NotificationService that I will add.
 			await this.notificationService.scheduleTestNotification();
 

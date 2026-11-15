@@ -7,7 +7,9 @@ describe('Tab1Page', () => {
   const noticeKey = 'regen28.feed.sanctuary-notice-dismissed.v1';
   const createPage = () => new Tab1Page(
     { getCurrentUserProfile: () => of({ displayName: 'Test' }) } as any,
-    { getTodaysActionsAndInsights: () => of({ actions: [{ id: 'today-action' }], insights: [{ id: 'today-insight' }] }) } as any
+    { getTodaysActionsAndInsights: () => of({ actions: [{ id: 'today-action' }], insights: [{ id: 'today-insight' }] }) } as any,
+    {getUserTrackers:() => of([]), getTodaysEntries:() => of([]), isGoalCompletedForCurrentPeriod:() => false} as any,
+    {openLogModal:() => {}} as any
   );
 
   beforeEach(async () => {

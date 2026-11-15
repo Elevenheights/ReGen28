@@ -1,32 +1,197 @@
-.mood-selector {
+:host {
+  display: block;
+}
+.muse-page {
+  max-width: 720px;
+  margin: auto;
+  padding-bottom: 40px;
+}
+.page-body {
+  padding: 0 24px;
+}
+.section-row {
   display: flex;
   justify-content: space-between;
-  margin: 16px 0;
+  align-items: center;
+  gap: 12px;
+  margin: 30px 0 16px;
+}
+.section-row h2,
+.settings-section > h2 {
+  color: #eee7ff;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.6px;
+  margin: 0;
+}
+.section-row > button {
+  min-height: 44px;
+  color: #c9bde5;
+  background: transparent;
+  font-size: 12px;
+}
+.kicker {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  margin: 0 0 12px;
+}
+.quiet-state {
+  color: #c9bedf;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 26px 12px;
+  text-align: center;
+}
+.quiet-state h2 {
+  color: #eee7ff;
+  font-size: 26px;
+}
+.primary-button {
+  min-height: 48px;
+  background: #b9f3d1;
+  color: #251b40;
+  padding: 12px 22px;
+  border-radius: 28px;
+}
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid #9dd9bd;
+  outline-offset: 3px;
 }
 
-.mood-selector ion-button {
+.journal-snapshot {
+  display: grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items: center;
+  gap: 34px;
+  padding: 4px 0 24px;
+  color: #e9e1fc;
+}
+.journal-snapshot strong small { font:400 13px Inter,sans-serif; }
+.journal-snapshot > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.journal-snapshot strong {
+  font:
+    400 44px/1 Georgia,
+    serif;
+  color: #b9f3d1;
+}
+.journal-snapshot span {
+  font-size: 12px;
+  color: #c3b8dd;
+}
+.journal-snapshot > button {
+  margin-left: auto;
+  width: 50px;
+  height: 50px;
+  background: #b9f3d1;
+  color: #291d49;
+  border-radius: 50%;
+  font-size: 24px;
+}
+.reflection-prompt {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  text-align: left;
+  padding: 26px;
+  background:
+    radial-gradient(ellipse at top right, #c5b7ec, transparent 70%), #e9e1fc;
+  color: #271e49;
+  border-radius: 26px;
+}
+.prompt-text {
+  font:
+    italic 30px/1.15 Georgia,
+    serif;
+  letter-spacing: -0.8px;
+  margin: 10px 0 24px;
+}
+.prompt-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  align-items: center;
+}
+.prompt-footer > span {
+  font-size: 24px;
+}
+.entry-list {
+  display: grid;
+  gap: 10px;
+}
+.journal-entry {
+  width: 100%;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  text-align: left;
+  padding: 18px;
+  background: #eee8fc;
+  color: #271e49;
+  border-radius: 22px;
+}
+.entry-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 32px;
+  font-size: 10px;
+  color: #79648d;
+}
+.entry-date strong {
+  font:
+    400 28px/1 Georgia,
+    serif;
+  color: #4a356a;
+}
+.entry-copy {
   flex: 1;
-  margin: 0 4px;
+  min-width: 0;
 }
-
-ion-card {
-  margin: 12px 16px;
+.entry-copy strong {
+  display: block;
+  font-size: 16px;
+  line-height: 1.3;
+  font-weight: 550;
+  overflow-wrap: anywhere;
 }
-
-ion-textarea {
-  min-height: 100px;
+.entry-copy small {
+  display: block;
+  font-size: 10px;
+  color: #7a688a;
+  margin-top: 6px;
 }
-
-ion-item {
-  --padding-start: 0;
-  margin: 8px 0;
+.entry-mood {
+  font-size: 24px;
 }
-
-ion-input {
-  --padding-start: 12px;
+.prompt-grid {
+  display: grid;
+  gap: 10px;
 }
-
-p {
-  margin: 8px 0 16px 0;
-  color: var(--ion-color-medium);
+.prompt-grid > button {
+  display: flex;
+  gap: 14px;
+  text-align: left;
+  align-items: center;
+  background: #302549;
+  border: 1px solid #b6a3d52e;
+  border-radius: 20px;
+  padding: 18px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #e8def9;
+}
+.prompt-grid > button > span:first-child {
+  font-size: 28px;
+  color: #b9f3d1;
+}
+.prompt-grid > button > span:last-child {
+  margin-left: auto;
 }

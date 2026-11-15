@@ -1,0 +1,69 @@
+:host {
+  display: block;
+}
+.editorial-header {
+  padding: calc(env(safe-area-inset-top) + 24px) 24px 24px;
+  color: #f5f2ff;
+}
+.brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 34px;
+  min-height: 44px;
+}
+.wordmark {
+  font-size: 25px;
+  font-weight: 650;
+  letter-spacing: -1.5px;
+}
+.wordmark em {
+  color: #b9f3d1;
+  font-style: normal;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #a49cc14d;
+  border-radius: 50%;
+  background: #ffffff08;
+  color: #f5f2ff;
+  font-size: 18px;
+}
+.profile {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #dcd5f5;
+}
+.eyebrow {
+  color: #c4bcde;
+  font-size: 12px;
+  margin: 0 0 10px;
+  letter-spacing: 0.08em;
+}
+h1 {
+  color: #f5f2ff;
+  font-size: clamp(32px, 9vw, 46px);
+  font-weight: 550;
+  line-height: 1.08;
+  letter-spacing: -1.7px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.header-projection:empty {
+  display: none;
+}
+.header-projection {
+  margin-top: 24px;
+}
+button:focus-visible {
+  outline: 3px solid #b9f3d1;
+  outline-offset: 3px;
+}

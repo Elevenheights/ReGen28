@@ -77,3 +77,5 @@ Thumbs.db
 functions/.env*
 functions/create-review-account.js
 .firebase/
+.screenshot-preview/
+.icon-backups/

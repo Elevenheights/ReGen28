@@ -119,7 +119,7 @@ export class ActivitiesPage implements OnInit, OnDestroy {
 
 	getActivityTypeLabel(type: ActivityType): string {
 		switch (type) {
-			case ActivityType.TRACKER_ENTRY: return 'Ritual';
+			case ActivityType.TRACKER_ENTRY: return 'Tracker';
 			case ActivityType.JOURNAL_ENTRY: return 'Journal';
 			case ActivityType.GOAL_CREATED: return 'New Goal';
 			case ActivityType.GOAL_COMPLETED: return 'Goal Met';

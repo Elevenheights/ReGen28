@@ -1,4 +1,137 @@
-// Empty scss as we are using Tailwind classes mostly
 :host {
   display: block;
+  min-width: 0;
+}
+.restored-progress { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; margin:0 0 16px; color:#795b8d; font-size:10px; }
+.restored-progress strong { color:#66448a; font-size:11px; }
+.restored-progress > div { width:100%; height:5px; background:#b399cb44; border-radius:5px; overflow:hidden; }
+.restored-progress > div > span { display:block; height:100%; max-width:100%; border-radius:5px; background:#8d70c8; }
+.tracker-editorial {
+  color: #261c48;
+  border-radius: 26px;
+  padding: 22px;
+  background:
+    radial-gradient(ellipse at top right, #c5b5f080, transparent 65%),
+    linear-gradient(130deg, #f3efff, #e4dcf9);
+}
+.tracker-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  color: #645580;
+}
+.category-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.category-label i {
+  font-size: 17px;
+  color: #58419b;
+}
+.completion-badge {
+  background: #b9f3d1;
+  color: #244831;
+  padding: 5px 8px;
+  border-radius: 20px;
+}
+.tracker-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  color: #261c48;
+  padding: 18px 0 12px;
+  text-align: left;
+  min-height: 60px;
+}
+.tracker-title h3 {
+  margin: 0;
+  font-size: 25px;
+  line-height: 1.12;
+  letter-spacing: -0.8px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.tracker-title > span {
+  font-size: 22px;
+}
+.tracker-target {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0 18px;
+}
+.tracker-target strong {
+  font:
+    400 62px/0.95 Georgia,
+    serif;
+  letter-spacing: -3px;
+}
+.tracker-target > span {
+  font-size: 17px;
+  line-height: 1.25;
+}
+.tracker-target small {
+  font-size: 11px;
+  color: #685981;
+}
+.boolean-target {
+  font-size: 24px;
+  line-height: 1.2;
+  margin: 10px 0 22px;
+  letter-spacing: -0.6px;
+}
+.boolean-target em {
+  font-family: Georgia, serif;
+  color: #69538c;
+}
+.tracker-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  border-top: 1px solid #ab9dc944;
+  padding: 13px 0 16px;
+  font-size: 12px;
+  color: #63557b;
+}
+.log-button,
+.details-button {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: 550;
+}
+.log-button {
+  background: #5945df;
+  color: #fff;
+}
+.details-button {
+  background: #c5efd7;
+  color: #2c4a3a;
+}
+.log-button span {
+  font-size: 21px;
+}
+button:focus-visible {
+  outline: 3px solid #6852cf;
+  outline-offset: 4px;
+}
+.compact {
+  padding: 16px;
+}
+.compact .tracker-target strong {
+  font-size: 44px;
+}
+.compact .tracker-title h3 {
+  font-size: 20px;
 }

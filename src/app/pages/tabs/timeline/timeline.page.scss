@@ -1,0 +1,82 @@
+:host {
+  display: block;
+}
+.timeline-page {
+  max-width: 640px;
+  margin: auto;
+  padding: calc(env(safe-area-inset-top) + 22px) 20px 28px;
+}
+h1 {
+  color: #f1ebff;
+  font-size: 40px;
+  line-height: 1.03;
+  font-weight: 550;
+  letter-spacing: -1.8px;
+  margin: 26px 4px 30px;
+}
+h1 em {
+  font:
+    italic 400 1.14em/1 Georgia,
+    serif;
+}
+.journey-keepsake {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-radius: 28px;
+  padding: 24px;
+  margin: 8px -6px 20px;
+  background:
+    linear-gradient(115deg, #281d57a1, #23194f70),
+    url("/assets/images/indigo-muse/satin.webp") center/cover;
+  color: #eee5ff;
+  min-height: 150px;
+}
+.journey-keepsake > strong {
+  font:
+    italic 400 92px/0.9 Georgia,
+    serif;
+  letter-spacing: -5px;
+  color: #c1f6d6;
+}
+.journey-keepsake p {
+  font-size: 22px;
+  line-height: 1.15;
+  letter-spacing: -0.7px;
+  margin: 0;
+}
+.journey-keepsake p em {
+  font:
+    italic 400 24px/1.1 Georgia,
+    serif;
+}
+.journey-keepsake button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #c9b3e080;
+  border-radius: 50%;
+  color: #eee4fb;
+  background: transparent;
+  font-size: 24px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.secondary-destinations {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+}
+.secondary-destinations a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #d2bfe8;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #b9f3d1;
+  outline-offset: 3px;
+}

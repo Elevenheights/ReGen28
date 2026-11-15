@@ -15,6 +15,19 @@ import { FeedItemCardComponent } from '../feed-item-card/feed-item-card.componen
 })
 export class FeedListComponent implements OnInit {
 	feedItems$!: Observable<FeedItem[]>;
+	@Input() timelineLayout = false;
+
+	itemDate(item:FeedItem):Date|null {
+		const date = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+		return Number.isFinite(date.getTime()) ? date : null;
+	}
+
+	dateLabel(item:FeedItem):string {
+		const date = this.itemDate(item);
+		if(!date) return '';
+		return date.toDateString() === new Date().toDateString() ? 'Today'
+			: date.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+	}
 	private excludedIds$ = new BehaviorSubject<string[]>([]);
 	@Input() set excludedItemIds(ids: string[]) { this.excludedIds$.next(ids || []); }
 	get hasPinnedGuidance(): boolean { return this.excludedIds$.value.length > 0; }
@@ -30,7 +43,13 @@ export class FeedListComponent implements OnInit {
 		this.feedItems$ = combineLatest([this.feedService.getFeed(), this.excludedIds$]).pipe(
 			map(([items, excluded]) => {
 				const ids = new Set(excluded);
-				return items.filter(item => !item.id || !ids.has(item.id));
+				const visible = items.filter(item => !item.id || !ids.has(item.id));
+				return this.timelineLayout ? visible.sort((a,b) => {
+					const first = this.itemDate(a), second = this.itemDate(b);
+					const firstDay = first ? new Date(first.getFullYear(), first.getMonth(), first.getDate()).getTime() : 0;
+					const secondDay = second ? new Date(second.getFullYear(), second.getMonth(), second.getDate()).getTime() : 0;
+					return secondDay - firstDay || (first?.getTime() || 0) - (second?.getTime() || 0);
+				}) : visible;
 			}),
 			shareReplay({ bufferSize: 1, refCount: true })
 		);

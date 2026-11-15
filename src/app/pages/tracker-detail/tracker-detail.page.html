@@ -1,307 +1,153 @@
-<ion-content class="bg-neutral-50" [scrollY]="true">
-	<!-- Loading State -->
-	<div *ngIf="isLoading" class="flex justify-center items-center h-screen bg-neutral-50">
-		<div class="flex flex-col items-center gap-4">
-			<ion-spinner name="crescent" color="primary" class="scale-125"></ion-spinner>
-			<p class="text-neutral-500 font-medium animate-pulse">Loading activity...</p>
-		</div>
-	</div>
-
-	<!-- Main Content -->
-	<div *ngIf="!isLoading && tracker" class="min-h-screen relative pb-24">
-
-		<!-- 1. Hero Header Section -->
-		<div class="relative pb-16 overflow-hidden rounded-b-[2.5rem] shadow-lg z-10 transition-all duration-500">
-			<!-- Dynamic Background Gradient -->
-			<div class="absolute inset-0 bg-gradient-to-br from-neutral-900 to-neutral-800"
-				[style.background]="'linear-gradient(135deg, ' + tracker.color + ', ' + tracker.color + 'DD)'">
-			</div>
-
-			<!-- Decorative Circles -->
-			<div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-2xl"></div>
-			<div class="absolute bottom-0 left-0 w-40 h-40 bg-white/10 rounded-full -ml-10 -mb-10 blur-xl"></div>
-
-			<!-- Toolbar Content -->
-			<div class="relative z-20 pt-safe-top px-4">
-				<!-- Navigation Bar -->
-				<div class="flex items-center justify-between h-14 mb-2">
-					<button (click)="goBack()"
-						class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white active:scale-90 transition-transform shadow-sm ring-1 ring-white/20">
-						<i class="fa-solid fa-arrow-left text-sm"></i>
-					</button>
-
-					<div class="flex items-center space-x-2">
-						<!-- Add Entry (Quick) -->
-						<button (click)="openLogModal()"
-							class="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white active:scale-90 transition-transform shadow-sm ring-1 ring-white/20">
-							<i class="fa-solid fa-plus text-sm"></i>
-						</button>
-						<!-- Archive / Restore -->
-						<button *ngIf="!isArchived" (click)="confirmArchiveTracker()"
-							class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/90 active:scale-90 transition-transform shadow-sm hover:bg-white/20"
-							title="Archive Tracker">
-							<i class="fa-solid fa-box-archive text-sm"></i>
-						</button>
-						<button *ngIf="isArchived" (click)="unarchiveTracker()"
-							class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/90 active:scale-90 transition-transform shadow-sm hover:bg-emerald-500/20"
-							title="Restore Tracker">
-							<i class="fa-solid fa-box-open text-sm"></i>
-						</button>
-
-						<!-- Delete -->
-						<button (click)="confirmDeleteTracker()"
-							class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white/90 active:scale-90 transition-transform shadow-sm hover:bg-red-500/20"
-							title="Delete Tracker">
-							<i class="fa-solid fa-trash-can text-sm"></i>
-						</button>
-					</div>
-				</div>
-
-				<!-- Hero Info -->
-				<div class="px-2 pb-6 text-center">
-					<div
-						class="w-20 h-20 mx-auto bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mb-4 shadow-inner ring-1 ring-white/30 shadow-lg">
-						<i [class]="'fa-solid ' + tracker.icon" class="text-4xl text-white drop-shadow-md"></i>
-					</div>
-
-					<h1 class="text-3xl font-bold text-white mb-2 tracking-tight drop-shadow-md">{{ tracker.name }}</h1>
-
-					<div class="flex items-center justify-center gap-2 flex-wrap">
-						<span *ngIf="isArchived"
-							class="px-3 py-1 bg-neutral-500/50 backdrop-blur-sm rounded-full text-xs font-bold text-white border border-white/20 shadow-sm uppercase tracking-wide">
-							Archived
-						</span>
-						<span
-							class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-bold text-white border border-white/20 shadow-sm uppercase tracking-wide">
-							{{ tracker.category }}
-						</span>
-						<span
-							class="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-semibold text-white border border-white/20 shadow-sm flex items-center gap-1">
-							<i class="fa-solid fa-bullseye text-[10px] opacity-80"></i>
-							{{ formatValue(tracker.target) }} {{ tracker.unit }} / {{ tracker.frequency }}
-						</span>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- 2. Overlapping Stats Grid -->
-		<div class="px-4 -mt-12 relative z-20 grid grid-cols-2 gap-3 mb-6">
-			<!-- Total Entries -->
-			<div
-				class="bg-white rounded-3xl p-4 shadow-lg shadow-neutral-200/50 border border-white flex flex-col items-center justify-center text-center group active:scale-[0.98] transition-transform">
-				<div
-					class="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center mb-2 group-hover:bg-blue-100 transition-colors">
-					<i class="fa-solid fa-layer-group text-blue-500"></i>
-				</div>
-				<div class="text-2xl font-bold text-neutral-800">{{ totalEntries }}</div>
-				<div class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Entries</div>
-			</div>
-
-			<!-- Average -->
-			<div
-				class="bg-white rounded-3xl p-4 shadow-lg shadow-neutral-200/50 border border-white flex flex-col items-center justify-center text-center group active:scale-[0.98] transition-transform">
-				<div
-					class="w-10 h-10 bg-emerald-50 rounded-2xl flex items-center justify-center mb-2 group-hover:bg-emerald-100 transition-colors">
-					<i class="fa-solid fa-chart-line text-emerald-500"></i>
-				</div>
-				<div class="text-2xl font-bold text-neutral-800">{{ formatValue(averageValue) }}</div>
-				<div class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Average</div>
-			</div>
-
-			<!-- Streak -->
-			<div
-				class="bg-white rounded-3xl p-4 shadow-lg shadow-neutral-200/50 border border-white flex flex-col items-center justify-center text-center group active:scale-[0.98] transition-transform">
-				<div
-					class="w-10 h-10 bg-orange-50 rounded-2xl flex items-center justify-center mb-2 group-hover:bg-orange-100 transition-colors">
-					<i class="fa-solid fa-fire text-orange-500"></i>
-				</div>
-				<div class="text-2xl font-bold text-neutral-800">{{ tracker.stats?.currentStreak || 0 }}</div>
-				<div class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Streak</div>
-			</div>
-
-			<!-- Completion -->
-			<div
-				class="bg-white rounded-3xl p-4 shadow-lg shadow-neutral-200/50 border border-white flex flex-col items-center justify-center text-center group active:scale-[0.98] transition-transform">
-				<div
-					class="w-10 h-10 bg-purple-50 rounded-2xl flex items-center justify-center mb-2 group-hover:bg-purple-100 transition-colors">
-					<i class="fa-solid fa-check-circle text-purple-500"></i>
-				</div>
-				<div class="text-2xl font-bold text-neutral-800">{{ tracker.stats?.completionRate || 0 }}%</div>
-				<div class="text-xs text-neutral-400 font-bold uppercase tracking-wider">Completion</div>
-			</div>
-		</div>
-
-		<!-- 3. AI Insights Section (Premium Card) -->
-		<div class="px-4 mb-8">
-			<div
-				class="bg-gradient-to-br from-white to-amber-50 rounded-[2rem] p-1 shadow-md border border-amber-100/50">
-				<div class="p-5">
-					<div class="flex items-center justify-between mb-4">
-						<h2 class="text-lg font-bold text-neutral-800 flex items-center gap-2">
-							<div class="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
-								<i class="fa-solid fa-sparkles text-amber-500 text-sm"></i>
-							</div>
-							Insights
-						</h2>
-						<span
-							class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded-full uppercase tracking-wide">AI
-							Powered</span>
-					</div>
-					<app-tracker-suggestions *ngIf="tracker" [trackerId]="tracker.id" [trackerName]="tracker.name"
-						[trackerColor]="tracker.color" [trackerIcon]="tracker.icon" [mode]="'full'"
-						[showManualGenerate]="true">
-					</app-tracker-suggestions>
-				</div>
-			</div>
-		</div>
-
-		<!-- 4. History Header & Controls -->
-		<div
-			class="px-6 mb-4 flex items-center justify-between sticky top-0 bg-neutral-50/95 backdrop-blur-sm py-2 z-10">
-			<h2 class="text-lg font-bold text-neutral-900">History</h2>
-
-			<div class="flex bg-white rounded-xl p-1 shadow-sm border border-neutral-100">
-				<button class="w-10 h-8 rounded-lg flex items-center justify-center transition-all"
-					[class.bg-neutral-100]="viewMode === 'list'" [class.text-neutral-900]="viewMode === 'list'"
-					[class.text-neutral-400]="viewMode !== 'list'" (click)="viewMode = 'list'; onViewModeChange()">
-					<i class="fa-solid fa-list text-xs"></i>
-				</button>
-				<button class="w-10 h-8 rounded-lg flex items-center justify-center transition-all"
-					[class.bg-neutral-100]="viewMode === 'grouped'" [class.text-neutral-900]="viewMode === 'grouped'"
-					[class.text-neutral-400]="viewMode !== 'grouped'"
-					(click)="viewMode = 'grouped'; onViewModeChange()">
-					<i class="fa-solid fa-calendar-day text-xs"></i>
-				</button>
-			</div>
-		</div>
-
-		<!-- List Content -->
-		<div class="px-4 space-y-4 pb-20">
-
-			<!-- Grouped View -->
-			<ng-container *ngIf="viewMode === 'grouped'">
-				<div *ngFor="let group of groupedEntries" class="animate-fade-in-up">
-					<div class="flex items-center gap-3 mb-3 pl-2">
-						<div class="w-2 h-2 rounded-full bg-neutral-300"></div>
-						<span class="text-xs font-bold text-neutral-500 uppercase tracking-widest">{{ group.date |
-							date:'EEEE, MMM d' }}</span>
-						<div class="h-px bg-neutral-200 flex-1"></div>
-						<span class="text-[10px] font-bold text-neutral-600 bg-neutral-100 px-2 py-1 rounded-full">{{
-							formatValue(group.dailyTotal) }} Total</span>
-					</div>
-
-					<div class="space-y-3 pl-4 border-l-2 border-neutral-100 ml-1">
-						<div *ngFor="let entry of group.entries; trackBy: trackByEntryId"
-							class="bg-white rounded-2xl p-4 shadow-sm border border-neutral-50 active:scale-[0.99] transition-transform relative overflow-hidden group">
-
-							<!-- Hover Edit Hint -->
-							<div
-								class="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white to-transparent opacity-0 group-hover:opacity-100 flex items-center justify-end pr-3 transition-opacity">
-								<i class="fa-solid fa-chevron-right text-neutral-300 text-xs"></i>
-							</div>
-
-							<div class="flex justify-between items-start relative z-10">
-								<div class="flex gap-4 items-center">
-									<div
-										class="w-12 h-12 rounded-2xl bg-gradient-to-br from-neutral-50 to-neutral-100 flex items-center justify-center border border-neutral-100 shadow-inner">
-										<span class="text-lg font-bold text-neutral-700">{{ formatValue(entry.value)
-											}}</span>
-									</div>
-									<div>
-										<p class="text-xs font-bold text-neutral-400 uppercase tracking-wide mb-0.5">{{
-											formatTime(entry.createdAt) }}</p>
-
-										<!-- Tags & Context -->
-										<div class="flex flex-wrap gap-2">
-											<div *ngIf="entry.mood"
-												class="flex items-center gap-1 text-xs font-medium text-neutral-600">
-												<i class="fa-solid fa-face-smile text-purple-400"></i> {{ entry.mood }}
-											</div>
-											<div *ngIf="entry.energy"
-												class="flex items-center gap-1 text-xs font-medium text-neutral-600">
-												<i class="fa-solid fa-bolt text-amber-400"></i> {{ entry.energy }}
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<div *ngIf="entry.notes" class="mt-3 text-sm text-neutral-600 pl-16">
-								{{ entry.notes }}
-							</div>
-						</div>
-					</div>
-				</div>
-			</ng-container>
-
-			<!-- Flat List View -->
-			<ng-container *ngIf="viewMode === 'list'">
-				<div *ngFor="let entry of displayedEntries; trackBy: trackByEntryId"
-					class="bg-white rounded-3xl p-4 shadow-sm border border-neutral-50 flex items-start gap-4 active:scale-[0.99] transition-transform">
-
-					<div class="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-bold text-white shadow-lg shadow-neutral-200"
-						[style.background-color]="tracker.color">
-						{{ formatValue(entry.value) }}
-					</div>
-
-					<div class="flex-1 min-w-0 pt-1">
-						<div class="flex justify-between items-start mb-1">
-							<h3 class="text-sm font-bold text-neutral-900">{{ entry.date | date:'MMM d, y' }}</h3>
-							<span class="text-xs text-neutral-400 font-bold bg-neutral-100 px-2 py-0.5 rounded-full">{{
-								entry.createdAt | date:'shortTime' }}</span>
-						</div>
-
-						<div *ngIf="entry.notes" class="text-sm text-neutral-600 line-clamp-1 mb-2 italic">
-							"{{ entry.notes }}"
-						</div>
-
-						<div class="flex gap-2 mt-2">
-							<span *ngIf="entry.mood"
-								class="px-2 py-0.5 bg-purple-50 rounded-md text-[10px] font-bold text-purple-600 flex items-center gap-1">
-								<i class="fa-solid fa-face-smile"></i> {{ entry.mood }}
-							</span>
-							<span *ngIf="entry.energy"
-								class="px-2 py-0.5 bg-amber-50 rounded-md text-[10px] font-bold text-amber-600 flex items-center gap-1">
-								<i class="fa-solid fa-bolt"></i> {{ entry.energy }}
-							</span>
-						</div>
-					</div>
-				</div>
-
-				<ion-infinite-scroll threshold="100px" (ionInfinite)="onInfiniteScroll($event)"
-					[disabled]="!hasMoreData">
-					<ion-infinite-scroll-content loading-spinner="bubbles"
-						loading-text="Loading older entries..."></ion-infinite-scroll-content>
-				</ion-infinite-scroll>
-			</ng-container>
-
-			<!-- Empty State -->
-			<div *ngIf="!isLoading && allEntries.length === 0"
-				class="flex flex-col items-center justify-center py-20 text-center">
-				<div
-					class="w-24 h-24 bg-gradient-to-br from-neutral-100 to-white rounded-full flex items-center justify-center mb-6 shadow-sm border border-neutral-100">
-					<i class="fa-solid fa-clipboard-list text-4xl text-neutral-300"></i>
-				</div>
-				<h3 class="text-xl font-bold text-neutral-900 mb-2">No Entries Yet</h3>
-				<p class="text-neutral-500 text-sm max-w-[240px] mb-8 leading-relaxed">Start tracking your journey.
-					Every small step counts towards your goal.</p>
-				<button (click)="openLogModal()"
-					class="px-8 py-4 bg-neutral-900 text-white rounded-full font-bold text-sm shadow-xl shadow-neutral-400/20 active:scale-95 transition-transform flex items-center gap-2">
-					<i class="fa-solid fa-plus"></i>
-					Log First Entry
-				</button>
-			</div>
-
-		</div>
-	</div>
-
-	<!-- Floating Action Button (Only show when scrolled down a bit or generally available) -->
-	<div *ngIf="!isLoading && tracker && allEntries.length > 0" class="fixed bottom-6 right-6 z-50">
-		<button (click)="openLogModal()"
-			class="w-16 h-16 bg-neutral-900 text-white rounded-full shadow-2xl shadow-neutral-900/40 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center group border-4 border-white/20 backdrop-blur-sm">
-			<i class="fa-solid fa-plus text-2xl group-hover:rotate-90 transition-transform duration-300"></i>
-		</button>
-	</div>
-
-</ion-content>
+<ion-content class="muse-content" [scrollY]="true"
+  ><main class="detail-page">
+    <nav class="detail-toolbar" aria-label="Tracker actions">
+      <button type="button" (click)="goBack()" aria-label="Back to trackers">
+        ←</button
+      ><span>Regen <em>28</em></span
+      ><button
+        *ngIf="tracker"
+        type="button"
+        (click)="openLogModal()"
+        aria-label="Log a tracker entry"
+      >
+        ＋
+      </button>
+    </nav>
+    <div *ngIf="isLoading" role="status" class="detail-empty">
+      Opening your tracker…
+    </div>
+    <ng-container *ngIf="!isLoading && tracker">
+      <header class="detail-heading">
+        <p>
+          {{ tracker.category | titlecase }}
+          <span *ngIf="isArchived">· Archived</span>
+        </p>
+        <h1>{{ tracker.name }}</h1>
+        <span
+          >{{ tracker.target }} {{ tracker.unit }} / {{ tracker.frequency
+          }}</span
+        >
+      </header>
+      <section class="detail-stats">
+        <div><strong>{{ tracker.stats?.currentStreak || 0 }}</strong><span>day streak</span></div><div><strong>{{ tracker.stats?.completionRate || 0 }}<small>%</small></strong><span>completion rate</span></div>
+        <div class="entry-count">
+          <strong>{{ totalEntries }}</strong><span>entries logged</span>
+        </div>
+        <div class="entry-average">
+          <strong>{{ formatValue(averageValue) }}</strong
+          ><span>average entry</span>
+        </div>
+        <button type="button" (click)="openLogModal()">
+          Log entry <span aria-hidden="true">＋</span>
+        </button>
+      </section>
+      <section class="tracker-coaching">
+        <div class="detail-section-title">
+          <h2>A little guidance</h2>
+          <span aria-hidden="true">✦</span>
+        </div>
+        <app-tracker-suggestions
+          [trackerId]="tracker.id"
+          [trackerName]="tracker.name"
+          [trackerColor]="'#6750b0'"
+          [trackerIcon]="tracker.icon"
+          [mode]="'full'"
+          [showManualGenerate]="true"
+        ></app-tracker-suggestions>
+      </section>
+      <div class="history-heading">
+        <h2>Your history</h2>
+        <div class="history-views" aria-label="History view">
+          <button
+            type="button"
+            [attr.aria-pressed]="viewMode === 'grouped'"
+            (click)="viewMode = 'grouped'; onViewModeChange()"
+          >
+            By day</button
+          ><button
+            type="button"
+            [attr.aria-pressed]="viewMode === 'list'"
+            (click)="viewMode = 'list'; onViewModeChange()"
+          >
+            All entries
+          </button>
+        </div>
+      </div>
+      <section class="entry-history" *ngIf="viewMode === 'grouped'">
+        <div *ngFor="let group of groupedEntries" class="entry-day">
+          <p class="entry-day-label">
+            {{ group.date | date:'EEEE, MMM d' }}<span
+              >{{ formatValue(group.dailyTotal) }} total</span
+            >
+          </p>
+          <article
+            *ngFor="let entry of group.entries; trackBy: trackByEntryId"
+            class="history-entry"
+          >
+            <div class="entry-main">
+              <strong>{{ formatValue(entry.value) }}</strong
+              ><time>{{ formatTime(entry.createdAt) }}</time>
+            </div>
+            <div class="entry-context">
+              <span *ngIf="entry.mood">Mood {{ entry.mood }}/10</span
+              ><span *ngIf="entry.energy">Energy {{ entry.energy }}/5</span>
+            </div>
+            <p *ngIf="entry.notes">{{ entry.notes }}</p>
+          </article>
+        </div>
+      </section>
+      <section class="entry-history" *ngIf="viewMode === 'list'">
+        <article
+          *ngFor="let entry of displayedEntries; trackBy: trackByEntryId"
+          class="history-entry"
+        >
+          <div class="entry-main">
+            <strong>{{ formatValue(entry.value) }}</strong
+            ><time
+              >{{ entry.date | date:'MMM d, y' }} · {{
+              formatTime(entry.createdAt) }}</time
+            >
+          </div>
+          <div class="entry-context">
+            <span *ngIf="entry.mood">Mood {{ entry.mood }}/10</span
+            ><span *ngIf="entry.energy">Energy {{ entry.energy }}/5</span>
+          </div>
+          <p *ngIf="entry.notes">{{ entry.notes }}</p>
+        </article>
+        <ion-infinite-scroll
+          threshold="100px"
+          (ionInfinite)="onInfiniteScroll($event)"
+          [disabled]="!hasMoreData"
+          ><ion-infinite-scroll-content
+            loading-spinner="bubbles"
+            loading-text="Loading older entries…"
+          ></ion-infinite-scroll-content
+        ></ion-infinite-scroll>
+      </section>
+      <div *ngIf="allEntries.length === 0" class="detail-empty">
+        <h2>Your first small step.</h2>
+        <p>Log an entry and your story will begin here.</p>
+        <button type="button" (click)="openLogModal()">
+          Log first entry →
+        </button>
+      </div>
+      <footer class="tracker-management">
+        <button
+          *ngIf="!isArchived"
+          type="button"
+          (click)="confirmArchiveTracker()"
+        >
+          Archive tracker</button
+        ><button *ngIf="isArchived" type="button" (click)="unarchiveTracker()">
+          Restore tracker</button
+        ><button
+          type="button"
+          class="delete-link"
+          (click)="confirmDeleteTracker()"
+        >
+          Delete tracker
+        </button>
+      </footer>
+    </ng-container>
+  </main></ion-content
+>

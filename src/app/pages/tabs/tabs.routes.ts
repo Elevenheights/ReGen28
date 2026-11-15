@@ -20,6 +20,10 @@ export const routes: Routes = [
           import('./insights/insights.page').then((m) => m.InsightsPage),
       },
       {
+        path: 'timeline',
+        loadComponent: () => import('./timeline/timeline.page').then(m => m.TimelinePage)
+      },
+      {
         path: 'journal',
         loadComponent: () =>
           import('./journal/tab2.page').then((m) => m.Tab2Page),

@@ -1,0 +1,27 @@
+<ion-header class="ion-no-border"
+  ><ion-toolbar
+    ><ion-title>Take a breath.</ion-title
+    ><ion-buttons slot="end"
+      ><ion-button (click)="dismiss()" aria-label="Close breathing exercise"
+        ><span aria-hidden="true">×</span></ion-button></ion-buttons></ion-toolbar
+></ion-header>
+<ion-content class="breathe-content" [fullscreen]="true">
+  <main class="breathing-space">
+    <p class="breathing-kicker">A moment to reset</p>
+    <h1>{{ currentPhase }}<em>.</em></h1>
+    <div class="breath-orbit" aria-hidden="true">
+      <div
+        class="breath-circle"
+        [class.inhale]="phase === 'inhale'"
+        [class.hold]="phase === 'hold'"
+        [class.exhale]="phase === 'exhale'"
+      >
+        <span>✧</span>
+      </div>
+    </div>
+    <p class="breathing-feedback" aria-live="polite">{{ feedbackText }}</p>
+    <p class="breathing-note">
+      Follow your own pace.<br />Pause whenever you need to.
+    </p>
+  </main>
+</ion-content>

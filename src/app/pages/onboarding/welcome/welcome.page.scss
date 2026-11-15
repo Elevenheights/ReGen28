@@ -1,246 +1,114 @@
-.welcome-content {
-  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+:host {
+  display: block;
 }
-
-.welcome-container {
-  min-height: 100vh;
-  padding: 2rem 1rem;
+.welcome-layout {
+  max-width: 600px;
+  margin: auto;
+  padding: calc(env(safe-area-inset-top) + 28px) 24px 30px;
+  color: #f2ebff;
+}
+.wordmark {
+  display: block;
+  font-size: 25px;
+  font-weight: 650;
+  letter-spacing: -1.5px;
+  margin-bottom: 34px;
+}
+.wordmark em {
+  color: #b9f3d1;
+  font-style: normal;
+}
+.kicker {
+  font-size: 11px;
+  color: #c0b0d8;
+  margin: 0 0 14px;
+}
+h1 {
+  font-size: 38px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -1.4px;
+  color: #f2ebff;
+  margin: 0 0 24px;
+  overflow-wrap: anywhere;
+}
+h1 em {
+  font:
+    italic 400 1em Georgia,
+    serif;
+}
+.welcome-photo {
+  height: 220px;
+  border-radius: 28px;
+  overflow: hidden;
+  margin-bottom: -28px;
+}
+.welcome-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 65% 40%;
+}
+.welcome-panel {
+  position: relative;
+  padding: 24px;
+  background: #eae2fb;
+  color: #2c204d;
+  border-radius: 26px;
+}
+.welcome-panel h2 {
+  font-size: 25px;
+  font-weight: 500;
+  letter-spacing: -0.8px;
+  color: #2c204d;
+  margin: 0 0 12px;
+}
+.welcome-panel > p {
+  font-size: 14px;
+  color: #635179;
+  line-height: 1.65;
+  margin: 0;
+}
+.welcome-pillars {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 20px 0;
+}
+.welcome-pillars span {
+  font-size: 11px;
+  padding: 8px 12px;
+  background: #d6c9ef;
+  border-radius: 20px;
+}
+.privacy-line {
+  font-size: 11px;
+  color: #726081;
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+.welcome-start {
+  display: flex;
   justify-content: space-between;
-  max-width: 480px;
-  margin: 0 auto;
+  align-items: center;
+  min-height: 52px;
+  padding: 14px 20px;
+  border-radius: 30px;
+  width: 100%;
+  font-size: 15px;
+  font-weight: 550;
+  background: #5945df;
+  color: #fff;
 }
-
-.hero-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+.skip-button {
+  min-height: 48px;
+  width: 100%;
+  color: #c4b6db;
+  font-size: 13px;
+  background: transparent;
+  margin-top: 12px;
 }
-
-// Logo and Branding
-.logo-container {
-  .logo-icon {
-    font-size: 5rem;
-    color: #10b981;
-    margin-bottom: 1rem;
-    animation: pulse 2s infinite;
-  }
-  
-  .app-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: white;
-    margin: 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
+button:focus-visible {
+  outline: 3px solid #9dd9bd;
+  outline-offset: 4px;
 }
-
-// Welcome Message
-.welcome-message {
-  .welcome-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: white;
-    margin-bottom: 1rem;
-    line-height: 1.2;
-  }
-  
-  .welcome-subtitle {
-    font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.9);
-    line-height: 1.6;
-    margin: 0;
-  }
-}
-
-// Benefits Section
-.benefits-section {
-  .benefit-item {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    padding: 1.5rem;
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    
-    .benefit-icon {
-      font-size: 2.5rem;
-      margin: 0 auto 0.75rem auto;
-      display: block;
-      text-align: center;
-      width: 100%;
-    }
-    
-    h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: white;
-      margin-bottom: 0.5rem;
-    }
-    
-    p {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.8);
-      margin: 0;
-      line-height: 1.4;
-    }
-  }
-}
-
-// Progress Info Cards
-.progress-info {
-  .info-card {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    margin-bottom: 1rem;
-    
-    ion-card-content {
-      padding: 1rem;
-      
-      h4 {
-        color: white;
-        margin: 0 0 0.25rem 0;
-        font-size: 1rem;
-        font-weight: 600;
-      }
-      
-      p {
-        margin: 0;
-        color: rgba(255, 255, 255, 0.9);
-      }
-      
-      ion-icon {
-        font-size: 1.5rem;
-        color: white;
-      }
-    }
-  }
-}
-
-// Action Buttons
-.action-buttons {
-  margin-top: 2rem;
-  
-  .get-started-button {
-    --background: linear-gradient(45deg, #10b981, #059669);
-    --background-hover: linear-gradient(45deg, #059669, #047857);
-    --border-radius: 12px;
-    --box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
-    height: 56px;
-    font-weight: 600;
-    font-size: 1.1rem;
-    
-    ion-icon {
-      font-size: 1.2rem;
-    }
-  }
-  
-  .skip-button {
-    --color: rgba(255, 255, 255, 0.8);
-    --color-hover: white;
-    font-weight: 500;
-  }
-}
-
-// Progress Indicator
-.progress-indicator {
-  .progress-dots {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 0.5rem;
-    
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      transition: all 0.3s ease;
-      
-      &.active {
-        background: white;
-        transform: scale(1.2);
-      }
-    }
-  }
-  
-  p {
-    color: rgba(255, 255, 255, 0.7);
-    margin: 0;
-  }
-}
-
-// Animations
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-.benefit-item {
-  animation: slideInUp 0.6s ease-out;
-  animation-fill-mode: both;
-  
-  &:nth-child(1) { animation-delay: 0.1s; }
-  &:nth-child(2) { animation-delay: 0.2s; }
-  &:nth-child(3) { animation-delay: 0.3s; }
-  &:nth-child(4) { animation-delay: 0.4s; }
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-// Responsive Design
-@media (max-width: 480px) {
-  .welcome-container {
-    padding: 1rem 0.75rem;
-  }
-  
-  .logo-container .logo-icon {
-    font-size: 4rem;
-  }
-  
-  .logo-container .app-title {
-    font-size: 2rem;
-  }
-  
-  .welcome-message .welcome-title {
-    font-size: 1.5rem;
-  }
-  
-  .welcome-message .welcome-subtitle {
-    font-size: 1rem;
-  }
-  
-  .benefit-item {
-    padding: 1rem;
-    
-    .benefit-icon {
-      font-size: 2rem;
-    }
-  }
-}
-
-// Dark mode support
-@media (prefers-color-scheme: dark) {
-  .progress-info .info-card {
-    background: rgba(255, 255, 255, 0.15);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-} 

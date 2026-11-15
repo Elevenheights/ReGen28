@@ -1,17 +1,39 @@
 <div class="feed-container">
-	<ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-		<ion-refresher-content></ion-refresher-content>
-	</ion-refresher>
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-	<div class="feed-list">
+  <div class="feed-list" [class.spine-layout]="timelineLayout">
+    <div
+      *ngFor="let item of feedItems$ | async; trackBy: trackByFn"
+      class="timeline-entry"
+    >
+      <time *ngIf="timelineLayout" class="timeline-time"
+        >{{ dateLabel(item) }}<br />{{ itemDate(item) | date: "h:mm a" }}</time
+      >
+      <div class="timeline-entry-content">
+        <span
+          *ngIf="timelineLayout"
+          class="timeline-node"
+          [class.coaching]="item.type === 'action' || item.type === 'insight'"
+          aria-hidden="true"
+          >{{
+            item.type === "action" || item.type === "insight" ? "" : "✓"
+          }}</span
+        ><app-feed-item-card [item]="item"></app-feed-item-card>
+      </div>
+    </div>
 
-		<app-feed-item-card *ngFor="let item of feedItems$ | async; trackBy: trackByFn"
-			[item]="item"></app-feed-item-card>
-
-		<!-- Empty state -->
-		<div *ngIf="!hasPinnedGuidance && (feedItems$ | async)?.length === 0" class="empty-state">
-			<ion-icon name="newspaper-outline"></ion-icon>
-			<p>No activity yet. Start tracking to see your feed!</p>
-		</div>
-	</div>
+    <!-- Empty state -->
+    <div
+      *ngIf="!hasPinnedGuidance && (feedItems$ | async)?.length === 0"
+      class="empty-state"
+    >
+      <ion-icon name="newspaper-outline"></ion-icon>
+      <p>
+        Your story starts with a small action. Log a tracker to see your
+        progress here.
+      </p>
+    </div>
+  </div>
 </div>

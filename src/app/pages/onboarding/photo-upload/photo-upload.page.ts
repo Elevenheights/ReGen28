@@ -5,6 +5,7 @@ import {
 	IonContent,
 	IonHeader,
 	IonToolbar,
+	IonTitle,
 	IonButtons,
 	IonBackButton,
 	IonButton,
@@ -36,6 +37,7 @@ import { LoggingService } from '../../../services/logging.service';
 		IonContent,
 		IonHeader,
 		IonToolbar,
+		IonTitle,
 		IonButtons,
 		IonBackButton,
 		IonButton,
@@ -83,6 +85,9 @@ export class PhotoUploadPage implements OnInit {
 				width: 1024 // Reasonable max width for upload
 			});
 
+			// Re-focus WebView after native picker closes (Capacitor Android bug)
+			window.focus();
+
 			if (image.base64String) {
 				const base64 = `data:image/${image.format};base64,${image.base64String}`;
 
@@ -124,13 +129,13 @@ export class PhotoUploadPage implements OnInit {
 			// or use the storage service directly if accessible. 
 			// Let's assume we can call a method on UserService to handle this.
 
-			if (this.faceImageBase64) {
-				const url = await this.userService.uploadUserImage(userId, this.faceImageBase64, 'reference_face.jpg');
+			if (this.faceImagePreview) {
+				const url = await this.userService.uploadUserImage(userId, this.faceImagePreview, 'reference_face.jpg');
 				updates.referenceImageFace = url;
 			}
 
-			if (this.bodyImageBase64) {
-				const url = await this.userService.uploadUserImage(userId, this.bodyImageBase64, 'reference_body.jpg');
+			if (this.bodyImagePreview) {
+				const url = await this.userService.uploadUserImage(userId, this.bodyImagePreview, 'reference_body.jpg');
 				updates.referenceImageBody = url;
 			}
 

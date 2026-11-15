@@ -2,16 +2,14 @@
   <div class="register-container">
     <!-- Header -->
     <div class="header-section">
-      <div class="app-logo">
-        <img src="assets/regen28logo.png" alt="ReGen28 Logo" />
-      </div>
-      <p class="tagline">Start your 28-day wellness transformation</p>
+      <div class="auth-wordmark" aria-label="Regen 28">Regen <em>28</em></div>
+      <p class="tagline">Your pace. Your progress.</p>
     </div>
 
     <!-- Welcome Section -->
     <div class="welcome-section">
-      <h2>Create your account</h2>
-      <p>Join thousands on their wellness journey</p>
+      <h1>Create your account</h1>
+      <p>Make room for your next chapter.</p>
     </div>
 
     <!-- Error Message -->
@@ -19,21 +17,39 @@
       <ion-icon name="alert-circle"></ion-icon>
       <span>{{ errorMessage }}</span>
       <ion-button fill="clear" size="small" (click)="clearError()">
-          <ion-icon name="close"></ion-icon>
-        </ion-button>
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
     </div>
 
     <!-- Social Registration Options -->
     <div class="social-register">
-      <ion-button expand="block" fill="outline" class="social-btn google-btn" (click)="onGoogleRegister()" [disabled]="isLoading">
+      <ion-button
+        expand="block"
+        fill="outline"
+        class="social-btn google-btn"
+        (click)="onGoogleRegister()"
+        [disabled]="isLoading"
+      >
         <ion-icon name="logo-google" slot="start"></ion-icon>
         Continue with Google
       </ion-button>
-      <ion-button expand="block" fill="solid" class="social-btn apple-btn" (click)="onAppleRegister()" [disabled]="isLoading">
+      <ion-button
+        expand="block"
+        fill="solid"
+        class="social-btn apple-btn"
+        (click)="onAppleRegister()"
+        [disabled]="isLoading"
+      >
         <ion-icon name="logo-apple" slot="start"></ion-icon>
         Continue with Apple
       </ion-button>
-      <ion-button expand="block" fill="outline" class="social-btn facebook-btn" (click)="onFacebookRegister()" [disabled]="isLoading">
+      <ion-button
+        expand="block"
+        fill="outline"
+        class="social-btn facebook-btn"
+        (click)="onFacebookRegister()"
+        [disabled]="isLoading"
+      >
         <ion-icon name="logo-facebook" slot="start"></ion-icon>
         Continue with Facebook
       </ion-button>
@@ -45,93 +61,123 @@
     </div>
 
     <!-- Registration Form -->
-    <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="register-form">
+    <form
+      [formGroup]="registerForm"
+      (ngSubmit)="onRegister()"
+      class="register-form"
+    >
       <div class="form-field">
         <label>Full Name</label>
-            <ion-input
-              type="text"
-              formControlName="displayName"
+        <ion-input
+          type="text"
+          formControlName="displayName"
+          aria-label="Full name"
           placeholder="Enter your full name"
           [disabled]="isLoading"
-          [class.error]="isFieldInvalid('displayName')">
-            </ion-input>
-          <div *ngIf="isFieldInvalid('displayName')" class="error-text">
-            {{ getFieldError('displayName') }}
-          </div>
+          [class.error]="isFieldInvalid('displayName')"
+        >
+        </ion-input>
+        <div *ngIf="isFieldInvalid('displayName')" class="error-text">
+          {{ getFieldError('displayName') }}
         </div>
+      </div>
 
       <div class="form-field">
         <label>Email</label>
-            <ion-input
-              type="email"
-              formControlName="email"
+        <ion-input
+          type="email"
+          aria-label="Email"
+          formControlName="email"
           placeholder="Enter your email"
           [disabled]="isLoading"
-          [class.error]="isFieldInvalid('email')">
-            </ion-input>
-          <div *ngIf="isFieldInvalid('email')" class="error-text">
-            {{ getFieldError('email') }}
-          </div>
+          [class.error]="isFieldInvalid('email')"
+        >
+        </ion-input>
+        <div *ngIf="isFieldInvalid('email')" class="error-text">
+          {{ getFieldError('email') }}
         </div>
+      </div>
 
       <div class="form-field">
         <label>Password</label>
         <div class="password-field">
-            <ion-input
+          <ion-input
             [type]="showPassword ? 'text' : 'password'"
-              formControlName="password"
+            formControlName="password"
+            aria-label="Password"
             placeholder="Create a password"
             [disabled]="isLoading"
-            [class.error]="isFieldInvalid('password')">
-            </ion-input>
-          <ion-button fill="clear" (click)="togglePassword()" class="password-toggle">
+            [class.error]="isFieldInvalid('password')"
+          >
+          </ion-input>
+          <ion-button
+            fill="clear"
+            (click)="togglePassword()"
+            class="password-toggle"
+          >
             <ion-icon [name]="showPassword ? 'eye-off' : 'eye'"></ion-icon>
           </ion-button>
         </div>
-          <div *ngIf="isFieldInvalid('password')" class="error-text">
-            {{ getFieldError('password') }}
-          </div>
+        <div *ngIf="isFieldInvalid('password')" class="error-text">
+          {{ getFieldError('password') }}
         </div>
+      </div>
 
       <div class="form-field">
         <label>Confirm Password</label>
         <div class="password-field">
-            <ion-input
+          <ion-input
             [type]="showConfirmPassword ? 'text' : 'password'"
-              formControlName="confirmPassword"
+            formControlName="confirmPassword"
+            aria-label="Confirm password"
             placeholder="Confirm your password"
             [disabled]="isLoading"
-            [class.error]="isFieldInvalid('confirmPassword') || registerForm.errors?.['passwordMismatch']">
-            </ion-input>
-          <ion-button fill="clear" (click)="toggleConfirmPassword()" class="password-toggle">
-            <ion-icon [name]="showConfirmPassword ? 'eye-off' : 'eye'"></ion-icon>
+            [class.error]="isFieldInvalid('confirmPassword') || registerForm.errors?.['passwordMismatch']"
+          >
+          </ion-input>
+          <ion-button
+            fill="clear"
+            (click)="toggleConfirmPassword()"
+            class="password-toggle"
+          >
+            <ion-icon
+              [name]="showConfirmPassword ? 'eye-off' : 'eye'"
+            ></ion-icon>
           </ion-button>
         </div>
-          <div *ngIf="isFieldInvalid('confirmPassword') || registerForm.errors?.['passwordMismatch']" class="error-text">
-            {{ getPasswordConfirmError() }}
-          </div>
+        <div
+          *ngIf="isFieldInvalid('confirmPassword') || registerForm.errors?.['passwordMismatch']"
+          class="error-text"
+        >
+          {{ getPasswordConfirmError() }}
         </div>
+      </div>
 
       <!-- Create Account Button -->
-        <ion-button
-          expand="block"
-          type="submit"
-          [disabled]="registerForm.invalid || isLoading"
-        class="register-btn">
-          <ion-spinner *ngIf="isLoading" slot="start"></ion-spinner>
-          {{ isLoading ? 'Creating Account...' : 'Create Account' }}
+      <ion-button
+        expand="block"
+        type="submit"
+        [disabled]="registerForm.invalid || isLoading"
+        class="register-btn"
+      >
+        <ion-spinner *ngIf="isLoading" slot="start"></ion-spinner>
+        {{ isLoading ? 'Creating Account...' : 'Create Account' }}
       </ion-button>
     </form>
 
     <!-- Sign In Link -->
     <div class="signin-link">
       <p>
-        Already have an account? 
-        <ion-button fill="clear" (click)="navigateToLogin()" [disabled]="isLoading">
+        Already have an account?
+        <ion-button
+          fill="clear"
+          (click)="navigateToLogin()"
+          [disabled]="isLoading"
+        >
           Sign in
         </ion-button>
-          </p>
-        </div>
+      </p>
+    </div>
 
     <!-- Benefits Preview -->
     <div class="benefits-preview">
@@ -143,7 +189,9 @@
           </div>
           <div class="benefit-content">
             <p class="benefit-title">28-Day Structured Program</p>
-            <p class="benefit-description">Guided wellness journey with daily goals</p>
+            <p class="benefit-description">
+              Guided wellness journey with daily goals
+            </p>
           </div>
         </div>
         <div class="benefit-item">
@@ -152,7 +200,9 @@
           </div>
           <div class="benefit-content">
             <p class="benefit-title">Track Your Progress</p>
-            <p class="benefit-description">See your transformation with detailed analytics</p>
+            <p class="benefit-description">
+              See your transformation with detailed analytics
+            </p>
           </div>
         </div>
         <div class="benefit-item">
@@ -161,7 +211,9 @@
           </div>
           <div class="benefit-content">
             <p class="benefit-title">Join the Community</p>
-            <p class="benefit-description">Connect with like-minded wellness seekers</p>
+            <p class="benefit-description">
+              Connect with like-minded wellness seekers
+            </p>
           </div>
         </div>
       </div>
@@ -170,10 +222,10 @@
     <!-- Footer -->
     <div class="footer">
       <p>
-        By creating an account, you agree to our 
-        <ion-button fill="clear" size="small">Terms of Service</ion-button> and 
+        By creating an account, you agree to our
+        <ion-button fill="clear" size="small">Terms of Service</ion-button> and
         <ion-button fill="clear" size="small">Privacy Policy</ion-button>
       </p>
     </div>
   </div>
-</ion-content> 
+</ion-content>

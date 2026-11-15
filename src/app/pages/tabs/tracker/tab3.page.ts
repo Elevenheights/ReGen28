@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import {
 	IonContent,
 	IonRefresher,
 	IonRefresherContent
 } from '@ionic/angular/standalone';
-import { Subject, Subscription, takeUntil, combineLatest, map, firstValueFrom, of, catchError, startWith, timeout } from 'rxjs';
+import { Subject, Subscription, takeUntil, combineLatest, map, firstValueFrom, of, catchError, startWith, timeout, shareReplay } from 'rxjs';
 
 // Services
 import { TrackerService } from '../../../services/tracker.service';
@@ -27,6 +27,7 @@ import { Tracker, TrackerEntry, MoodEntry, TrackerType } from '../../../models/t
 // Models
 import { TrackerData } from '../../../models/view-models.interface';
 import { User } from '../../../models/user.interface';
+import { chartDates, localDayKey, recordDate } from '../../../models/dashboard-chart';
 
 // Components
 import { TrackerCardComponent } from '../../../components/tracker-card/tracker-card.component';
@@ -44,6 +45,7 @@ import { CountUpDirective } from '../../../directives/count-up.directive';
 	standalone: true,
 	imports: [
 		CommonModule,
+		RouterLink,
 		FormsModule,
 		IonContent,
 		IonRefresher,
@@ -120,6 +122,32 @@ export class Tab3Page implements OnInit, OnDestroy {
 			case 'beauty': return 'pink';
 			default: return 'amber';
 		}
+	}
+
+	selectedCategory: string | null = null;
+	selectedTrackerId: string | null = null;
+	focusedHistory$ = of({ days: [] as {date:Date; logged:boolean}[], error: '' });
+
+	get focusedTracker(): TrackerData | null {
+		return this.activeTrackers.find(tracker => tracker.id === this.selectedTrackerId) || this.activeTrackers[0] || null;
+	}
+
+	selectTracker(tracker: TrackerData): void {
+		this.selectedTrackerId = tracker.id;
+		this.focusedHistory$ = this.trackerService.getTrackerEntries(tracker.id, 200).pipe(
+			map(entries => {
+				const logged = new Set(entries.filter(entry => entry.trackerId === tracker.id).map(entry => localDayKey(recordDate(entry.date))));
+				return { days: chartDates(7).map(date => ({date, logged:logged.has(localDayKey(date))})), error: '' };
+			}),
+			catchError(() => of({days:[], error:'Recent logging history is temporarily unavailable.'})),
+			shareReplay({bufferSize:1,refCount:true})
+		);
+	}
+
+	categoryImage(category: string): string {
+		const asset = category === 'body' ? 'movement'
+			: category === 'soul' || category === 'beauty' ? 'reflection' : 'morning-light';
+		return 'assets/images/indigo-muse/' + asset + '.webp';
 	}
 
 	get dailyProgress(): number {
@@ -291,6 +319,7 @@ export class Tab3Page implements OnInit, OnDestroy {
 
 		// Separate active, completed, AND archived trackers
 		this.activeTrackers = validProcessed.filter(t => t.isActive && !t.isCompleted);
+		if (this.activeTrackers.length && !this.activeTrackers.some(t => t.id === this.selectedTrackerId)) this.selectTracker(this.activeTrackers[0]);
 		this.completedTrackers = validProcessed.filter(t => t.isCompleted);
 		this.archivedTrackers = validProcessed.filter(t => !t.isActive && !t.isCompleted);
 
@@ -330,6 +359,7 @@ export class Tab3Page implements OnInit, OnDestroy {
 
 		// Separate active, completed, AND archived trackers
 		this.activeTrackers = validProcessed.filter(t => t.isActive && !t.isCompleted);
+		if (this.activeTrackers.length && !this.activeTrackers.some(t => t.id === this.selectedTrackerId)) this.selectTracker(this.activeTrackers[0]);
 		this.completedTrackers = validProcessed.filter(t => t.isCompleted);
 		this.archivedTrackers = validProcessed.filter(t => !t.isActive && !t.isCompleted);
 

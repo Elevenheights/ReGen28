@@ -1,5 +1,5 @@
 import { fakeAsync, flushMicrotasks } from '@angular/core/testing';
-import { NEVER, of, Subject, throwError } from 'rxjs';
+import { NEVER, of, Subject, throwError, firstValueFrom } from 'rxjs';
 import { Tab3Page } from './tab3.page';
 
 describe('Tab3Page', () => {
@@ -14,6 +14,7 @@ describe('Tab3Page', () => {
   beforeEach(async () => {
     trackers = {
       getUserTrackers: jasmine.createSpy().and.returnValue(of(saved)),
+      getTrackerEntries: () => of([]),
       getTodaysEntries: jasmine.createSpy().and.returnValue(of([])),
       getTrackerProgress: () => 0, getDaysRemaining: () => 28
     };
@@ -29,6 +30,27 @@ describe('Tab3Page', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+  it('uses only the selected tracker’s actual recent entries for history', async () => {
+    component.activeTrackers = saved as any;
+    trackers.getTrackerEntries = jasmine.createSpy().and.returnValue(of([
+      { trackerId: saved[1].id, date: new Date() },
+      { trackerId: saved[0].id, date: new Date() },
+    ]));
+    component.selectTracker(saved[1] as any);
+    const history = await firstValueFrom(component.focusedHistory$);
+    expect(component.focusedTracker?.id).toBe(saved[1].id);
+    expect(history.days.length).toBe(7);
+    expect(history.days.filter(d => d.logged).length).toBe(1);
+    expect(trackers.getTrackerEntries).toHaveBeenCalledWith(saved[1].id, 200);
+  });
+
+  it('shows an unavailable history state when the selected tracker cannot be read', async () => {
+    trackers.getTrackerEntries = () => throwError(() => new Error('unavailable'));
+    component.selectTracker(saved[0] as any);
+    const history = await firstValueFrom(component.focusedHistory$);
+    expect(history.days).toEqual([]);
+    expect(history.error).toContain('unavailable');
   });
   afterEach(() => component.ngOnDestroy());
 

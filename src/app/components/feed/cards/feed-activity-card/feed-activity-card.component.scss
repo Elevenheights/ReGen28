@@ -28,12 +28,12 @@
 .meta {
   display: flex;
   flex-direction: column;
-  
+
   ion-card-title {
     font-size: 16px;
     font-weight: 600;
   }
-  
+
   ion-card-subtitle {
     font-size: 12px;
     text-transform: none;
@@ -60,18 +60,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  
+
   .metric-value {
     font-size: 18px;
     font-weight: 700;
     color: var(--ion-color-primary);
   }
-  
+
   .metric-unit {
     font-size: 12px;
     color: var(--ion-color-medium);
   }
-  
+
   .metric-label {
     font-size: 10px;
     text-transform: uppercase;
@@ -86,10 +86,63 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
-  
+
   ion-chip {
     margin: 0;
     height: 24px;
     font-size: 12px;
   }
+}
+:host {
+  display: block;
+}
+.feed-card {
+  background: #eae3fc;
+  color: #39254e;
+  padding: 8px;
+  border-radius: 24px;
+}
+.user-avatar,
+.more-options {
+  display: none;
+}
+.meta ion-card-title {
+  color: #39254e;
+  font-size: 21px;
+  line-height: 1.25;
+  font-weight: 550;
+  letter-spacing: -0.5px;
+}
+.meta ion-card-subtitle {
+  color: #75598b;
+  font-size: 10px;
+}
+.body-text {
+  color: #5e4474;
+  line-height: 1.7;
+}
+.metrics-grid {
+  background: transparent;
+  border-top: 1px solid #bda3d066;
+  border-radius: 0;
+  padding: 18px 0 0;
+}
+.metric-item {
+  align-items: flex-start;
+}
+.metric-item .metric-value {
+  font:
+    400 38px/1 Georgia,
+    serif;
+  color: #49315f;
+}
+.metric-item .metric-unit,
+.metric-item .metric-label {
+  color: #72528a;
+  text-transform: none;
+}
+.tags-row ion-chip {
+  --background: #d5c5ed;
+  --color: #604079;
+  border: 0;
 }

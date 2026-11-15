@@ -1,20 +1,42 @@
-.journal-card {
-  background: #fff9f0; // Paper-like color
-  border-left: 4px solid var(--ion-color-tertiary);
+:host {
+  display: block;
 }
-
+ion-card {
+  margin: 0;
+  background: transparent;
+  color: #322047;
+  box-shadow: none;
+  border-radius: 0;
+  padding: 22px;
+}
+ion-card-header,
+ion-card-content {
+  padding: 0;
+}
 .journal-meta {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--ion-color-tertiary);
-  font-size: 12px;
-  font-weight: 600;
-  margin-bottom: 8px;
+  color: #72548a;
+  font-size: 11px;
+  margin-bottom: 18px;
 }
-
+ion-card-title {
+  font:
+    italic 400 29px/1.2 Georgia,
+    serif;
+  color: #322047;
+}
+ion-card-subtitle {
+  font-size: 10px;
+  color: #72548a;
+  margin-top: 10px;
+}
 .journal-preview {
-  font-style: italic;
-  font-family: serif;
-  color: var(--ion-color-dark);
+  font-size: 14px;
+  line-height: 1.75;
+  color: #563c6c;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  margin: 16px 0 0;
 }

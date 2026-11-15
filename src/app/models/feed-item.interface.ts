@@ -1,11 +1,11 @@
-export type FeedItemType = 
-  | 'activity' 
-  | 'statCard' 
-  | 'guidance' 
-  | 'journal' 
-  | 'progressPhoto' 
-  | 'aiSelf' 
-  | 'wrappedVideo' 
+export type FeedItemType =
+  | 'activity'
+  | 'statCard'
+  | 'guidance'
+  | 'journal'
+  | 'progressPhoto'
+  | 'aiSelf'
+  | 'wrappedVideo'
   | 'milestone'
   | 'trackerEntry'
   | 'inspiration'
@@ -60,12 +60,12 @@ export interface FeedItem {
   id?: string;
   userId: string;
   type: FeedItemType;
-  
+
   // Content
   title: string; // Used as the main "caption" header or ignored in IG style
   subtitle?: string; // Secondary text
   body?: string; // The main caption text
-  
+
   // Source tracking
   source: {
     kind: FeedItemSourceKind;
@@ -73,7 +73,7 @@ export interface FeedItem {
     trackerId?: string; // For action/insight posts
     trackerName?: string; // For display purposes
   };
-  
+
   // Additional metadata for action/insight posts
   metadata?: {
     icon?: string;
@@ -82,38 +82,39 @@ export interface FeedItem {
     dataPoint?: string;
     trackerCategory?: string;
   };
-  
+
   // Date key for querying posts by day
   dateKey?: string;
-  
+
   // Metrics to display (rendered inside the post content)
   metrics?: FeedItemMetric[];
-  
+
   // Organization
   tags?: string[];
   visibility: 'private' | 'shareable';
-  
+
   // Media
   media?: {
     status: MediaStatus;
+    url?: string; // Older generated posts store one image directly.
     images?: FeedMediaImage[];
     video?: FeedMediaVideo | null;
     storagePaths?: string[]; // All associated paths for cleanup
   };
-  
+
   // AI Metadata (if applicable)
   ai?: FeedAIMetadata;
-  
+
   // Consent tracking (if applicable)
   consent?: FeedConsent;
-  
+
   // Timestamps
   createdAt: any; // Timestamp
   updatedAt: any; // Timestamp
-  
+
   // UI State (not persisted)
   isHidden?: boolean;
-  
+
   // Author information (Top left of post)
   author?: {
     name: string;

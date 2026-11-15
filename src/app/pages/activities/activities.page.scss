@@ -1,23 +1,57 @@
-ion-header {
-	ion-toolbar {
-		--background: transparent;
-		--padding-top: 12px;
-		--padding-bottom: 12px;
-	}
+ion-toolbar {
+  --background: #17132b;
+  --color: #eee2ff;
+  --border-width: 0;
 }
-
+ion-toolbar ion-title {
+  color: #eee2ff;
+  font-size: 17px;
+  font-weight: 500;
+}
+ion-back-button {
+  --color: #eee2ff;
+}
 ion-content {
-	--background: #fafafa; // Ultra light neutral background
+  --background: #eae3fa;
+  --color: #3c2850;
 }
-
-// Custom scrollbar handling if needed
-.scrollbar-hide::-webkit-scrollbar {
-	display: none;
+ion-content > div {
+  max-width: 720px;
+  margin: auto;
 }
-
-.scrollbar-hide {
-	-ms-overflow-style: none;
-	/* IE and Edge */
-	scrollbar-width: none;
-	/* Firefox */
+.activity-history-card {
+  background: #f3edff;
+  border-radius: 24px;
+  border: 1px solid #c9b5dd55;
+  padding: 20px;
+}
+.activity-history-icon {
+  background: #ddd0f0;
+  color: #715095;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.activity-history-icon i {
+  color: #715095;
+  font-size: 17px;
+}
+.activity-history-card h3 {
+  color: #39254e;
+  font-size: 15px;
+  font-weight: 550;
+  letter-spacing: -0.3px;
+}
+.activity-history-card p {
+  color: #75588b;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.activity-history-card .bg-emerald-500 {
+  background: #a3d6b9;
+  box-shadow: none;
+}
+.activity-history-card .text-neutral-500,
+.activity-history-card .text-neutral-400 {
+  color: #795a90;
 }

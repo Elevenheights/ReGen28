@@ -440,8 +440,8 @@ export class Tab2Page implements OnInit, OnDestroy {
 		const modal = await this.modalCtrl.create({
 			component: WriteEntryModalComponent,
 			cssClass: 'journal-modal',
-			breakpoints: [0, 0.5, 0.9],
-			initialBreakpoint: 0.9
+			breakpoints: [0, 1],
+			initialBreakpoint: 1
 		});
 
 		await modal.present();
@@ -459,8 +459,8 @@ export class Tab2Page implements OnInit, OnDestroy {
 			component: WriteEntryModalComponent,
 			componentProps: { prompt },
 			cssClass: 'journal-modal',
-			breakpoints: [0, 0.5, 0.9],
-			initialBreakpoint: 0.9
+			breakpoints: [0, 1],
+			initialBreakpoint: 1
 		});
 
 		await modal.present();

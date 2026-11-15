@@ -9,7 +9,7 @@ import { UserService } from '../../services/user.service';
   standalone: true,
   imports: [CommonModule, RouterLink, IonContent, IonButton],
   template: `
-    <ion-content>
+    <ion-content class="muse-legal">
       <main class="max-w-lg mx-auto p-6 pt-12 space-y-5">
         <h1 class="text-3xl font-bold">Your AI privacy choices</h1>
         <p>AI features are optional. With your permission, ReGen28 sends your wellness goals,

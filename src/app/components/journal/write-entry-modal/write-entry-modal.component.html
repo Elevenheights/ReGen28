@@ -1,129 +1,200 @@
 <!-- Premium Write Entry Modal -->
-<ion-header class="ion-no-border shadow-none">
-	<div
-		class="px-6 pt-6 pb-4 bg-white/80 backdrop-blur-md sticky top-0 z-50 flex justify-between items-center border-b border-neutral-100/50">
-		<div class="flex items-center gap-3">
-			<div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
-				<i class="fa-solid fa-pen-nib text-lg"></i>
-			</div>
-			<div>
-				<h2 class="text-2xl font-bold text-neutral-900 tracking-tight">New Entry</h2>
-				<p class="text-xs text-neutral-500 font-medium">{{ getCurrentDate() | date:'EEEE, MMMM d' }}</p>
-			</div>
-		</div>
-		<button (click)="dismiss()"
-			class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 active:scale-90 transition-transform hover:bg-neutral-200">
-			<i class="fa-solid fa-times text-lg"></i>
-		</button>
-	</div>
+<ion-header class="muse-sheet ion-no-border shadow-none">
+  <div
+    class="muse-sheet-header px-6 pt-6 pb-4 bg-white/80 backdrop-blur-md sticky top-0 z-50 flex justify-between items-center border-b border-neutral-100/50"
+  >
+    <div class="flex items-center gap-3">
+      <div
+        class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600"
+      >
+        <i class="fa-solid fa-pen-nib text-lg"></i>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-neutral-900 tracking-tight">
+          New Entry
+        </h2>
+        <p class="text-xs text-neutral-500 font-medium">
+          {{ getCurrentDate() | date: "EEEE, MMMM d" }}
+        </p>
+      </div>
+    </div>
+    <button
+      type="button"
+      (click)="dismiss()"
+      aria-label="Close journal entry"
+      class="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 active:scale-90 transition-transform hover:bg-neutral-200"
+    >
+      <i class="fa-solid fa-times text-lg"></i>
+    </button>
+  </div>
 </ion-header>
 
-<ion-content class="ion-padding-bottom" [fullscreen]="true" [style.--background]="'transparent'">
-	<div class="h-full flex flex-col bg-neutral-50 relative min-h-screen">
-		<div class="px-5 pt-2 pb-32 space-y-6">
+<ion-content
+  class="ion-padding-bottom muse-sheet muse-sheet-content"
+  [fullscreen]="true"
+  [style.--background]="'transparent'"
+>
+  <div
+    class="h-full flex flex-col bg-neutral-50 relative min-h-screen muse-form-content"
+  >
+    <div class="px-5 pt-2 pb-32 space-y-6">
+      <form [formGroup]="entryForm" class="space-y-6">
+        <!-- Prompt (if exists) -->
+        <div
+          *ngIf="prompt"
+          class="bg-gradient-to-br from-purple-50 to-white rounded-2xl p-5 border border-purple-100 shadow-sm animate-entry"
+        >
+          <div class="flex items-center gap-2 mb-2">
+            <i
+              class="fa-solid fa-wand-magic-sparkles text-purple-500 text-sm"
+            ></i>
+            <span
+              class="text-xs font-bold text-purple-600 uppercase tracking-wider"
+              >Writing Prompt</span
+            >
+          </div>
+          <p class="text-lg text-neutral-800 font-serif italic leading-relaxed">
+            "{{ prompt.text }}"
+          </p>
+        </div>
 
-			<form [formGroup]="entryForm" class="space-y-6">
-				<!-- Prompt (if exists) -->
-				<div *ngIf="prompt"
-					class="bg-gradient-to-br from-purple-50 to-white rounded-2xl p-5 border border-purple-100 shadow-sm animate-entry">
-					<div class="flex items-center gap-2 mb-2">
-						<i class="fa-solid fa-wand-magic-sparkles text-purple-500 text-sm"></i>
-						<span class="text-xs font-bold text-purple-600 uppercase tracking-wider">Writing Prompt</span>
-					</div>
-					<p class="text-lg text-neutral-800 font-serif italic leading-relaxed">"{{ prompt.text }}"</p>
-				</div>
+        <!-- Title Input -->
+        <div class="space-y-2 animate-entry delay-100">
+          <input
+            type="text"
+            formControlName="title"
+            placeholder="Give it a title..."
+            aria-label="Journal entry title"
+            class="w-full bg-transparent text-2xl font-bold text-neutral-900 placeholder-neutral-300 border-none focus:ring-0 p-0"
+          />
+        </div>
 
-				<!-- Title Input -->
-				<div class="space-y-2 animate-entry delay-100">
-					<input type="text" formControlName="title" placeholder="Give it a title..."
-						class="w-full bg-transparent text-2xl font-bold text-neutral-900 placeholder-neutral-300 border-none focus:ring-0 p-0">
-				</div>
+        <!-- Category Selection -->
+        <div class="animate-entry delay-150">
+          <div class="flex flex-wrap gap-2">
+            <button
+              *ngFor="let cat of categories"
+              type="button"
+              (click)="entryForm.patchValue({ category: cat })"
+              class="px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 border flex items-center gap-2"
+              [class.bg-neutral-900]="entryForm.get('category')?.value === cat"
+              [class.text-white]="entryForm.get('category')?.value === cat"
+              [class.border-neutral-900]="
+                entryForm.get('category')?.value === cat
+              "
+              [class.bg-white]="entryForm.get('category')?.value !== cat"
+              [class.text-neutral-500]="
+                entryForm.get('category')?.value !== cat
+              "
+              [class.border-neutral-200]="
+                entryForm.get('category')?.value !== cat
+              "
+            >
+              <i class="fa-solid {{ getCategoryIcon(cat) }}"></i>
+              {{ cat | titlecase }}
+            </button>
+          </div>
+        </div>
 
-				<!-- Category Selection -->
-				<div class="animate-entry delay-150">
-					<div class="flex flex-wrap gap-2">
-						<button *ngFor="let cat of categories" type="button"
-							(click)="entryForm.patchValue({ category: cat })"
-							class="px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 border flex items-center gap-2"
-							[class.bg-neutral-900]="entryForm.get('category')?.value === cat"
-							[class.text-white]="entryForm.get('category')?.value === cat"
-							[class.border-neutral-900]="entryForm.get('category')?.value === cat"
-							[class.bg-white]="entryForm.get('category')?.value !== cat"
-							[class.text-neutral-500]="entryForm.get('category')?.value !== cat"
-							[class.border-neutral-200]="entryForm.get('category')?.value !== cat">
-							<i class="fa-solid {{ getCategoryIcon(cat) }}"></i>
-							{{ cat | titlecase }}
-						</button>
-					</div>
-				</div>
+        <!-- Rich Content Area -->
+        <div
+          class="bg-white rounded-3xl p-1 border border-neutral-100 shadow-sm animate-entry delay-200 min-h-[300px] flex flex-col relative focus-within:ring-2 focus-within:ring-purple-100 transition-all"
+        >
+          <ion-textarea
+            formControlName="content"
+            placeholder="Start writing..."
+            rows="12"
+            aria-label="Journal entry content"
+            class="flex-1 text-neutral-800 leading-relaxed font-normal text-base h-full p-4 custom-textarea"
+            fill="none"
+          >
+          </ion-textarea>
+        </div>
 
-				<!-- Rich Content Area -->
-				<div
-					class="bg-white rounded-3xl p-1 border border-neutral-100 shadow-sm animate-entry delay-200 min-h-[300px] flex flex-col relative focus-within:ring-2 focus-within:ring-purple-100 transition-all">
-					<ion-textarea formControlName="content" placeholder="Start writing..." rows="12"
-						class="flex-1 text-neutral-800 leading-relaxed font-normal text-base h-full p-4 custom-textarea"
-						fill="none">
-					</ion-textarea>
+        <!-- Mood & energy (Mood & Energy) -->
+        <div class="space-y-4 animate-entry delay-300">
+          <div class="flex items-center gap-3">
+            <div class="h-px bg-neutral-200 flex-1"></div>
+            <span
+              class="text-xs font-bold text-neutral-400 uppercase tracking-widest"
+              >Mood & energy</span
+            >
+            <div class="h-px bg-neutral-200 flex-1"></div>
+          </div>
 
-					<!-- Toolbar (Visual only for now, could be functional) -->
-					<div class="px-4 py-3 border-t border-neutral-100 flex items-center gap-4 text-neutral-400">
-						<i class="fa-regular fa-image hover:text-neutral-600 cursor-pointer transition-colors"></i>
-						<i class="fa-solid fa-microphone hover:text-neutral-600 cursor-pointer transition-colors"></i>
-						<i class="fa-regular fa-face-smile hover:text-neutral-600 cursor-pointer transition-colors"></i>
-					</div>
-				</div>
+          <div class="grid grid-cols-2 gap-3">
+            <!-- Mood Card -->
+            <div
+              class="bg-white rounded-2xl p-4 border border-neutral-100 shadow-sm"
+            >
+              <div class="flex justify-between items-center mb-4">
+                <span class="text-xs font-bold text-neutral-500">Mood</span>
+                <span class="text-2xl animate-bounce">{{
+                  getMoodEmoji(entryForm.get("mood")?.value)
+                }}</span>
+              </div>
+              <ion-range
+                formControlName="mood"
+                min="1"
+                max="10"
+                step="1"
+                aria-label="Mood, 1 to 10"
+                class="clean-range-sm range-mood"
+              ></ion-range>
+            </div>
 
-				<!-- Vibe Check (Mood & Energy) -->
-				<div class="space-y-4 animate-entry delay-300">
-					<div class="flex items-center gap-3">
-						<div class="h-px bg-neutral-200 flex-1"></div>
-						<span class="text-xs font-bold text-neutral-400 uppercase tracking-widest">Vibe Check</span>
-						<div class="h-px bg-neutral-200 flex-1"></div>
-					</div>
-
-					<div class="grid grid-cols-2 gap-3">
-						<!-- Mood Card -->
-						<div class="bg-white rounded-2xl p-4 border border-neutral-100 shadow-sm">
-							<div class="flex justify-between items-center mb-4">
-								<span class="text-xs font-bold text-neutral-500">Mood</span>
-								<span class="text-2xl animate-bounce">{{ getMoodEmoji(entryForm.get('mood')?.value)
-									}}</span>
-							</div>
-							<ion-range formControlName="mood" min="1" max="10" step="1"
-								class="clean-range-sm range-mood"></ion-range>
-						</div>
-
-						<!-- Energy Card -->
-						<div class="bg-white rounded-2xl p-4 border border-neutral-100 shadow-sm">
-							<div class="flex justify-between items-center mb-4">
-								<span class="text-xs font-bold text-neutral-500">Energy</span>
-								<div class="flex items-center gap-1">
-									<i class="fa-solid fa-bolt text-amber-500 text-sm"></i>
-									<span class="text-sm font-bold text-amber-500">{{ entryForm.get('energy')?.value
-										}}/5</span>
-								</div>
-							</div>
-							<ion-range formControlName="energy" min="1" max="5" step="1" class="clean-range-sm"
-								color="warning"></ion-range>
-						</div>
-					</div>
-				</div>
-
-			</form>
-		</div>
-	</div>
+            <!-- Energy Card -->
+            <div
+              class="bg-white rounded-2xl p-4 border border-neutral-100 shadow-sm"
+            >
+              <div class="flex justify-between items-center mb-4">
+                <span class="text-xs font-bold text-neutral-500">Energy</span>
+                <div class="flex items-center gap-1">
+                  <i class="fa-solid fa-bolt text-amber-500 text-sm"></i>
+                  <span class="text-sm font-bold text-amber-500"
+                    >{{ entryForm.get("energy")?.value }}/5</span
+                  >
+                </div>
+              </div>
+              <ion-range
+                formControlName="energy"
+                min="1"
+                max="5"
+                step="1"
+                class="clean-range-sm"
+                aria-label="Energy, 1 to 5"
+                color="warning"
+              ></ion-range>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 </ion-content>
 
 <!-- Floating Footer -->
-<ion-footer class="ion-no-border bg-transparent shadow-none">
-	<div class="px-6 pb-6 pt-2">
-		<button (click)="save()" [disabled]="entryForm.invalid || isSaving"
-			class="w-full bg-neutral-900 text-white rounded-2xl py-4 font-bold shadow-xl shadow-neutral-900/20 active:scale-95 transition-transform flex items-center justify-center gap-2 border border-white/10 relative overflow-hidden group">
-			<div *ngIf="isSaving" class="absolute inset-0 flex items-center justify-center bg-neutral-900 z-10">
-				<div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-			</div>
-			<span class="group-hover:translate-x-1 transition-transform">Save Journal Entry</span>
-			<i class="fa-solid fa-check group-hover:translate-x-1 transition-transform"></i>
-		</button>
-	</div>
+<ion-footer class="ion-no-border bg-transparent shadow-none muse-sheet-footer">
+  <div class="px-6 pb-6 pt-2">
+    <button
+      (click)="save()"
+      [disabled]="entryForm.invalid || isSaving"
+      class="w-full bg-neutral-900 text-white rounded-2xl py-4 font-bold shadow-xl shadow-neutral-900/20 active:scale-95 transition-transform flex items-center justify-center gap-2 border border-white/10 relative overflow-hidden group"
+    >
+      <div
+        *ngIf="isSaving"
+        class="absolute inset-0 flex items-center justify-center bg-neutral-900 z-10"
+      >
+        <div
+          class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"
+        ></div>
+      </div>
+      <span class="group-hover:translate-x-1 transition-transform"
+        >Save Journal Entry</span
+      >
+      <i
+        class="fa-solid fa-check group-hover:translate-x-1 transition-transform"
+      ></i>
+    </button>
+  </div>
 </ion-footer>

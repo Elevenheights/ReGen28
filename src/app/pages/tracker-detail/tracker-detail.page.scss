@@ -1,39 +1,241 @@
-/* Safe Area Padding for Status Bar overlap */
-.pt-safe-top {
-	padding-top: max(20px, env(safe-area-inset-top));
+:host {
+  display: block;
 }
-
-/* Smooth Fade In Animation */
-@keyframes fadeInUp {
-	from {
-		opacity: 0;
-		transform: translate3d(0, 20px, 0);
-	}
-
-	to {
-		opacity: 1;
-		transform: translate3d(0, 0, 0);
-	}
+.detail-page {
+  max-width: 720px;
+  margin: auto;
+  padding: calc(env(safe-area-inset-top) + 20px) 24px
+    calc(env(safe-area-inset-bottom) + 32px);
+  color: #f1e8ff;
 }
-
-.animate-fade-in-up {
-	animation: fadeInUp 0.5s ease-out forwards;
+.detail-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
 }
-
-/* Custom Scrollbar Hiding */
-ion-content {
-	--background: #fafafa;
+.detail-toolbar > span {
+  font-size: 22px;
+  font-weight: 550;
+  letter-spacing: -1px;
 }
-
-/* Fix for overlapping elements with Ionic z-index */
-.z-10 {
-	z-index: 10;
+.detail-toolbar em {
+  font-style: normal;
+  color: #b9f3d1;
 }
-
-.z-20 {
-	z-index: 20;
+.detail-toolbar button {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #b5a0d34d;
+  background: transparent;
+  color: #ede2fc;
+  border-radius: 50%;
+  font-size: 23px;
 }
-
-.z-50 {
-	z-index: 50;
+.detail-heading p {
+  font-size: 11px;
+  color: #c3afd9;
+  margin: 0 0 12px;
+}
+.detail-heading h1 {
+  font-size: 38px;
+  line-height: 1.05;
+  font-weight: 500;
+  letter-spacing: -1.3px;
+  margin: 0 0 16px;
+  color: #f1e8ff;
+  overflow-wrap: anywhere;
+}
+.detail-heading > span {
+  font-size: 13px;
+  color: #bca7d3;
+}
+.detail-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 24px;
+  background: linear-gradient(130deg, #efe7ff, #d6c7ef);
+  color: #2c1e4b;
+  border-radius: 28px;
+  margin: 28px 0;
+}
+.detail-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.detail-stats strong {
+  font:
+    400 52px/1 Georgia,
+    serif;
+  letter-spacing: -2px;
+}
+.detail-stats span {
+  font-size: 11px;
+  color: #715585;
+}
+.detail-stats button {
+  grid-column: 1/-1;
+  background: #5945df;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 20px;
+  min-height: 50px;
+  border-radius: 28px;
+  font-size: 15px;
+}
+.detail-stats button span {
+  color: #fff;
+  font-size: 19px;
+}
+.tracker-coaching {
+  background: #eee6fc;
+  padding: 22px;
+  border-radius: 26px;
+  color: #36224f;
+}
+.detail-section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.detail-section-title h2 {
+  font-size: 22px;
+  letter-spacing: -0.5px;
+  font-weight: 500;
+  margin: 0;
+  color: #36224f;
+}
+.detail-section-title > span {
+  font-size: 28px;
+  color: #69508e;
+}
+.history-heading {
+  margin: 30px 0 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.history-heading h2 {
+  color: #eee5fb;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+.history-views {
+  display: flex;
+  border: 1px solid #a68ac14d;
+  padding: 3px;
+  border-radius: 26px;
+}
+.history-views button {
+  padding: 9px 12px;
+  min-height: 38px;
+  font-size: 11px;
+  background: transparent;
+  color: #b9a2d0;
+  border-radius: 22px;
+}
+.history-views button[aria-pressed="true"] {
+  background: #d2c0ea;
+  color: #38244e;
+}
+.entry-day {
+  margin-bottom: 22px;
+}
+.entry-day-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+  color: #c5afd9;
+  margin: 0 0 12px;
+}
+.entry-day-label span {
+  color: #b9f3d1;
+}
+.history-entry {
+  margin-bottom: 10px;
+  padding: 20px;
+  background: #302441;
+  border: 1px solid #ae8dcb2e;
+  border-radius: 22px;
+}
+.entry-main {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+}
+.entry-main strong {
+  font:
+    400 28px Georgia,
+    serif;
+  color: #e6d9f8;
+}
+.entry-main time {
+  font-size: 10px;
+  color: #bfa8d3;
+}
+.entry-context {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 10px;
+  color: #c5afd9;
+}
+.history-entry p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #d5c2e7;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  margin: 12px 0 0;
+}
+.detail-empty {
+  text-align: center;
+  padding: 30px 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #c8b3dd;
+}
+.detail-empty h2 {
+  font-size: 26px;
+  font-weight: 500;
+  color: #f0e5fc;
+}
+.detail-empty button {
+  min-height: 48px;
+  border-radius: 26px;
+  padding: 14px 22px;
+  background: #b9f3d1;
+  color: #2e2045;
+}
+.tracker-management {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  justify-content: center;
+  margin-top: 30px;
+}
+.tracker-management button {
+  background: transparent;
+  min-height: 44px;
+  font-size: 11px;
+  color: #c2add6;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.tracker-management .delete-link {
+  color: #ecb3c7;
+}
+button:focus-visible {
+  outline: 3px solid #9dd9bd;
+  outline-offset: 3px;
 }

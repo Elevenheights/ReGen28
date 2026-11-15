@@ -68,8 +68,8 @@
 				<div *ngFor="let challenge of completedChallenges" (click)="onViewDetails(challenge.tracker)"
 					class="flex-shrink-0 w-40 bg-white rounded-2xl p-3 shadow-sm border border-neutral-100 cursor-pointer hover:shadow-md transition-all">
 					<div class="flex items-center space-x-2 mb-2">
-						<div class="w-8 h-8 rounded-lg flex items-center justify-center"
-							[style.background]="challenge.tracker.color || getCategoryColor(challenge.tracker.category)">
+						<div class="challenge-icon w-8 h-8 rounded-lg flex items-center justify-center"
+							[style.--tracker-accent]="challenge.tracker.color || getCategoryColor(challenge.tracker.category)">
 							<i
 								[class]="'fa-solid ' + (challenge.tracker.icon || getCategoryIcon(challenge.tracker.category)) + ' text-white text-sm'"></i>
 						</div>
@@ -95,8 +95,8 @@
 
 					<div class="flex items-start space-x-4">
 						<!-- Icon -->
-						<div class="w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
-							[style.background]="'linear-gradient(135deg, ' + (challenge.tracker.color || getCategoryColor(challenge.tracker.category)) + ', ' + (challenge.tracker.color || getCategoryColor(challenge.tracker.category)) + '90)'">
+						<div class="challenge-icon w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0"
+							[style.--tracker-accent]="challenge.tracker.color || getCategoryColor(challenge.tracker.category)">
 							<i
 								[class]="'fa-solid ' + (challenge.tracker.icon || getCategoryIcon(challenge.tracker.category)) + ' text-white text-xl'"></i>
 						</div>

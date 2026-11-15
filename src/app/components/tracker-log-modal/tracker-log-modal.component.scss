@@ -1,4 +1,7 @@
 // TrackerLogModal Component Styles
+.logging-amount { display:flex; align-items:baseline; justify-content:center; gap:12px; color:#33204e; }
+.logging-amount-value { font:400 76px/1 Georgia,serif; letter-spacing:-4px; }
+.logging-amount-unit { font:italic 400 28px/1.1 Georgia,serif; }
 
 // Variables
 $sheet-radius: 2rem;

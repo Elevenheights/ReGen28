@@ -4,16 +4,18 @@
     <ion-text>
       <p class="progress-text">Step 4 of 5</p>
     </ion-text>
-    <ion-progress-bar [value]="progressPercentage / 100" color="warning"></ion-progress-bar>
+    <ion-progress-bar [value]="progressPercentage / 100"></ion-progress-bar>
   </div>
 
   <!-- Main content -->
   <div class="onboarding-container wide">
     <div class="onboarding-header">
-      <h1>Select Your Daily Activities</h1>
+      <h1>Choose your trackers.</h1>
       <p>Choose at least 3 habits to track during your 28-day journey</p>
       <div class="counter">
-        <ion-chip [class]="enabledTrackersCount >= 3 ? 'onboarding-chip success' : 'onboarding-chip'">
+        <ion-chip
+          [class]="enabledTrackersCount >= 3 ? 'onboarding-chip success' : 'onboarding-chip'"
+        >
           {{ enabledTrackersCount }}/3 minimum selected
         </ion-chip>
       </div>
@@ -23,169 +25,218 @@
     <div class="trackers-section">
       <ion-grid>
         <ion-row>
-          <ion-col size="12" size-md="6" *ngFor="let tracker of availableTrackers">
-                         <ion-card 
-               class="onboarding-card interactive"
-               [class.selected]="isTrackerSelected(tracker.id)"
-               [class.recommended]="isRecommended(tracker.id)"
-               (click)="toggleTracker(tracker)">
-               <ion-card-content>
-                 <div class="tracker-content">
-                   <div class="tracker-header">
-                     <div class="icon-name">
-                       <span class="tracker-icon">{{ tracker.icon }}</span>
-                       <div class="tracker-info">
-                         <h3>{{ tracker.name }}</h3>
-                         <p class="category">{{ tracker.category }} • {{ getFrequencyText(tracker.frequency) }}</p>
-                       </div>
-                     </div>
-                     <div class="onboarding-check-indicator">
-                       <ion-icon 
-                         name="checkmark" 
-                         *ngIf="isTrackerSelected(tracker.id)">
-                       </ion-icon>
-                     </div>
-                   </div>
-                   
-                   <!-- Target adjustment -->
-                   <div class="target-section" *ngIf="isTrackerSelected(tracker.id)">
-                     <div class="target-controls">
-                       <p class="target-label">{{ getFrequencyLabel(tracker.frequency) }} Goal:</p>
-                       <div class="target-input">
-                         <ion-button 
-                           fill="clear" 
-                           size="small"
-                           (click)="updateTrackerTarget(tracker.id, -1); $event.stopPropagation()">
-                           <ion-icon name="remove"></ion-icon>
-                         </ion-button>
-                         <span class="target-value">
-                           {{ getTrackerTarget(tracker.id) }} {{ tracker.unit }} {{ getFrequencyText(tracker.frequency) }}
-                         </span>
-                         <ion-button 
-                           fill="clear" 
-                           size="small"
-                           (click)="updateTrackerTarget(tracker.id, 1); $event.stopPropagation()">
-                           <ion-icon name="add"></ion-icon>
-                         </ion-button>
-                       </div>
-                     </div>
+          <ion-col
+            size="12"
+            size-md="6"
+            *ngFor="let tracker of availableTrackers"
+          >
+            <ion-card
+              class="onboarding-card interactive"
+              [class.selected]="isTrackerSelected(tracker.id)"
+              [class.recommended]="isRecommended(tracker.id)"
+              role="button"
+              tabindex="0"
+              [attr.aria-pressed]="isTrackerSelected(tracker.id)"
+              [attr.aria-label]="tracker.name"
+              (keydown.enter)="$event.target === $event.currentTarget && toggleTracker(tracker)"
+              (keydown.space)="$event.target === $event.currentTarget && $event.preventDefault(); $event.target === $event.currentTarget && toggleTracker(tracker)"
+              (click)="toggleTracker(tracker)"
+            >
+              <ion-card-content>
+                <div class="tracker-content">
+                  <div class="tracker-header">
+                    <div class="icon-name">
+                      <span class="tracker-icon">{{ tracker.icon }}</span>
+                      <div class="tracker-info">
+                        <h3>{{ tracker.name }}</h3>
+                        <p class="category">
+                          {{ tracker.category }} • {{
+                          getFrequencyText(tracker.frequency) }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="onboarding-check-indicator">
+                      <ion-icon
+                        name="checkmark"
+                        *ngIf="isTrackerSelected(tracker.id)"
+                      >
+                      </ion-icon>
+                    </div>
+                  </div>
 
-                     <!-- Tracker Mode Selection -->
-                     <div class="tracker-mode-section">
-                       <p class="mode-section-label">Tracking Style:</p>
-                       
-                       <!-- Segmented Mode Toggle -->
-                       <div class="mode-toggle-container">
-                         <button type="button" class="mode-option"
-                              [attr.aria-pressed]="!isTrackerOngoing(tracker.id)"
-                              [class.selected]="!isTrackerOngoing(tracker.id)"
-                              (click)="setTrackerMode(tracker.id, false); $event.stopPropagation()">
-                           <div class="mode-icon">🎯</div>
-                           <div class="mode-text">
-                             <h4>Challenge</h4>
-                             <p>Time-limited goal</p>
-                           </div>
-                         </button>
-                         
-                         <button type="button" class="mode-option"
-                              [attr.aria-pressed]="isTrackerOngoing(tracker.id)"
-                              [class.selected]="isTrackerOngoing(tracker.id)"
-                              (click)="setTrackerMode(tracker.id, true); $event.stopPropagation()">
-                           <div class="mode-icon">♾️</div>
-                           <div class="mode-text">
-                             <h4>Ongoing</h4>
-                             <p>Continuous habit</p>
-                           </div>
-                         </button>
-                       </div>
+                  <!-- Target adjustment -->
+                  <div
+                    class="target-section"
+                    *ngIf="isTrackerSelected(tracker.id)"
+                  >
+                    <div class="target-controls">
+                      <p class="target-label">
+                        {{ getFrequencyLabel(tracker.frequency) }} Goal:
+                      </p>
+                      <div class="target-input">
+                        <ion-button
+                          fill="clear"
+                          size="small"
+                          (click)="updateTrackerTarget(tracker.id, -1); $event.stopPropagation()"
+                        >
+                          <ion-icon name="remove"></ion-icon>
+                        </ion-button>
+                        <span class="target-value">
+                          {{ getTrackerTarget(tracker.id) }} {{ tracker.unit }}
+                          {{ getFrequencyText(tracker.frequency) }}
+                        </span>
+                        <ion-button
+                          fill="clear"
+                          size="small"
+                          (click)="updateTrackerTarget(tracker.id, 1); $event.stopPropagation()"
+                        >
+                          <ion-icon name="add"></ion-icon>
+                        </ion-button>
+                      </div>
+                    </div>
 
-                       <!-- Challenge Duration Controls -->
-                       <div class="duration-settings" *ngIf="!isTrackerOngoing(tracker.id)">
-                         <div class="duration-header">
-                           <p class="duration-label">Challenge Duration:</p>
-                           <div class="duration-controls-row">
-                             <ion-button 
-                               fill="clear" 
-                               size="small"
-                               [disabled]="getTrackerDuration(tracker.id) <= 7"
-                               (click)="updateTrackerDuration(tracker.id, -7); $event.stopPropagation()">
-                               <ion-icon name="remove"></ion-icon>
-                             </ion-button>
-                             <span class="duration-display">
-                               <strong>{{ getTrackerDuration(tracker.id) }}</strong> days
-                             </span>
-                             <ion-button 
-                               fill="clear" 
-                               size="small"
-                               [disabled]="getTrackerDuration(tracker.id) >= 365"
-                               (click)="updateTrackerDuration(tracker.id, 7); $event.stopPropagation()">
-                               <ion-icon name="add"></ion-icon>
-                             </ion-button>
-                           </div>
-                         </div>
-                         
-                         <!-- Quick Duration Presets -->
-                         <div class="duration-presets">
-                           <ion-chip 
-                             size="small"
-                             [class.preset-selected]="getTrackerDuration(tracker.id) === 7"
-                             (click)="setTrackerDuration(tracker.id, 7); $event.stopPropagation()">
-                             1 week
-                           </ion-chip>
-                           <ion-chip 
-                             size="small"
-                             [class.preset-selected]="getTrackerDuration(tracker.id) === 21"
-                             (click)="setTrackerDuration(tracker.id, 21); $event.stopPropagation()">
-                             3 weeks
-                           </ion-chip>
-                           <ion-chip 
-                             size="small"
-                             [class.preset-selected]="getTrackerDuration(tracker.id) === 28"
-                             (click)="setTrackerDuration(tracker.id, 28); $event.stopPropagation()">
-                             4 weeks
-                           </ion-chip>
-                           <ion-chip 
-                             size="small"
-                             [class.preset-selected]="getTrackerDuration(tracker.id) === 90"
-                             (click)="setTrackerDuration(tracker.id, 90); $event.stopPropagation()">
-                             3 months
-                           </ion-chip>
-                         </div>
-                         
-                         <p class="duration-description">
-                           {{ getDurationDescription(getTrackerDuration(tracker.id)) }}
-                         </p>
-                       </div>
+                    <!-- Tracker Mode Selection -->
+                    <div class="tracker-mode-section">
+                      <p class="mode-section-label">Tracking Style:</p>
 
-                       <!-- Ongoing Mode Info -->
-                       <div class="ongoing-settings" *ngIf="isTrackerOngoing(tracker.id)">
-                         <div class="ongoing-benefits">
-                           <div class="benefit-item">
-                             <ion-icon name="infinite-outline"></ion-icon>
-                             <span>No time pressure</span>
-                           </div>
-                           <div class="benefit-item">
-                             <ion-icon name="trending-up-outline"></ion-icon>
-                             <span>Focus on consistency</span>
-                           </div>
-                           <div class="benefit-item">
-                             <ion-icon name="refresh-outline"></ion-icon>
-                             <span>Lifetime habit building</span>
-                           </div>
-                         </div>
-                       </div>
-                     </div>
-                   </div>
+                      <!-- Segmented Mode Toggle -->
+                      <div class="mode-toggle-container">
+                        <button
+                          type="button"
+                          class="mode-option"
+                          [attr.aria-pressed]="!isTrackerOngoing(tracker.id)"
+                          [class.selected]="!isTrackerOngoing(tracker.id)"
+                          (click)="setTrackerMode(tracker.id, false); $event.stopPropagation()"
+                        >
+                          <div class="mode-icon">🎯</div>
+                          <div class="mode-text">
+                            <h4>Challenge</h4>
+                            <p>Time-limited goal</p>
+                          </div>
+                        </button>
 
-                   <!-- Recommended badge -->
-                   <div class="recommended-badge" *ngIf="isRecommended(tracker.id)">
-                     <ion-chip class="onboarding-chip recommended" size="small">
-                       Recommended for you
-                     </ion-chip>
-                   </div>
-                 </div>
-               </ion-card-content>
-             </ion-card>
+                        <button
+                          type="button"
+                          class="mode-option"
+                          [attr.aria-pressed]="isTrackerOngoing(tracker.id)"
+                          [class.selected]="isTrackerOngoing(tracker.id)"
+                          (click)="setTrackerMode(tracker.id, true); $event.stopPropagation()"
+                        >
+                          <div class="mode-icon">♾️</div>
+                          <div class="mode-text">
+                            <h4>Ongoing</h4>
+                            <p>Continuous habit</p>
+                          </div>
+                        </button>
+                      </div>
+
+                      <!-- Challenge Duration Controls -->
+                      <div
+                        class="duration-settings"
+                        *ngIf="!isTrackerOngoing(tracker.id)"
+                      >
+                        <div class="duration-header">
+                          <p class="duration-label">Challenge Duration:</p>
+                          <div class="duration-controls-row">
+                            <ion-button
+                              fill="clear"
+                              size="small"
+                              [disabled]="getTrackerDuration(tracker.id) <= 7"
+                              (click)="updateTrackerDuration(tracker.id, -7); $event.stopPropagation()"
+                            >
+                              <ion-icon name="remove"></ion-icon>
+                            </ion-button>
+                            <span class="duration-display">
+                              <strong
+                                >{{ getTrackerDuration(tracker.id) }}</strong
+                              >
+                              days
+                            </span>
+                            <ion-button
+                              fill="clear"
+                              size="small"
+                              [disabled]="getTrackerDuration(tracker.id) >= 365"
+                              (click)="updateTrackerDuration(tracker.id, 7); $event.stopPropagation()"
+                            >
+                              <ion-icon name="add"></ion-icon>
+                            </ion-button>
+                          </div>
+                        </div>
+
+                        <!-- Quick Duration Presets -->
+                        <div class="duration-presets">
+                          <ion-chip
+                            size="small"
+                            [class.preset-selected]="getTrackerDuration(tracker.id) === 7"
+                            (click)="setTrackerDuration(tracker.id, 7); $event.stopPropagation()"
+                          >
+                            1 week
+                          </ion-chip>
+                          <ion-chip
+                            size="small"
+                            [class.preset-selected]="getTrackerDuration(tracker.id) === 21"
+                            (click)="setTrackerDuration(tracker.id, 21); $event.stopPropagation()"
+                          >
+                            3 weeks
+                          </ion-chip>
+                          <ion-chip
+                            size="small"
+                            [class.preset-selected]="getTrackerDuration(tracker.id) === 28"
+                            (click)="setTrackerDuration(tracker.id, 28); $event.stopPropagation()"
+                          >
+                            4 weeks
+                          </ion-chip>
+                          <ion-chip
+                            size="small"
+                            [class.preset-selected]="getTrackerDuration(tracker.id) === 90"
+                            (click)="setTrackerDuration(tracker.id, 90); $event.stopPropagation()"
+                          >
+                            3 months
+                          </ion-chip>
+                        </div>
+
+                        <p class="duration-description">
+                          {{
+                          getDurationDescription(getTrackerDuration(tracker.id))
+                          }}
+                        </p>
+                      </div>
+
+                      <!-- Ongoing Mode Info -->
+                      <div
+                        class="ongoing-settings"
+                        *ngIf="isTrackerOngoing(tracker.id)"
+                      >
+                        <div class="ongoing-benefits">
+                          <div class="benefit-item">
+                            <ion-icon name="infinite-outline"></ion-icon>
+                            <span>No time pressure</span>
+                          </div>
+                          <div class="benefit-item">
+                            <ion-icon name="trending-up-outline"></ion-icon>
+                            <span>Focus on consistency</span>
+                          </div>
+                          <div class="benefit-item">
+                            <ion-icon name="refresh-outline"></ion-icon>
+                            <span>Lifetime habit building</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Recommended badge -->
+                  <div
+                    class="recommended-badge"
+                    *ngIf="isRecommended(tracker.id)"
+                  >
+                    <ion-chip class="onboarding-chip recommended" size="small">
+                      Recommended for you
+                    </ion-chip>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -197,10 +248,22 @@
         <ion-card-content>
           <p><strong>💡 Pro Tips:</strong></p>
           <ul class="tip-list">
-            <li><strong>Start with 3-5 activities</strong> for sustainable habit building</li>
-            <li><strong>Choose Challenges</strong> 🎯 for focused habit formation with clear goals</li>
-            <li><strong>Pick Ongoing</strong> ♾️ for lifestyle habits you want to maintain long-term</li>
-            <li><strong>Mix both types</strong> - challenges for new habits, ongoing for established ones</li>
+            <li>
+              <strong>Start with 3-5 activities</strong> for sustainable habit
+              building
+            </li>
+            <li>
+              <strong>Choose Challenges</strong> 🎯 for focused habit formation
+              with clear goals
+            </li>
+            <li>
+              <strong>Pick Ongoing</strong> ♾️ for lifestyle habits you want to
+              maintain long-term
+            </li>
+            <li>
+              <strong>Mix both types</strong> - challenges for new habits,
+              ongoing for established ones
+            </li>
           </ul>
         </ion-card-content>
       </ion-card>
@@ -208,20 +271,22 @@
 
     <!-- Navigation -->
     <div class="onboarding-buttons">
-      <ion-button 
+      <ion-button
         expand="block"
         class="primary-action"
         [disabled]="!canContinue"
-        (click)="onContinue()">
+        (click)="onContinue()"
+      >
         <span>Continue</span>
         <ion-icon name="arrow-forward" slot="end"></ion-icon>
       </ion-button>
-      
-      <ion-button 
-        fill="clear" 
+
+      <ion-button
+        fill="clear"
         expand="block"
         class="secondary-action"
-        (click)="onPrevious()">
+        (click)="onPrevious()"
+      >
         <ion-icon name="arrow-back" slot="start"></ion-icon>
         Back
       </ion-button>
